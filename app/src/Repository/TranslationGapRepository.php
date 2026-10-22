@@ -20,6 +20,7 @@ final class TranslationGapRepository
         'products' => ['ສິນຄ້າ', 'products', 'name', 'is_visible = 1', ['summary' => 'ຄຳອະທິບາຍສັ້ນ', 'body' => 'ລາຍລະອຽດ', 'seo_title' => 'ຫົວຂໍ້ SEO', 'seo_desc' => 'ຄຳອະທິບາຍ SEO']],
         'suppliers' => ['ຜູ້ສະໜອງ', 'suppliers', 'name', 'is_visible = 1', ['summary' => 'ຄຳອະທິບາຍສັ້ນ', 'about' => 'ກ່ຽວກັບ']],
         'news' => ['ຂ່າວ', 'news', 'title_lo', "status = 'published'", ['title' => 'ຫົວຂໍ້', 'summary' => 'ສະຫຼຸບ', 'body' => 'ເນື້ອຫາ']],
+        'faqs' => ['FAQ', 'faqs', 'question_lo', 'is_visible = 1', ['question' => 'ຄຳຖາມ', 'answer' => 'ຄຳຕອບ']],
         'downloads' => ['ໄຟລ໌ດາວໂຫຼດ', 'downloads', 'title_lo', 'is_visible = 1', ['title' => 'ຊື່', 'summary' => 'ຄຳອະທິບາຍສັ້ນ']],
     ];
 

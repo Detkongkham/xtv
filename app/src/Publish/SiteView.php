@@ -211,6 +211,20 @@ final class SiteView
         return 'https://www.google.com/maps?q=' . $this->mapQuery() . '&output=embed';
     }
 
+    /**
+     * Escaped plain text from the admin with the contact details filled in, so they follow the settings:
+     * {tel} {mobile} {email} {address}. A blank line starts a new paragraph inside the same <p>, as <br><br>.
+     */
+    public function withContact(string $text): string
+    {
+        return strtr(nl2br($this->e(trim($text)), false), [
+            '{tel}' => $this->e($this->contact('tel')),
+            '{mobile}' => $this->e($this->contact('mobile')),
+            '{email}' => $this->e($this->contact('email')),
+            '{address}' => $this->address(),
+        ]);
+    }
+
     private function mapQuery(): string
     {
         return str_replace(' ', '+', $this->e((string) ($this->data->setting('map')['query'] ?? '')));

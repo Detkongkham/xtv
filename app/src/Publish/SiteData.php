@@ -25,6 +25,7 @@ final class SiteData
     private array $settings = [];
     private array $redirects = [];
     private array $downloads = [];
+    private array $faqs = [];
 
     private function __construct(array $t)
     {
@@ -92,12 +93,13 @@ final class SiteData
                 $this->downloads[] = $dl;
             }
         }
+        $this->faqs = $sorted($visible($t['faqs'] ?? []));
     }
 
     public static function fromDb(Db $db): self
     {
         $tables = [];
-        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects', 'downloads'] as $table) {
+        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects', 'downloads', 'faqs'] as $table) {
             $tables[$table] = $db->all('SELECT * FROM `' . $table . '`');
         }
         $tables['settings'] = [];
@@ -245,6 +247,12 @@ final class SiteData
     public function downloads(): array
     {
         return $this->downloads;
+    }
+
+    /** @return list<array> visible questions in order */
+    public function faqs(): array
+    {
+        return $this->faqs;
     }
 
     public function divisionById(?int $id): ?array

@@ -1738,6 +1738,68 @@
    "body_zh": ""
   }
  ],
+ "faqs": [
+  {
+   "id": 1,
+   "question_lo": "ສອບຖາມລາຄາສິນຄ້າໄດ້ແນວໃດ?",
+   "question_en": "How do I ask about prices?",
+   "question_th": "สอบถามราคาสินค้าได้อย่างไร?",
+   "question_zh": "如何咨询产品价格？",
+   "answer_lo": "ສົ່ງຂໍ້ຄວາມຜ່ານແບບຟອມຕິດຕໍ່ໃນເວັບໄຊ, ທາງ WhatsApp ຫຼື ໂທຫາສຳນັກງານຂອງພວກເຮົາ.",
+   "answer_en": "Send us a message through the contact form on this site, on WhatsApp or call our office.",
+   "answer_th": "ส่งข้อความผ่านแบบฟอร์มติดต่อในเว็บไซต์ ทาง WhatsApp หรือโทรหาสำนักงานของเรา",
+   "answer_zh": "通过本网站的联系表单、WhatsApp 留言或致电我们的办公室。",
+   "sort": 10
+  },
+  {
+   "id": 2,
+   "question_lo": "XTK ຈຳໜ່າຍຜະລິດຕະພັນປະເພດໃດແດ່?",
+   "question_en": "What kinds of products does XTK supply?",
+   "question_th": "XTK จำหน่ายผลิตภัณฑ์ประเภทใดบ้าง?",
+   "question_zh": "XTK 供应哪些产品？",
+   "answer_lo": "ຢາ, ອຸປະກອນການແພດ, ອຸປະກອນຫ້ອງວິເຄາະ ແລະ ນ້ຳຢາ, ເຄື່ອງໃຊ້ສິ້ນເປືອງ ແລະ ອຸປະກອນຮັກສາຄວາມປອດໄພ.",
+   "answer_en": "Pharmaceuticals, medical equipment, laboratory equipment and reagents, consumables, and security equipment.",
+   "answer_th": "ยา เครื่องมือแพทย์ อุปกรณ์ห้องปฏิบัติการและน้ำยา วัสดุสิ้นเปลือง และอุปกรณ์รักษาความปลอดภัย",
+   "answer_zh": "药品、医疗设备、实验室设备与试剂、医用耗材以及安检设备。",
+   "sort": 20
+  },
+  {
+   "id": 3,
+   "question_lo": "ມີບໍລິການຕິດຕັ້ງ ແລະ ຝຶກອົບຮົມບໍ?",
+   "question_en": "Do you provide installation and training?",
+   "question_th": "มีบริการติดตั้งและฝึกอบรมหรือไม่?",
+   "question_zh": "是否提供安装与培训？",
+   "answer_lo": "ມີ. ທີມຊ່າງ ແລະ ວິຊາການຂອງພວກເຮົາໃຫ້ບໍລິການຕິດຕັ້ງ ແລະ ຝຶກອົບຮົມຜູ້ໃຊ້ງານ.",
+   "answer_en": "Yes. Our engineers and specialists install the equipment and train your users.",
+   "answer_th": "มี ทีมช่างและผู้เชี่ยวชาญของเราให้บริการติดตั้งและฝึกอบรมผู้ใช้งาน",
+   "answer_zh": "提供。我们的工程师与专家负责安装设备并培训用户。",
+   "sort": 30
+  },
+  {
+   "id": 4,
+   "question_lo": "ຕິດຕໍ່ບໍລິການຫຼັງການຂາຍໄດ້ແນວໃດ?",
+   "question_en": "How do I reach after-sales service?",
+   "question_th": "ติดต่อบริการหลังการขายได้อย่างไร?",
+   "question_zh": "如何联系售后服务？",
+   "answer_lo": "ໂທສາຍດ່ວນ {mobile} ຫຼື ສົ່ງຂໍ້ຄວາມທາງ WhatsApp.",
+   "answer_en": "Call the hotline on {mobile} or message us on WhatsApp.",
+   "answer_th": "โทรสายด่วน {mobile} หรือส่งข้อความทาง WhatsApp",
+   "answer_zh": "拨打热线 {mobile} 或通过 WhatsApp 留言。",
+   "sort": 40
+  },
+  {
+   "id": 5,
+   "question_lo": "ສຳນັກງານຢູ່ໃສ?",
+   "question_en": "Where is your office?",
+   "question_th": "สำนักงานอยู่ที่ไหน?",
+   "question_zh": "办公室在哪里？",
+   "answer_lo": "{address}",
+   "answer_en": "{address}",
+   "answer_th": "{address}",
+   "answer_zh": "{address}",
+   "sort": 50
+  }
+ ],
  "settings": {
   "contact": {
    "tel": "(856-21) 563121",

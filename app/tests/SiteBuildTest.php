@@ -89,6 +89,16 @@ final class SiteBuildTest extends TestCase
         self::assertStringNotContainsString('product-old.html', $xml);
     }
 
+    public function testFaqAnswersGetTheContactDetails(): void
+    {
+        $faq = (string) file_get_contents(self::$out . '/en/faq.html');
+        $list = substr($faq, (int) strpos($faq, '<div class="faq rv">'));
+        self::assertSame(5, substr_count(strstr($list, '</div>', true), '<details'));
+        self::assertStringContainsString('Call the hotline on 020 5589 2929 or', $faq);
+        self::assertStringContainsString('<p>Ban Dondeng, House No. 470', $faq);
+        self::assertStringNotContainsString('{', strip_tags($faq));
+    }
+
     public function testSettingsReachThePages(): void
     {
         $seed = json_decode((string) file_get_contents(App::path('database/seed/seed.json')), true);
