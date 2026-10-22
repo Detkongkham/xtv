@@ -44,6 +44,30 @@ final class PublishLogRepository
         return $this->db->one("SELECT * FROM publish_log WHERE status = 'success' ORDER BY id DESC LIMIT 1");
     }
 
+    /** The publish or rollback that put the online site in place, with who did it. */
+    public function lastLive(): ?array
+    {
+        return $this->db->one(
+            "SELECT l.*, u.name AS user_name FROM publish_log l LEFT JOIN users u ON u.id = l.user_id
+             WHERE l.status IN ('success','rolled_back') ORDER BY l.id DESC LIMIT 1"
+        );
+    }
+
+    /**
+     * Why the online site may differ from the data, or null when it is up to date.
+     * never: nothing published yet. rolled_back: an older build is online. changed: edits after the last publish.
+     * An edit in the same second as the publish counts as unpublished: a false alarm is safer than a missed change.
+     */
+    public static function pendingReason(?array $live, ?string $changedAt): ?string
+    {
+        return match (true) {
+            $live === null => 'never',
+            $live['status'] === 'rolled_back' => 'rolled_back',
+            $changedAt !== null && strtotime($changedAt) >= strtotime((string) $live['started_at']) => 'changed',
+            default => null,
+        };
+    }
+
     /** A publish that died without finishing (e.g. PHP was killed) stays "running"; mark it so it does not confuse the history. */
     public function failStale(): void
     {

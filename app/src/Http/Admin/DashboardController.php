@@ -5,7 +5,9 @@ namespace App\Http\Admin;
 
 use App\Core\App;
 use App\Repository\MessageRepository;
+use App\Repository\PublishLogRepository;
 use App\Repository\SupplierRepository;
+use App\Repository\TranslationGapRepository;
 
 final class DashboardController extends Controller
 {
@@ -20,6 +22,9 @@ final class DashboardController extends Controller
             'latest' => $messages->latestNew(5),
             'mailErrors' => $messages->countMailErrors(),
             'withoutSupplier' => (new SupplierRepository(App::db()))->countProductsWithoutSupplier(),
+            'publish' => self::publishState(),
+            'history' => (new PublishLogRepository(App::db()))->latest(3),
+            'gaps' => (new TranslationGapRepository(App::db()))->all(),
         ]);
     }
 }

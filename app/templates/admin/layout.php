@@ -1,5 +1,5 @@
 <?php
-/** @var string $title @var string $content @var ?array $user @var array $flash @var string $active @var int $newCount */
+/** @var string $title @var string $content @var ?array $user @var array $flash @var string $active @var int $newCount @var bool $unpublished */
 use App\Core\Csrf;
 use App\Http\Admin\UserController;
 
@@ -43,6 +43,7 @@ $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="<?= e($icon) ?>"/></svg>
             <span><?= e($label) ?></span>
             <?php if ($key === 'messages' && $newCount > 0): ?><b class="badge" aria-label="<?= e($newCount) ?> ຂໍ້ຄວາມໃໝ່"><?= e($newCount) ?></b><?php endif; ?>
+            <?php if ($key === 'publish' && $unpublished): ?><b class="badge badge--dot" title="ມີການປ່ຽນແປງທີ່ຍັງບໍ່ເຜີຍແຜ່"><span class="sr">ມີການປ່ຽນແປງທີ່ຍັງບໍ່ເຜີຍແຜ່</span></b><?php endif; ?>
           </a></li>
         <?php endforeach; ?>
       </ul>

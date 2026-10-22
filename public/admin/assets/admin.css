@@ -288,3 +288,10 @@ details.card > summary { cursor: pointer; list-style-position: outside; }
 .rte-dialog button.media-choice { background: var(--white); text-align: left; font: inherit; font-size: 12px; }
 @media (max-width: 1023px) { .grid2--wide { grid-template-columns: 1fr; } }
 h2 .req { color: var(--accent-red-text); font-style: normal; }
+
+/* Dashboard: publish state, translation gaps (P2-C10) */
+.side .badge--dot { min-width: 10px; width: 10px; height: 10px; padding: 0; }
+.publish-state > * + * { margin-top: 12px; }
+.publish-state--pending { border-color: #f0c96a; }
+.publish-state .list li { padding: 8px 0; font-size: 14px; }
+.more summary { cursor: pointer; padding: 12px 0; color: var(--brand-600); font-weight: 500; }

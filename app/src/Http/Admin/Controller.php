@@ -12,6 +12,7 @@ use App\Core\Session;
 use App\Core\View;
 use App\Repository\MediaRepository;
 use App\Repository\MessageRepository;
+use App\Repository\PublishLogRepository;
 use App\Repository\SettingRepository;
 
 /** Shared helpers for admin controllers. */
@@ -29,7 +30,17 @@ abstract class Controller
             'flash' => Session::takeFlash(),
             'active' => explode('/', $template)[0],
             'newCount' => $user === null ? 0 : (new MessageRepository(App::db()))->countByStatus()['new'],
+            'unpublished' => $user !== null && self::publishState()['reason'] !== null,
         ]), $status);
+    }
+
+    /** @return array{live: ?array, changedAt: ?string, reason: ?string} see PublishLogRepository::pendingReason() */
+    protected static function publishState(): array
+    {
+        $log = new PublishLogRepository(App::db());
+        $live = $log->lastLive();
+        $changedAt = (new SettingRepository(App::db()))->get('content_changed_at');
+        return ['live' => $live, 'changedAt' => $changedAt, 'reason' => PublishLogRepository::pendingReason($live, $changedAt)];
     }
 
     protected function requireLogin(): array
