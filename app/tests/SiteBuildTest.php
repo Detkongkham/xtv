@@ -6,6 +6,7 @@ namespace App\Tests;
 use App\Core\App;
 use App\Publish\FontCheck;
 use App\Publish\LinkChecker;
+use App\Publish\PageList;
 use App\Publish\SiteBuilder;
 use App\Publish\SiteData;
 use PHPUnit\Framework\TestCase;
@@ -87,6 +88,23 @@ final class SiteBuildTest extends TestCase
         self::assertStringContainsString('<loc>https://new.example.com/zh/product-ct-scan.html</loc>', $xml);
         self::assertStringNotContainsString('404.html', $xml);
         self::assertStringNotContainsString('product-old.html', $xml);
+    }
+
+    public function testPageNamesMatchTheBuiltPages(): void
+    {
+        $seed = App::path('database/seed/seed.json');
+        self::assertSame(self::$builder->slugs(), PageList::names(SiteData::fromSeedFile($seed)));
+    }
+
+    public function testHeroSlidesFromTheTable(): void
+    {
+        $home = (string) file_get_contents(self::$out . '/en/index.html');
+        self::assertSame(3, substr_count($home, '<div class="hero__slide'));
+        self::assertSame(1, substr_count($home, '<h1 class="hero__title">'));
+        self::assertStringContainsString('01 / 03', $home);
+        // the old site's video: WebM first, then MP4, with the poster's WebP
+        self::assertMatchesRegularExpression('#<video class="hero__media" poster="\.\./assets/img/photo/4773\.webp[^"]*"[^>]*><source src="\.\./assets/video/hero-lab\.webm[^"]*" type="video/webm"><source src="\.\./assets/video/hero-lab\.mp4#', $home);
+        self::assertStringContainsString('href="healthcare.html">Medical equipment</a>', $home);
     }
 
     public function testFaqAnswersGetTheContactDetails(): void

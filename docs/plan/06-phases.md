@@ -117,7 +117,7 @@
 |---|---|---|
 | P3-D1 | ການຕັ້ງຄ່າ | ຂໍ້ມູນຕິດຕໍ່, ທີ່ຢູ່ 4 ພາສາ, ສະຖິຕິ, ອີເມວແຈ້ງເຕືອນ, Analytics ID, noindex ([03 §2.9](03-backend.md)). ສຳເລັດ (22/10/2026): `/admin/settings` ສະເພາະ admin. ແຟັກຫວ່າງ = ບໍ່ສະແດງ. Analytics ID ແບບ GA4 (`G-…`) ໃສ່ gtag ທຸກໜ້າ (ບໍ່ໃສ່ໃນ preview). ອີເມວແຈ້ງເຕືອນໃຊ້ທັນທີ ບໍ່ຕ້ອງເຜີຍແຜ່ |
 | P3-D2 | FAQ | migration `004_extras.sql`, CRUD + ລາກລຽງ. ສຳເລັດ (23/10/2026): `004_extras.sql` ສ້າງທັງ 4 ຕາຕະລາງຂອງ [04 §4.4](04-database.md). `/admin/faqs` ສຳລັບ editor ແລະ admin, ລຽງດ້ວຍປຸ່ມຂຶ້ນ/ລົງຄືໜ້າອື່ນ. FAQ 5 ຂໍ້ຍ້າຍຈາກ `lang/*.php` ໄປ `seed.json` (DB ທີ່ມີເນື້ອຫາແລ້ວ: `php bin/seed.php --only=faqs`). ຄຳຕອບໃຊ້ `{tel}` `{mobile}` `{email}` `{address}` ເພື່ອໃຫ້ຕາມໜ້າການຕັ້ງຄ່າ |
-| P3-D3 | Hero | CRUD ສູງສຸດ 5 slide, ຮູບ/ວິດີໂອ + poster |
+| P3-D3 | Hero | CRUD ສູງສຸດ 5 slide, ຮູບ/ວິດີໂອ + poster. ສຳເລັດ (23/10/2026): `/admin/hero` ສຳລັບ editor ແລະ admin. ຕ້ອງສະແດງຢ່າງໜ້ອຍ 1 slide; slide ທຳອິດເປັນ h1. ວິດີໂອອັບເປັນ MP4 ≤ 20 MB (ບໍ່ແປງໄຟລ໌ໃນ server) ແລະ ຕ້ອງມີ poster; ວິດີໂອເກົ່າມີ `.webm` ຢູ່ຂ້າງ ຈຶ່ງສະເໜີ WebM ກ່ອນ. ປຸ່ມເລືອກໜ້າຈາກລາຍການ; ໜ້າທີ່ຖືກເຊື່ອງພາຍຫຼັງ → ໜ້າສິນຄ້າທັງໝົດ. 3 slide ເດີມຍ້າຍຈາກ `lang/*.php` ໄປ `seed.json` (DB ເກົ່າ: `php bin/seed.php --only=hero_slides` ແລ້ວ `php bin/import-media.php`). Lighthouse ໜ້າຫຼັກ lo 95, zh 96 |
 | P3-D4 | SEO | `seo_pages`, canonical ແບບ URL ເຕັມ, `hreflang x-default`, JSON-LD (`Organization`, `Product`, `NewsArticle`) |
 | P3-D5 | Preview | `/admin/preview` render ໜ້າດຽວກ່ອນເຜີຍແຜ່ |
 | P3-D6 | ປະຫວັດການແກ້ໄຂ | `activity_log` + ໜ້າເບິ່ງສຳລັບ admin |

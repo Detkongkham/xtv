@@ -26,6 +26,7 @@ final class SiteData
     private array $redirects = [];
     private array $downloads = [];
     private array $faqs = [];
+    private array $heroSlides = [];
 
     private function __construct(array $t)
     {
@@ -94,12 +95,17 @@ final class SiteData
             }
         }
         $this->faqs = $sorted($visible($t['faqs'] ?? []));
+        foreach ($sorted($visible($t['hero_slides'] ?? [])) as $h) {
+            if (isset($this->media[(int) $h['media_id']])) {
+                $this->heroSlides[] = $h;
+            }
+        }
     }
 
     public static function fromDb(Db $db): self
     {
         $tables = [];
-        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects', 'downloads', 'faqs'] as $table) {
+        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects', 'downloads', 'faqs', 'hero_slides'] as $table) {
             $tables[$table] = $db->all('SELECT * FROM `' . $table . '`');
         }
         $tables['settings'] = [];
@@ -253,6 +259,12 @@ final class SiteData
     public function faqs(): array
     {
         return $this->faqs;
+    }
+
+    /** @return list<array> visible hero slides in order, each with its picture or video in the library */
+    public function heroSlides(): array
+    {
+        return $this->heroSlides;
     }
 
     public function divisionById(?int $id): ?array

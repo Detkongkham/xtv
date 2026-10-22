@@ -3,18 +3,15 @@
  * Home page (index.html).
  * @var App\Publish\SiteView $v
  */
+use App\Publish\PageList;
 use App\Publish\SiteView;
 
 $v->meta('index', $v->t('home'), overlay: true);
 $a = $v->a;
 $divisions = $v->data->divisions();
-$health = $v->data->division('healthcare');
-// hero slides move to the database in phase 3 (P3-D3)
-$slides = [
-    [1, '<video class="hero__media" poster="' . $a . '/img/photo/4773.webp" autoplay muted loop playsinline preload="metadata"><source src="' . $a . '/video/hero-lab.webm" type="video/webm"><source src="' . $a . '/video/hero-lab.mp4" type="video/mp4"></video>', 'products.html', $v->t('view_products')],
-    [2, $v->img('photo/46364.jpg', '', 'hero__media', false), $health ? 'healthcare.html' : 'products.html', $health ? $v->tr($health, 'name') : $v->t('products')],
-    [3, $v->img('photo/4765.jpg', '', 'hero__media', false), 'services.html', $v->t('services')],
-];
+// hero slides from /admin/hero; a button whose page is gone (hidden division, product) goes to all products
+$slides = $v->data->heroSlides();
+$pages = array_flip(PageList::names($v->data));
 $stats = [
     [(string) ($v->data->setting('stats')['founded'] ?? ''), 'stat1'],
     [($v->data->setting('stats')['experience'] ?? '') . '<sup>+</sup>', 'stat2'],
@@ -24,18 +21,18 @@ $stats = [
 ?>
 <div class="loader" aria-hidden="true"><img src="<?= $a ?>/img/logo.svg" alt=""></div><noscript><style>.loader{display:none}</style></noscript>
 <section class="hero" aria-roledescription="carousel">
-  <?php foreach ($slides as [$n, $media, $href, $label]): $tag = $n === 1 ? 'h1' : 'p' ?>
-  <div class="hero__slide<?= $n === 1 ? ' is-active' : '' ?>">
-    <?= $media ?>
+  <?php foreach ($slides as $i => $s): $tag = $i === 0 ? 'h1' : 'p'; [$eye, $text, $label] = [$v->tr($s, 'eyebrow'), $v->tr($s, 'text'), $v->tr($s, 'button')] ?>
+  <div class="hero__slide<?= $i === 0 ? ' is-active' : '' ?>">
+    <?= $v->heroMedia($s) ?>
     <div class="hero__body"><div class="wrap"><div class="hero__text">
-      <span class="hero__eyebrow"><?= $v->t("hero{$n}_eye") ?></span><<?= $tag ?> class="hero__title"><?= $v->t("hero{$n}_t") ?></<?= $tag ?>><p><?= $v->t("hero{$n}_p") ?></p>
-      <div class="btns"><a class="btn btn--white" href="<?= $href ?>"><?= $label ?></a><a class="btn btn--light" href="contact.html"><?= $v->t('contact') ?></a></div>
+      <?= $eye !== '' ? '<span class="hero__eyebrow">' . $eye . '</span>' : '' ?><<?= $tag ?> class="hero__title"><?= $v->tr($s, 'title') ?></<?= $tag ?>><?= $text !== '' ? '<p>' . $text . '</p>' : '' ?>
+      <div class="btns"><?= $label !== '' ? '<a class="btn btn--white" href="' . (isset($pages[$s['button_page']]) ? $s['button_page'] : 'products') . '.html">' . $label . '</a>' : '' ?><a class="btn btn--light" href="contact.html"><?= $v->t('contact') ?></a></div>
     </div></div></div>
   </div>
   <?php endforeach ?>
   <div class="hero__ui"><div class="wrap">
     <span class="hero__scroll"><?= $v->t('scroll') ?></span>
-    <div class="hero__nav"><span class="hero__count" aria-live="polite">01 / 03</span><span class="hero__bar"><i></i></span><button class="hero__btn hero__btn--prev" type="button" aria-label="<?= $v->t('prev') ?>"><?= $v->ic('arrow') ?></button><button class="hero__btn hero__btn--next" type="button" aria-label="<?= $v->t('next') ?>"><?= $v->ic('arrow') ?></button></div>
+    <div class="hero__nav"><span class="hero__count" aria-live="polite"><?= sprintf('01 / %02d', count($slides)) ?></span><span class="hero__bar"><i></i></span><button class="hero__btn hero__btn--prev" type="button" aria-label="<?= $v->t('prev') ?>"><?= $v->ic('arrow') ?></button><button class="hero__btn hero__btn--next" type="button" aria-label="<?= $v->t('next') ?>"><?= $v->ic('arrow') ?></button></div>
   </div></div>
 </section>
 

@@ -37,6 +37,18 @@
 })();
 
 (function () {
+  // [data-show-if="name=value"]: shown only while that radio is checked. Without JS every part stays visible.
+  var parts = document.querySelectorAll('[data-show-if]');
+  var update = function () {
+    parts.forEach(function (el) {
+      var kv = el.getAttribute('data-show-if').split('='), on = document.querySelector('input[name="' + kv[0] + '"]:checked');
+      el.hidden = !on || on.value !== kv[1];
+    });
+  };
+  if (parts.length) { document.addEventListener('change', update); update(); }
+})();
+
+(function () {
   // [data-lang-tabs]: one tab per language panel. A dot marks a tab with an error (red) or empty Thai/Chinese (amber).
   document.querySelectorAll('[data-lang-tabs]').forEach(function (box, n) {
     var panels = Array.prototype.slice.call(box.querySelectorAll('.lang-panel'));

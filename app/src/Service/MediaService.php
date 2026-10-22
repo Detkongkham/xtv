@@ -18,6 +18,7 @@ final class MediaService
     public const WIDTHS = [480, 960, 1600];
     public const IMAGE_MAX_BYTES = 8 * 1024 * 1024;
     public const PDF_MAX_BYTES = 20 * 1024 * 1024;
+    public const VIDEO_MAX_BYTES = 20 * 1024 * 1024;
     public const MAX_PIXELS = 40_000_000;  // a 40 MP photo needs ~160 MB in GD
     public const LOGO_MIN_WIDTH = 400;
     public const LOGO_MAX_WIDTH = 480;     // logos show at most 120px high; this keeps the files small
@@ -63,6 +64,28 @@ final class MediaService
             throw new \InvalidArgumentException($name . ': ຮັບສະເພາະໄຟລ໌ PDF.');
         }
         return $this->writePdf($tmp, $name, $userId);
+    }
+
+    /**
+     * A hero video: MP4 only (plays everywhere), ≤ 20 MB. Like a PDF it is kept as uploaded and only ever served.
+     * A .webm with the same name next to it (the old site's video) is offered first by the page; uploads have none.
+     * @throws \InvalidArgumentException with a message for the user
+     */
+    public function storeVideo(array $file, ?int $userId): int
+    {
+        $tmp = $this->checkUpload($file, self::VIDEO_MAX_BYTES);
+        $name = self::originalName($file);
+        if (self::mime($tmp) !== 'video/mp4') {
+            throw new \InvalidArgumentException($name . ': ຮັບສະເພາະວິດີໂອ MP4.');
+        }
+        $path = $this->newBase() . '.mp4';
+        if (!copy($tmp, $this->publicDir . '/' . $path)) {
+            throw new \RuntimeException('Cannot write ' . $path);
+        }
+        return $this->db->insert('media', [
+            'kind' => 'video', 'path' => $path, 'original_name' => $name, 'mime' => 'video/mp4',
+            'size_bytes' => (int) filesize($tmp), 'created_by' => $userId,
+        ]);
     }
 
     /**

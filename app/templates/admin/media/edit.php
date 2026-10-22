@@ -13,6 +13,8 @@ $size = static fn (int $b): string => $b >= 1048576 ? number_format($b / 1048576
   <div class="card">
     <?php if ($m['kind'] === 'image'): ?>
       <img class="media-preview" src="/<?= e($m['path']) ?>" alt="" width="<?= e($m['width']) ?>" height="<?= e($m['height']) ?>">
+    <?php elseif ($m['kind'] === 'video'): ?>
+      <video class="media-preview" src="/<?= e($m['path']) ?>" controls muted preload="metadata"></video>
     <?php else: ?>
       <p><a class="btn btn--ghost" href="/<?= e($m['path']) ?>" target="_blank" rel="noopener">ເປີດ PDF ↗</a></p>
     <?php endif; ?>

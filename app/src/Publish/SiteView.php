@@ -143,6 +143,28 @@ final class SiteView
             $this->e($alt), $m['width'], $m['height'], $cls !== '' ? ' class="' . $cls . '"' : '', $lazy ? ' loading="lazy"' : '');
     }
 
+    /**
+     * Hero background: a library picture, or a muted looping video with its poster. An old-site video has a .webm
+     * next to the .mp4, offered first (smaller); the poster is its WebP when there is one, like picture().
+     */
+    public function heroMedia(array $slide): string
+    {
+        $m = $this->data->media((int) $slide['media_id']);
+        if ($m['kind'] !== 'video') {
+            return $this->media($m, '', 'hero__media', false, '100vw'); // background behind the text: no alt
+        }
+        $poster = '';
+        if (($p = $this->data->media($slide['poster_id'] === null ? null : (int) $slide['poster_id'])) !== null) {
+            $variants = is_string($p['variants'] ?? null) ? json_decode($p['variants'], true) : ($p['variants'] ?? null);
+            $webp = $variants ? end($variants)['webp'] : preg_replace('/\.[a-z]+$/', '.webp', $p['path']);
+            $poster = ' poster="' . $this->root . (is_file($this->publicDir . '/' . $webp) ? $webp : $p['path']) . '"';
+        }
+        $webm = preg_replace('/\.mp4$/', '.webm', $m['path']);
+        $sources = (is_file($this->publicDir . '/' . $webm) ? '<source src="' . $this->root . $webm . '" type="video/webm">' : '')
+            . '<source src="' . $this->root . $m['path'] . '" type="video/mp4">';
+        return '<video class="hero__media"' . $poster . ' autoplay muted loop playsinline preload="metadata">' . $sources . '</video>';
+    }
+
     /** <img> with its real size (no layout shift), in a <picture> with the WebP next to it when there is one. */
     private function picture(string $path, ?array $size, string $alt, string $cls, bool $lazy): string
     {

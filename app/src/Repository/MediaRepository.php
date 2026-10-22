@@ -19,6 +19,8 @@ final class MediaRepository
         ['suppliers', 'logo_id', 'name', '/admin/suppliers/', 'ໂລໂກ້ຜູ້ສະໜອງ'],
         ['suppliers', 'certificate_id', 'name', '/admin/suppliers/', 'ໃບຢັ້ງຢືນຜູ້ສະໜອງ'],
         ['downloads', 'file_id', 'title_lo', '/admin/downloads/', 'ໄຟລ໌ດາວໂຫຼດ'],
+        ['hero_slides', 'media_id', 'title_lo', '/admin/hero/', 'Hero'],
+        ['hero_slides', 'poster_id', 'title_lo', '/admin/hero/', 'Poster ຂອງ Hero'],
     ];
 
     public function __construct(private Db $db)
@@ -90,6 +92,12 @@ final class MediaRepository
         $this->db->run('DELETE FROM media WHERE id = ?', [$id]);
     }
 
+    /** Videos for the hero picker, newest first. */
+    public function videos(): array
+    {
+        return $this->db->all("SELECT id, path, original_name, size_bytes FROM media WHERE kind = 'video' ORDER BY id DESC");
+    }
+
     /** Files that came with the old site and have no sizes yet (bin/import-media.php). */
     public function legacyImages(): array
     {
@@ -100,7 +108,7 @@ final class MediaRepository
     {
         $w = [];
         $p = [];
-        if (in_array($kind, ['image', 'pdf'], true)) {
+        if (in_array($kind, ['image', 'pdf', 'video'], true)) {
             $w[] = 'kind = ?';
             $p[] = $kind;
         }

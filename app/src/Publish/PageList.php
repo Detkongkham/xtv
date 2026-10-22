@@ -21,6 +21,24 @@ final class PageList
         return in_array($page, self::RESERVED, true);
     }
 
+    /**
+     * Page names (no .html) that of() builds, for links chosen in the admin (hero buttons).
+     * Same names as the templates give to $v->meta().
+     * @return list<string>
+     */
+    public static function names(SiteData $data): array
+    {
+        return array_map(static fn (array $page): string => match ($page[0]) {
+            'home' => 'index',
+            'division' => $page[1]['d']['slug'],
+            'product' => 'product-' . $page[1]['p']['slug'],
+            'news-article' => 'news-' . $page[1]['n']['slug'],
+            'supplier' => 'supplier-' . $page[1]['s']['slug'],
+            'legal' => $page[1]['slug'],
+            default => $page[0],
+        }, self::of($data));
+    }
+
     /** @return list<array{0: string, 1: array}> */
     public static function of(SiteData $data): array
     {

@@ -2,7 +2,8 @@
 // Load the first site content into an empty database (docs/plan/04-database.md §6). Runs once, after migrate.
 //   php bin/seed.php                 database/seed/seed.json
 //   php bin/seed.php --file=FILE
-//   php bin/seed.php --only=faqs     one table added after the first seed (phase 3), into a database that has content
+//   php bin/seed.php --only=faqs     one table added after the first seed (phase 3), into a database that has content.
+//                                    Media rows it points at are added when their path is not in the library yet.
 // Refuses when content is already there, so it can never overwrite what was edited in the admin.
 declare(strict_types=1);
 
@@ -16,7 +17,8 @@ $opt = getopt('', ['file:', 'only:']);
 $file = $opt['file'] ?? App::path('database/seed/seed.json');
 $seed = json_decode((string) file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
 $db = App::db();
-$later = ['faqs'];
+$later = ['faqs', 'hero_slides'];
+$mediaColumns = ['hero_slides' => ['media_id', 'poster_id']];
 
 if (isset($opt['only'])) {
     $table = (string) $opt['only'];
@@ -28,9 +30,24 @@ if (isset($opt['only'])) {
         fwrite(STDERR, "{$table} already has rows; nothing was changed.\n");
         exit(1);
     }
-    $db->transaction(static function (Db $db) use ($seed, $table): void {
+    $db->transaction(static function (Db $db) use ($seed, $table, $mediaColumns): void {
+        // seed media id => id in this database (ids of later uploads may already be taken)
+        $mediaId = [];
+        $byId = array_column($seed['media'], null, 'id');
         foreach ($seed[$table] ?? [] as $row) {
-            $db->insert($table, $row);
+            foreach ($mediaColumns[$table] ?? [] as $col) {
+                $sid = $row[$col];
+                if ($sid === null) {
+                    continue;
+                }
+                if (!isset($mediaId[$sid])) {
+                    $m = $byId[$sid];
+                    $mediaId[$sid] = (int) ($db->value('SELECT id FROM media WHERE path = ?', [$m['path']])
+                        ?? $db->insert('media', array_diff_key($m, ['id' => 0])));
+                }
+                $row[$col] = $mediaId[$sid];
+            }
+            $db->insert($table, array_diff_key($row, ['id' => 0]));
         }
     });
     printf("%-18s %d\n", $table, count($seed[$table] ?? []));

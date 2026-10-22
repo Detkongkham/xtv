@@ -42,7 +42,7 @@ $size = static fn (int $b): string => $b >= 1048576 ? number_format($b / 1048576
       <li>
         <a href="/admin/media/<?= e($m['id']) ?>">
           <span class="media-grid__img">
-            <?php if ($m['kind'] === 'image'): ?><img src="<?= e(MC::thumb($m)) ?>" alt="" loading="lazy"><?php else: ?><b class="media-grid__pdf">PDF</b><?php endif; ?>
+            <?php if ($m['kind'] === 'image'): ?><img src="<?= e(MC::thumb($m)) ?>" alt="" loading="lazy"><?php else: ?><b class="media-grid__pdf"><?= $m['kind'] === 'video' ? 'MP4' : 'PDF' ?></b><?php endif; ?>
           </span>
           <span class="media-grid__name"><?= e($m['original_name']) ?></span>
           <small><?= $m['width'] ? e($m['width'] . '×' . $m['height']) . ' · ' : '' ?><?= e($size((int) $m['size_bytes'])) ?></small>

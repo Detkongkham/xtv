@@ -12,7 +12,7 @@ use App\Service\MediaService;
 /** /admin/media: upload pictures and PDFs, see where each is used, delete unused ones. */
 final class MediaController extends Controller
 {
-    public const KIND_NAMES = ['' => 'ທັງໝົດ', 'image' => 'ຮູບ', 'pdf' => 'PDF'];
+    public const KIND_NAMES = ['' => 'ທັງໝົດ', 'image' => 'ຮູບ', 'pdf' => 'PDF', 'video' => 'ວິດີໂອ'];
 
     private function repo(): MediaRepository
     {

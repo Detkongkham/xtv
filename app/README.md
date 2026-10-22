@@ -42,7 +42,7 @@ php -d upload_max_filesize=20M -d post_max_size=64M -S 127.0.0.1:8000 -t public 
 |---|---|
 | `php bin/migrate.php [--status]` | apply new `database/migrations/*.sql` |
 | `php bin/seed.php` | load `database/seed/seed.json` into an empty database (refuses if content exists) |
-| `php bin/seed.php --only=faqs` | fill a table added after the first seed (phase 3) when it is still empty |
+| `php bin/seed.php --only=faqs` | fill a table added after the first seed (phase 3) when it is still empty; also `--only=hero_slides` (adds its pictures to the library: run `import-media.php` after) |
 | `php bin/build-site.php --out=DIR` | render every page from the database into DIR (`--seed=FILE` renders from a seed file instead) |
 | `php bin/publish.php` | build, check links, swap into `public/` (same as the admin's Publish button) |
 | `php bin/publish.php --rollback[=ID]` / `--list` | put a previous build back / list them |
