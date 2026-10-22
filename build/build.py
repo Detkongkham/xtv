@@ -10,6 +10,7 @@ import re
 import sys
 import html
 import hashlib
+import json
 
 from PIL import Image
 
@@ -380,21 +381,33 @@ def field(label, name, kind="text", req=False, full=False, options=None, hint=""
     if kind == "textarea":
         ctl = '<textarea id="{}" name="{}"{}></textarea>'.format(fid, name, r)
     elif kind == "select":
-        opts = '<option value="">' + t("f_select") + "</option>" + "".join("<option>" + o + "</option>" for o in options)
+        # options are (value, label): the value is a language-independent code stored in the DB
+        opts = '<option value="">' + t("f_select") + "</option>" + "".join('<option value="{}">{}</option>'.format(v, o) for v, o in options)
         ctl = '<select id="{}" name="{}"{}>{}</select>'.format(fid, name, r, opts)
     else:
         ac = {"name": "name", "tel": "tel", "email": "email", "org": "organization"}.get(name, "off")
         ctl = '<input id="{}" name="{}" type="{}" autocomplete="{}"{}>'.format(fid, name, kind, ac, r)
-    return '<div class="field{}"><label for="{}">{}{}</label>{}{}</div>'.format(
-        " field--full" if full else "", fid, label, star, ctl, '<span class="hint">' + hint + "</span>" if hint else "")
+    return '<div class="field{}"><label for="{}">{}{}</label>{}{}{}</div>'.format(
+        " field--full" if full else "", fid, label, star, ctl, '<span class="hint">' + hint + "</span>" if hint else "", field_err(name))
+
+
+def field_err(name):
+    return '<span class="field__err" id="f-{}-err" hidden></span>'.format(name)
 
 
 def form(fields, submit):
-    return ('<form class="form" data-demo novalidate-off action="#" method="post">{}'
-            '<div class="field field--full"><label class="check"><input type="checkbox" name="consent" required><span>{} (<a href="privacy.html">{}</a>)</span></label></div>'
-            '<p class="form__ok" role="status" tabindex="-1" hidden>{}</p>'
+    # posts to /api/contact.php; works without JS (server redirects back with ?sent=1#sent).
+    # main.js takes over when present: time token, fetch, errors under each field.
+    msgs = {k: t("f_" + k) for k in ("sending", "err_required", "err_invalid", "err_too_short", "err_too_long", "err_consent", "err_rate", "err_server")}
+    return ('<form class="form" data-contact action="/api/contact.php" method="post" data-msgs="{}">'
+            '<input type="hidden" name="lang" value="{}"><input type="hidden" name="ts" value="">'
+            '<div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>{}'
+            '<div class="field field--full"><label class="check"><input type="checkbox" id="f-consent" name="consent" required><span>{} (<a href="privacy.html">{}</a>)</span></label>{}</div>'
+            '<p class="form__ok" id="sent" role="status" tabindex="-1" hidden>{}</p>'
+            '<p class="form__err" role="alert" tabindex="-1" hidden><span></span> <a href="tel:{}">{}</a> · <a href="{}" target="_blank" rel="noopener">WhatsApp</a></p>'
             '<div class="field field--full"><div class="btns"><button class="btn" type="submit">{}</button></div><span class="hint">{}</span></div></form>').format(
-        "".join(fields), t("f_consent"), t("privacy"), t("f_ok"), submit, t("f_req")).replace(" novalidate-off", "")
+        e(json.dumps(msgs, ensure_ascii=False)), LANGS[LI], "".join(fields), t("f_consent"), t("privacy"), field_err("consent"), t("f_ok"),
+        TEL_HREF, TEL, WA, submit, t("f_req"))
 
 
 def contact_aside():
@@ -762,7 +775,7 @@ def p_contact():
         ("q_general", "phone", "tel:" + TEL_HREF, TEL), ("q_sales", "mail", "mailto:" + MAIL, MAIL),
         ("q_service", "tool", "tel:" + MOB_HREF, MOB), ("whatsapp", "chat", WA, MOB)])
     f = form([field(t("f_fullname"), "name", req=True), field(t("f_org"), "org"), field(t("f_phone"), "tel", "tel", req=True), field(t("email"), "email", "email", req=True),
-              field(t("f_subject"), "subject", "select", full=True, options=[t("q_general"), t("q_sales"), t("q_service"), t("f_other")]),
+              field(t("f_subject"), "subject", "select", full=True, options=[("general", t("q_general")), ("sales", t("q_sales")), ("service", t("q_service")), ("other", t("f_other"))]),
               field(t("f_message"), "message", "textarea", req=True, full=True)], t("f_send"))
     body = (phead(t("contact"), t("contact_lead"))
             + '<section class="sec sec--tight"><div class="wrap">{}<div class="tiles rv">{}</div></div></section>'.format(sec_head(t("quick"), left=True), tiles)

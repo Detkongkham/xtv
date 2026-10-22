@@ -38,7 +38,7 @@ FORMAL = {
                  "ผลิตภัณฑ์ของบริษัทแบ่งออกเป็นห้ากลุ่มธุรกิจ กรุณาเลือกกลุ่มเพื่อดูรายการหรือติดต่อฝ่ายขาย",
                  "公司产品分为五大业务板块。请选择板块查看产品或联系销售团队。"),
     "faq_lead": ("ຄຳຕອບສຳລັບຄຳຖາມທີ່ລູກຄ້າສອບຖາມເປັນປະຈຳ.", "Answers to the questions most frequently raised by customers.", "คำตอบสำหรับคำถามที่ลูกค้าสอบถามเป็นประจำ", "客户常见问题解答。"),
-    "f_ok": ("ຂໍຂອບໃຈ. ໜ້ານີ້ເປັນໜ້າຕົວຢ່າງ ຂໍ້ມູນຂອງທ່ານຍັງບໍ່ຖືກສົ່ງອອກ.", "Thank you. This is a demonstration page; your information has not been sent.", "ขอขอบคุณ หน้านี้เป็นหน้าตัวอย่าง ข้อมูลของท่านยังไม่ถูกส่งออก", "谢谢。此为演示页面，您的信息尚未发送。"),
+    "f_ok": ("ຂອບໃຈ, ພວກເຮົາໄດ້ຮັບຂໍ້ຄວາມແລ້ວ ແລະ ຈະຕິດຕໍ່ກັບພາຍໃນ 1 ວັນເຮັດການ.", "Thank you. We have received your message and will contact you within one working day.", "ขอบคุณ เราได้รับข้อความแล้ว และจะติดต่อกลับภายใน 1 วันทำการ", "谢谢，我们已收到您的留言，将在一个工作日内与您联系。"),
 }
 
 EXTRA = {
@@ -158,6 +158,15 @@ EXTRA = {
                 "รูปภาพใช้เพื่อประกอบการอธิบาย ข้อมูลจำเพาะ รุ่น และอุปกรณ์เสริมให้ถือตามเอกสารของผู้ผลิตและใบเสนอราคา",
                 "图片仅供参考。规格、型号及配件以厂家资料和报价单为准。"),
     "div_about": ("ກ່ຽວກັບຂະແໜງນີ້", "About this division", "เกี่ยวกับกลุ่มธุรกิจนี้", "关于本板块"),
+    # ---- contact form (phase 1): messages shown by main.js ----
+    "f_sending": ("ກຳລັງສົ່ງ…", "Sending…", "กำลังส่ง…", "正在发送…"),
+    "f_err_required": ("ກະລຸນາຕື່ມຂໍ້ມູນຊ່ອງນີ້", "Please fill in this field", "กรุณากรอกช่องนี้", "请填写此项"),
+    "f_err_invalid": ("ຮູບແບບບໍ່ຖືກຕ້ອງ", "The format is not valid", "รูปแบบไม่ถูกต้อง", "格式不正确"),
+    "f_err_too_short": ("ສັ້ນເກີນໄປ", "Too short", "สั้นเกินไป", "内容过短"),
+    "f_err_too_long": ("ຍາວເກີນໄປ", "Too long", "ยาวเกินไป", "内容过长"),
+    "f_err_consent": ("ກະລຸນາໝາຍຍິນຍອມກ່ອນສົ່ງ", "Please tick the consent box before sending", "กรุณาทำเครื่องหมายยินยอมก่อนส่ง", "发送前请勾选同意"),
+    "f_err_rate": ("ທ່ານສົ່ງຂໍ້ຄວາມຫຼາຍຄັ້ງເກີນໄປ. ກະລຸນາລອງໃໝ່ພາຍຫຼັງ ຫຼື ຕິດຕໍ່ພວກເຮົາໂດຍກົງ:", "Too many messages have been sent. Please try again later or contact us directly:", "ท่านส่งข้อความบ่อยเกินไป กรุณาลองใหม่ภายหลังหรือติดต่อเราโดยตรง:", "发送次数过多，请稍后再试或直接联系我们："),
+    "f_err_server": ("ສົ່ງບໍ່ສຳເລັດ. ກະລຸນາລອງໃໝ່ ຫຼື ຕິດຕໍ່ພວກເຮົາໂດຍກົງ:", "The message could not be sent. Please try again or contact us directly:", "ส่งไม่สำเร็จ กรุณาลองใหม่หรือติดต่อเราโดยตรง:", "发送失败，请重试或直接联系我们："),
 }
 
 # One sentence per pictured product, keyed by image code.

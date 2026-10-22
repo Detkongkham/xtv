@@ -1,4 +1,4 @@
-// XTK static demo — small progressive enhancements only; every page reads fine without JS.
+// XTK site — small progressive enhancements only; every page reads fine without JS.
 (function () {
   var doc = document.documentElement;
   doc.classList.add('js');
@@ -110,13 +110,102 @@
     });
   });
 
-  // demo forms: there is no backend yet, so just confirm on screen
-  $$('form[data-demo]').forEach(function (form) {
+  // contact form: without JS it posts normally; with JS it gets a time token, sends with fetch
+  // and shows errors under each field (docs/plan/02-frontend.md §5)
+  $$('form[data-contact]').forEach(function (form) {
+    if (!window.fetch || !window.FormData) return;
+    var msgs = JSON.parse(form.getAttribute('data-msgs') || '{}');
+    var btn = $('button[type="submit"]', form), btnText = btn.textContent;
+    var ok = $('.form__ok', form), fail = $('.form__err', form);
+    var ts = form.elements.ts, asked = false;
+    form.noValidate = true;
+
+    var getToken = function () {
+      if (asked) return;
+      asked = true;
+      fetch(form.action + '?token=1', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) { if (d && d.ts) ts.value = d.ts; })
+        .catch(function () {});
+    };
+    form.addEventListener('focusin', getToken);
+
+    var clearErrors = function () {
+      $$('.field__err', form).forEach(function (s) { s.hidden = true; s.textContent = ''; });
+      $$('[aria-invalid]', form).forEach(function (el) { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); });
+      fail.hidden = true;
+    };
+    var showErrors = function (errors) {
+      var first = null;
+      Object.keys(errors).forEach(function (name) {
+        var el = form.elements[name], span = $('#f-' + name + '-err', form);
+        if (!el || !span) return;
+        var code = errors[name];
+        span.textContent = name === 'consent' ? msgs.err_consent : (msgs['err_' + code] || msgs.err_invalid);
+        span.hidden = false;
+        el.setAttribute('aria-invalid', 'true');
+        el.setAttribute('aria-describedby', span.id);
+        if (!first) first = el;
+      });
+      if (first) first.focus();
+    };
+    var showFail = function (text) {
+      $('span', fail).textContent = text;
+      fail.hidden = false;
+      fail.focus();
+    };
+    var busy = function (on) {
+      btn.disabled = on;
+      btn.textContent = on ? msgs.sending : btnText;
+    };
+
+    // light checks before sending; the server checks everything again
+    var localErrors = function () {
+      var e = {}, v = function (n) { return (form.elements[n].value || '').trim(); };
+      if (!v('name')) e.name = 'required';
+      if (!v('tel')) e.tel = 'required';
+      if (!v('email')) e.email = 'required';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) e.email = 'invalid';
+      if (!v('message')) e.message = 'required';
+      else if (v('message').length < 10) e.message = 'too_short';
+      if (!form.elements.consent.checked) e.consent = 'required';
+      return e;
+    };
+
+    var send = function (retried) {
+      busy(true);
+      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+        .then(function (r) {
+          return r.json().catch(function () { return {}; }).then(function (d) { return { status: r.status, d: d }; });
+        })
+        .then(function (res) {
+          busy(false);
+          if (res.status === 200 && res.d.ok) {
+            form.reset();
+            ts.value = '';
+            form.classList.add('form--sent');
+            ok.hidden = false;
+            ok.focus();
+          } else if (res.status === 422 && res.d.errors) {
+            showErrors(res.d.errors);
+          } else if (res.status === 422 && !retried) {
+            // token too old or rejected: send once more without it (server applies the stricter no-JS limit)
+            ts.value = '';
+            send(true);
+          } else {
+            showFail(res.status === 429 ? msgs.err_rate : msgs.err_server);
+          }
+        })
+        .catch(function () { busy(false); showFail(msgs.err_server); });
+    };
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var ok = $('.form__ok', form);
-      if (ok) { ok.hidden = false; ok.focus(); }
-      form.reset();
+      if (btn.disabled) return;
+      clearErrors();
+      var errs = localErrors();
+      if (Object.keys(errs).length) { showErrors(errs); return; }
+      send(false);
     });
   });
 

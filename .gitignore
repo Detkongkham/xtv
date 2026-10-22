@@ -16,3 +16,4 @@ preview/
 /app/storage/*
 !/app/storage/**/.gitkeep
 .claude/changelog/.current-slug
+/app/.phpunit.result.cache
