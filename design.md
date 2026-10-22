@@ -97,7 +97,7 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 --font-sans: "Inter", "Noto Sans Lao", "Noto Sans Thai", "Noto Sans SC", system-ui, sans-serif;
 ```
 
-ໃຊ້ນ້ຳໜັກ 400, 500, 600 ເທົ່ານັ້ນ. Inter, Noto Sans Lao ແລະ Noto Sans Thai ເກັບໄວ້ໃນ `assets/fonts/` ຈຶ່ງໃຊ້ໄດ້ໂດຍບໍ່ມີອິນເຕີເນັດ. Noto Sans SC ໂຫຼດຈາກ Google Fonts ສະເພາະໜ້າພາສາຈີນ ເພາະໄຟລ໌ໃຫຍ່.
+ໃຊ້ນ້ຳໜັກ 400, 500, 600 ເທົ່ານັ້ນ. Inter, Noto Sans Lao ແລະ Noto Sans Thai ເກັບໄວ້ໃນ `public/assets/fonts/` ຈຶ່ງໃຊ້ໄດ້ໂດຍບໍ່ມີອິນເຕີເນັດ. Noto Sans SC ເກັບໄວ້ເອງເປັນ subset (`noto-sans-sc-sub.woff2`, ນ້ຳໜັກ 400–600, ສະເພາະຕົວອັກສອນທີ່ໜ້າ `zh/` ໃຊ້, ~130 KB) ແລະ ໂຫຼດສະເພາະໜ້າພາສາຈີນ. ເພີ່ມຂໍ້ຄວາມຈີນໃໝ່ແລ້ວ ໃຫ້ສັ່ງ `optimize_media.py --zh-font` ອີກຄັ້ງ.
 
 ### ຂະໜາດ
 
@@ -326,7 +326,7 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 
 ## 10. ໂຄງສ້າງເວັບ
 
-ເວັບຕົວຢ່າງເປັນ HTML/CSS ຄົງທີ່ ບໍ່ມີຫຼັງບ້ານ. ແຕ່ລະພາສາມີ 71 ໜ້າ ຢູ່ໃນໂຟນເດີຂອງຕົນ (`lo/`, `en/`, `th/`, `zh/`).
+ເວັບຕົວຢ່າງເປັນ HTML/CSS ຄົງທີ່ ບໍ່ມີຫຼັງບ້ານ. ແຕ່ລະພາສາມີ 69 ໜ້າ ຢູ່ໃນໂຟນເດີຂອງຕົນ (`public/lo/`, `public/en/`, `public/th/`, `public/zh/`).
 
 | ກຸ່ມ | ໜ້າ | ໄຟລ໌ | ແຫຼ່ງເນື້ອຫາ |
 |---|---|---|---|
@@ -334,13 +334,11 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 | ບໍລິສັດ | ຂໍ້ມູນບໍລິສັດ | `about.html` | ເວັບເກົ່າ (ກ່ຽວກັບພວກເຮົາ) |
 | | ວິໄສທັດ ແລະ ພາລະກິດ | `vision.html` | ຮ່າງໃໝ່ ລໍຖ້າຢືນຢັນ |
 | | ຂ່າວສານ + ໜ້າຂ່າວ | `news.html`, `news-security-division.html` | ອີງຕາມໂພສໃນເວັບເກົ່າ |
-| | ຮ່ວມງານກັບເຮົາ | `careers.html` | ເວັບເກົ່າ (ຮັບສະໝັກພະນັກງານ) |
 | ຜະລິດຕະພັນ | ລວມ 5 ຂະແໜງ | `products.html` | ເວັບເກົ່າ |
 | | ໜ້າຂະແໜງ 5 ໜ້າ | `pharmaceuticals.html`, `healthcare.html`, `laboratory.html`, `consumables.html`, `security.html` | ລາຍການ ແລະ ຮູບຈາກເວັບເກົ່າ |
 | | ໜ້າລາຍລະອຽດສິນຄ້າ 49 ໜ້າ | `product-*.html` | ຊື່ ແລະ ຮູບຈາກເວັບເກົ່າ; ຂໍ້ມູນຈຳເພາະຍັງເປັນຊ່ອງວ່າງ |
 | ລູກຄ້າ | ໂຊລູຊັນຕາມປະເພດສະຖານທີ່ | `solutions.html` | ຂຽນໃໝ່ |
 | | ບໍລິການຫຼັງການຂາຍ | `services.html` | ເວັບເກົ່າ + ຂຽນໃໝ່ |
-| | ຂໍໃບສະເໜີລາຄາ | `quote.html` | ແທນ JotForm ໃນເວັບເກົ່າ |
 | | ຕິດຕໍ່ພົວພັນ | `contact.html` | ເວັບເກົ່າ |
 | ຊ່ວຍເຫຼືອ | ດາວໂຫຼດເອກະສານ | `downloads.html` | ລິ້ງຍັງວ່າງ |
 | | ຄຳຖາມທີ່ພົບເລື້ອຍ | `faq.html` | ຂຽນໃໝ່ |
@@ -351,15 +349,16 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 
 | ທີ່ຢູ່ | ໜ້າທີ່ |
 |---|---|
-| `index.html` | ສົ່ງຕໍ່ໄປ `lo/index.html` |
-| `lo/`, `en/`, `th/`, `zh/` | ໜ້າ HTML ທີ່ສ້າງແລ້ວ. ຫ້າມແກ້ດ້ວຍມື ເພາະຈະຖືກຂຽນທັບ |
-| `assets/css/style.css` | CSS ທັງໝົດ ຕາມ tokens ໃນພາກ 9 |
-| `assets/js/main.js` | ເມນູມືຖື, hero slider, ແທັບ, ຕົວກອງ, reveal |
-| `assets/img/`, `assets/video/` | ໂລໂກ້, ຮູບສິນຄ້າ, ຮູບບັນຍາກາດ, ວິດີໂອ hero |
-| `assets/fonts/` | ຟອນລາຕິນ, ລາວ, ໄທ ແລະ `fonts.css` |
+| `public/index.html` | ສົ່ງຕໍ່ໄປ `lo/index.html` |
+| `public/lo/`, `public/en/`, `public/th/`, `public/zh/` | ໜ້າ HTML ທີ່ສ້າງແລ້ວ. ບໍ່ commit. ຫ້າມແກ້ດ້ວຍມື ເພາະຈະຖືກຂຽນທັບ |
+| `public/assets/css/style.css` | CSS ທັງໝົດ ຕາມ tokens ໃນພາກ 9 |
+| `public/assets/js/main.js` | ເມນູມືຖື, hero slider, ແທັບ, ຕົວກອງ, reveal |
+| `public/assets/img/`, `public/assets/video/` | ໂລໂກ້, ຮູບສິນຄ້າ, ຮູບບັນຍາກາດ, ວິດີໂອ hero |
+| `public/assets/fonts/` | ຟອນລາຕິນ, ລາວ, ໄທ ແລະ `fonts.css` |
 | `build/strings.py` | ຂໍ້ຄວາມທັງໝົດ 4 ພາສາ |
 | `build/strings2.py` | ຖ້ອຍຄຳສະບັບທາງການ, ຄຳອະທິບາຍຂະແໜງ, ກຸ່ມສິນຄ້າ ແລະ ສິນຄ້າແຕ່ລະລາຍການ |
 | `build/build.py` | ແມ່ແບບໜ້າ ແລະ ຂໍ້ມູນສິນຄ້າ. ແກ້ແລ້ວສັ່ງ `python3 build/build.py` |
+| `build/optimize_media.py` | ສ້າງ WebP ຂ້າງທຸກຮູບ `.jpg`/`.png`. ເພີ່ມ ຫຼື ປ່ຽນຮູບແລ້ວ ສັ່ງກ່ອນ build. `--video <ffmpeg>` ບີບວິດີໂອ hero ຈາກ `build/media/hero-lab-source.mp4` |
 
 ---
 
@@ -372,4 +371,4 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 5. ຂໍ້ມູນຈຳເພາະຂອງສິນຄ້າ (ລຸ້ນ, ມາດຕະຖານ, ການຮັບປະກັນ) ຍັງບໍ່ມີ.
 6. ຕຳແໜ່ງແຜນທີ່ໃຊ້ການຄົ້ນຫາຊື່ບ້ານ ບໍ່ແມ່ນພິກັດຕົວຈິງຂອງສຳນັກງານ.
 7. ໄຟລ໌ Company Profile ແລະ ແຄັດຕາລັອກ ສຳລັບໜ້າດາວໂຫຼດ. ລິ້ງ OneDrive ໃນເວັບເກົ່າບໍ່ສົ່ງໄຟລ໌ອອກມາແລ້ວ ຈຶ່ງບໍ່ໄດ້ໃຊ້. ເວັບເກົ່າບໍ່ມີລິ້ງ Facebook ຂອງບໍລິສັດ ຈຶ່ງຍັງບໍ່ໃສ່ໄອຄອນ Facebook.
-8. ແບບຟອມຍັງບໍ່ສົ່ງຂໍ້ມູນ. ຕ້ອງເລືອກລະບົບຫຼັງບ້ານໃນຂັ້ນຕໍ່ໄປ.
+8. ແບບຟອມຕິດຕໍ່ຍັງບໍ່ສົ່ງຂໍ້ມູນ. ຫຼັງບ້ານ PHP + MySQL ຕາມແຜນໃນ `docs/plan/`.

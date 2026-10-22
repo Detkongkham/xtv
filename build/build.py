@@ -1,22 +1,36 @@
 #!/usr/bin/env python3
-"""Generates the static XTK demo site (lo/, en/, th/, zh/) from the templates below.
+"""Generates the static XTK demo site (public/lo/, en/, th/, zh/) from the templates below.
 
-Run:  python3 build/build.py
-Output is plain HTML that uses assets/css/style.css and assets/js/main.js. No backend.
+Run:  python3 build/build.py             -> public/<lang>/ (the live demo)
+      python3 build/build.py --preview   -> preview/<lang>/ with sample supplier data (noindex, not for publishing)
+Output goes to public/ (the docroot): plain HTML that uses public/assets/css/style.css and public/assets/js/main.js. No backend.
 """
 import os
 import re
+import sys
 import html
+import hashlib
+
+from PIL import Image
 
 from strings import T, LANGS, LANG_NAMES, LANG_SHORT, HTML_LANG
 from strings2 import FORMAL, EXTRA, ITEMS
+import suppliers as SUPDATA
+from suppliers import SUP, COUNTRIES
 
 T.update(FORMAL)
 T.update(EXTRA)
+T.update(SUP)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(ROOT, "public")  # preview/ with --preview
 A = "../assets"
+ASSETS = os.path.join(ROOT, "public", "assets")
+IMG_SIZE, ASSET_V = {}, {}  # caches for img() and versioned()
 LI = 0  # index of the language being rendered
+PREVIEW = False
+INDEXABLE = False  # keep search engines out until go-live (P4-E5); --preview is never indexable
+SUPPLIERS, SUPPLY, SUP_BY = [], {}, {}  # set in main(): real data, or the samples with --preview
 
 TEL, TEL_HREF = "(856-21) 563121", "+85621563121"
 MOB, MOB_HREF = "020 5589 2929", "+8562055892929"
@@ -156,7 +170,6 @@ SOLS = [
 SERVICES = [("srv1", "tool"), ("srv2", "shield"), ("srv3", "cap"), ("srv4", "box")]
 NEWS = [
     ("n1", "2024-11-27", "n_cat_prod", "products/s01.jpg", "news-security-division"),
-    ("n2", "2021-06-07", "n_cat_job", "photo/4766.jpg", "careers"),
     ("n3", "2021-06-06", "n_cat_prod", "photo/47584.jpg", "laboratory"),
 ]
 
@@ -173,9 +186,64 @@ def item_text(gk, it):
     return ITEMS[it["img"]][LI] if it["img"] in ITEMS else t(gk + "_p")
 
 
-def steps(keys, with_p=True):
+# ---------------------------------------------------------------- suppliers (P0-A10, docs/plan/08-suppliers.md)
+def sups_of(it):
+    return [SUP_BY[k] for k in SUPPLY.get(it["name"], [])]
+
+
+def sup_items(s):
+    return [(d, gk, it) for d, gk, it in all_items() if s["slug"] in SUPPLY.get(it["name"], [])]
+
+
+def sup_divs(s):
+    """A supplier's divisions are derived from its products, so they cannot disagree."""
+    ids = {d["id"] for d, _, _ in sup_items(s)}
+    return [d for d in DIVS if d["id"] in ids]
+
+
+def country(s):
+    return COUNTRIES[s["country"]][LI]
+
+
+def sup_meta():
+    return t("sup_meta").format(len(SUPPLIERS), len({s["country"] for s in SUPPLIERS}))
+
+
+def sup_logo(s, h, lazy=True):
+    """The logo at max height h. Until the client sends the file, a text placeholder takes its place."""
+    if not s["logo"]:
+        return '<span class="logo-ph" style="--logo-h:{}px">{}</span>'.format(h, e(s["name"]))
+    src, w, hh = s["logo"]
+    return '<img src="{}/img/suppliers/{}" alt="{}" width="{}" height="{}" style="--logo-h:{}px"{}>'.format(
+        A, src, e(s["name"]), w, hh, h, ' loading="lazy"' if lazy else "")
+
+
+def logo_tile(s, h, href=None, cls="", lazy=True):
+    c = "logo-tile" + (" logo-tile--dark" if s["on_dark"] else "") + (" " + cls if cls else "")
+    if href:
+        return '<a class="{}" href="{}" aria-label="{}">{}</a>'.format(c, href, e(s["name"]), sup_logo(s, h, lazy))
+    return '<span class="{}">{}</span>'.format(c, sup_logo(s, h, lazy))
+
+
+def sup_by(it):
+    ss = sups_of(it)
+    if not ss:
+        return ""
+    return '<span class="small">{}</span>'.format(t("sup_by").format(e(ss[0]["name"]) + (" +%d" % (len(ss) - 1) if len(ss) > 1 else "")))
+
+
+def supplied_by(it):
+    ss = sups_of(it)[:4]
+    if not ss:
+        return ""
+    rows = "".join('<li>{}<span><b><a href="supplier-{}.html">{}</a></b> <span class="small">({})</span><br><a class="small" href="supplier-{}.html">{}</a></span></li>'.format(
+        logo_tile(s, 40, "supplier-" + s["slug"] + ".html"), s["slug"], e(s["name"]), country(s), s["slug"], t("sup_other_from").format(e(s["name"]))) for s in ss)
+    return '<div class="supplied-by"><p class="small">{}</p><ul>{}</ul></div>'.format(t("supplied_by"), rows)
+
+
+def steps(keys):
     return "".join('<div class="step rv" style="--i:{}"><h3 class="h4">{}</h3>{}</div>'.format(
-        i, t(k), "<p>" + t(k + "_p") + "</p>" if with_p else "") for i, k in enumerate(keys))
+        i, t(k), "<p>" + t(k + "_p") + "</p>") for i, k in enumerate(keys))
 
 
 def why_cards():
@@ -192,7 +260,27 @@ def fdate(iso):
 
 # ---------------------------------------------------------------- shared pieces
 def img(src, alt="", cls="", lazy=True):
-    return '<img src="{}/img/{}" alt="{}"{}{}>'.format(A, src, e(alt), ' class="' + cls + '"' if cls else "", ' loading="lazy"' if lazy else "")
+    """<img> with its real size (no layout shift), wrapped in <picture> with the WebP made by optimize_media.py."""
+    path = os.path.join(ASSETS, "img", src)
+    if path not in IMG_SIZE:
+        IMG_SIZE[path] = Image.open(path).size
+    tag = '<img src="{}/img/{}" alt="{}" width="{}" height="{}"{}{}>'.format(
+        A, src, e(alt), IMG_SIZE[path][0], IMG_SIZE[path][1], ' class="' + cls + '"' if cls else "", ' loading="lazy"' if lazy else "")
+    webp = os.path.splitext(src)[0] + ".webp"
+    if src.endswith(".svg") or not os.path.exists(os.path.join(ASSETS, "img", webp)):
+        return tag
+    return '<picture><source srcset="{}/img/{}" type="image/webp">{}</picture>'.format(A, webp, tag)
+
+
+def versioned(doc):
+    """Adds ?v=<content hash> to every asset URL so a changed file is never served from a stale year-long cache."""
+    def add(m):
+        rel = m.group(2)
+        if rel not in ASSET_V:
+            with open(os.path.join(ASSETS, rel), "rb") as f:
+                ASSET_V[rel] = hashlib.md5(f.read()).hexdigest()[:8]
+        return "{}{}?v={}".format(m.group(1), rel, ASSET_V[rel])
+    return re.sub(r'((?:\.\./)+(?:public/)?assets/)([^"?#)\s]+)', add, doc)
 
 
 def arrow_link(label, href):
@@ -222,14 +310,14 @@ def product_card(div, it, i=0, gk=None):
     gk = gk or next(g for g, items in div["groups"] if it in items)
     if it["img"]:
         return ('<a class="card rv" style="--i:{}" href="{}.html"><span class="card__img">{}</span>'
-                '<span class="card__body"><span class="small">{}</span><b class="h4">{}</b>{}'
+                '<span class="card__body"><span class="small">{}</span><b class="h4">{}</b>{}{}'
                 '<span class="card__foot">{}<span class="circ">{}</span></span></span></a>').format(
-            i % 4, it["slug"], img("products/" + it["img"] + ".jpg", it["name"]), t(div["k"]), e(it["name"]),
+            i % 4, it["slug"], img("products/" + it["img"] + ".jpg", it["name"]), t(div["k"]), e(it["name"]), sup_by(it),
             '<p class="clamp2">' + item_text(gk, it) + "</p>", t("view_detail"), ic("arrow"))
-    return ('<a class="card card--text rv" style="--i:{}" href="quote.html"><span class="card__body">'
-            '<span class="ico">{}</span><b class="h4">{}</b><span class="small">{}</span>'
+    return ('<a class="card card--text rv" style="--i:{}" href="contact.html"><span class="card__body">'
+            '<span class="ico">{}</span><b class="h4">{}</b>{}<span class="small">{}</span>'
             '<span class="card__foot">{}<span class="circ">{}</span></span></span></a>').format(
-        i % 4, ic(div["icon"]), e(it["name"]), t(div["k"]), t("ask_price"), ic("arrow"))
+        i % 4, ic(div["icon"]), e(it["name"]), sup_by(it), t(div["k"]), t("ask_price"), ic("arrow"))
 
 
 def division_cards(cols=5):
@@ -279,10 +367,10 @@ def location_block():
         t("head_office"), t("co_name"), contact_dl(), MAP_LINK, t("open_map"), WA, ic("chat"), "WhatsApp", t("head_office"), MAP_EMBED)
 
 
-def cta():
+def cta(h=None):
     return ('<section class="cta on-dark"><div class="wrap rv"><h2 class="h2">{}</h2><p>{}</p><div class="btns">'
-            '<a class="btn btn--white" href="quote.html">{}</a><a class="btn btn--light" href="contact.html">{}</a></div></div></section>').format(
-        t("cta_h"), t("cta_p"), t("quote"), t("contact"))
+            '<a class="btn btn--white" href="contact.html">{}</a><a class="btn btn--light" href="{}" target="_blank" rel="noopener">{}{}</a></div></div></section>').format(
+        h or t("cta_h"), t("cta_p"), t("contact"), WA, ic("chat"), t("whatsapp"))
 
 
 def field(label, name, kind="text", req=False, full=False, options=None, hint=""):
@@ -296,7 +384,7 @@ def field(label, name, kind="text", req=False, full=False, options=None, hint=""
         ctl = '<select id="{}" name="{}"{}>{}</select>'.format(fid, name, r, opts)
     else:
         ac = {"name": "name", "tel": "tel", "email": "email", "org": "organization"}.get(name, "off")
-        ctl = '<input id="{}" name="{}" type="{}" autocomplete="{}"{}{}>'.format(fid, name, kind, ac, " multiple" if kind == "file" else "", r)
+        ctl = '<input id="{}" name="{}" type="{}" autocomplete="{}"{}>'.format(fid, name, kind, ac, r)
     return '<div class="field{}"><label for="{}">{}{}</label>{}{}</div>'.format(
         " field--full" if full else "", fid, label, star, ctl, '<span class="hint">' + hint + "</span>" if hint else "")
 
@@ -320,7 +408,7 @@ def contact_aside():
 
 
 # ---------------------------------------------------------------- layout
-NAV_ABOUT = [("about", "about_profile", "photo/4767.jpg"), ("vision", "vision", "photo/4733.jpg"), ("careers", "careers", "photo/4766.jpg")]
+NAV_ABOUT = [("about", "about_profile", "photo/4767.jpg"), ("vision", "vision", "photo/4733.jpg"), ("downloads", "downloads", "photo/4766.jpg")]
 
 
 def header(slug, overlay, active):
@@ -328,38 +416,45 @@ def header(slug, overlay, active):
     lang = LANGS[LI]
     about_cards = "".join('<a class="mega__card" href="{}.html"><span class="ph">{}</span>{}</a>'.format(p, img(pic, ""), t(k)) for p, k, pic in NAV_ABOUT)
     prod_cards = "".join('<a class="mega__card" href="{}.html"><span class="ph">{}</span>{}</a>'.format(d["id"], img(d["img"], ""), t(d["k"])) for d in DIVS)
+    sup_li = d_sup = ""
+    if SUPPLIERS:
+        logos = "".join(logo_tile(s, 40, "supplier-" + s["slug"] + ".html") for s in [x for x in SUPPLIERS if x["featured"]][:10])
+        sup_li = ('<li class="has-mega"><a class="nav__link" href="suppliers.html"{}>{}{}</a><div class="mega"><div class="wrap mega__in"><div><p class="mega__title">{}</p><p>{}</p>'
+                  '<p class="mega__meta">{}</p>{}</div><div class="mega__logos">{}</div></div></div></li>').format(
+            cur("suppliers"), t("sup"), ic("chev"), t("sup"), t("sup_mega_p"), sup_meta(), arrow_link(t("sup_all"), "suppliers.html"), logos)
+        d_sup = '<a class="drawer__link" href="suppliers.html">{}</a>'.format(t("sup"))
     langs = "".join('<a href="../{}/{}.html" lang="{}" hreflang="{}"{}>{}</a>'.format(
         l, slug, HTML_LANG[l], HTML_LANG[l], ' aria-current="true"' if l == lang else "", LANG_NAMES[l]) for l in LANGS)
     nav = (
         '<li class="has-mega"><a class="nav__link" href="about.html"{}>{}{}</a><div class="mega"><div class="wrap mega__in"><div><p class="mega__title">{}</p><p>{}</p>{}</div><div class="mega__cards mega__cards--3">{}</div></div></div></li>'
-        '<li class="has-mega"><a class="nav__link" href="products.html"{}>{}{}</a><div class="mega"><div class="wrap mega__in"><div><p class="mega__title">{}</p><p>{}</p>{}</div><div class="mega__cards">{}</div></div></div></li>'
+        '<li class="has-mega"><a class="nav__link" href="products.html"{}>{}{}</a><div class="mega"><div class="wrap mega__in"><div><p class="mega__title">{}</p><p>{}</p>{}</div><div class="mega__cards">{}</div></div></div></li>{}'
         '<li><a class="nav__link" href="solutions.html"{}>{}</a></li>'
         '<li><a class="nav__link" href="services.html"{}>{}</a></li>'
         '<li><a class="nav__link" href="news.html"{}>{}</a></li>'
         '<li><a class="nav__link" href="contact.html"{}>{}</a></li>'
     ).format(
         cur("about"), t("about"), ic("chev"), t("about"), t("co_tag"), arrow_link(t("about_profile"), "about.html"), about_cards,
-        cur("products"), t("products"), ic("chev"), t("products"), t("home_prod_p"), arrow_link(t("all_products"), "products.html"), prod_cards,
+        cur("products"), t("products"), ic("chev"), t("products"), t("home_prod_p"), arrow_link(t("all_products"), "products.html"), prod_cards, sup_li,
         cur("solutions"), t("solutions"), cur("services"), t("services"), cur("news"), t("news"), cur("contact"), t("contact"))
     head = ('<a class="skip" href="#main">{}</a><header class="hdr{}"><div class="wrap wrap--wide hdr__in">'
             '<a class="logo" href="index.html" aria-label="XTK — {}"><img src="{}/img/logo.svg" alt="XTK" width="1663" height="1069"></a>'
             '<nav class="nav" aria-label="{}"><ul>{}</ul></nav><div class="hdr__tools">'
             '<details class="lang"><summary aria-label="{}">{}{}{}</summary><div class="lang__menu">{}</div></details>'
-            '<a class="btn btn--sm hdr__cta" href="quote.html">{}</a>'
+            '<a class="btn btn--sm hdr__cta" href="contact.html">{}</a>'
             '<button class="burger" type="button" aria-label="{}" aria-expanded="false" aria-controls="drawer">{}</button></div></div></header>').format(
         t("skip"), " hdr--overlay" if overlay else "", t("home"), A, t("menu"), nav, t("language"), ic("globe"), LANG_SHORT[lang], ic("chev"), langs,
-        t("quote"), t("menu"), ic("menu"))
+        t("contact"), t("menu"), ic("menu"))
     d_about = "".join('<a href="{}.html">{}</a>'.format(p, t(k)) for p, k, _ in NAV_ABOUT)
     d_prod = '<a href="products.html">{}</a>'.format(t("all_products")) + "".join('<a href="{}.html">{}</a>'.format(d["id"], t(d["k"])) for d in DIVS)
     d_langs = "".join('<a href="../{}/{}.html"{}>{}</a>'.format(l, slug, ' aria-current="true"' if l == lang else "", LANG_NAMES[l]) for l in LANGS)
     drawer = ('<div class="drawer" id="drawer" aria-label="{}"><div class="drawer__top"><img src="{}/img/logo.svg" alt="XTK">'
               '<button class="burger drawer__close" type="button" aria-label="{}" style="display:grid">{}</button></div>'
-              '<details><summary>{}{}</summary><div>{}</div></details><details><summary>{}{}</summary><div>{}</div></details>'
+              '<details><summary>{}{}</summary><div>{}</div></details><details><summary>{}{}</summary><div>{}</div></details>{}'
               '<a class="drawer__link" href="solutions.html">{}</a><a class="drawer__link" href="services.html">{}</a>'
               '<a class="drawer__link" href="news.html">{}</a><a class="drawer__link" href="contact.html">{}</a>'
-              '<div class="drawer__langs">{}</div><a class="btn" href="quote.html">{}</a></div>').format(
-        t("menu"), A, t("close"), ic("x"), t("about"), ic("chev"), d_about, t("products"), ic("chev"), d_prod,
-        t("solutions"), t("services"), t("news"), t("contact"), d_langs, t("quote"))
+              '<div class="drawer__langs">{}</div><a class="btn" href="contact.html">{}</a></div>').format(
+        t("menu"), A, t("close"), ic("x"), t("about"), ic("chev"), d_about, t("products"), ic("chev"), d_prod, d_sup,
+        t("solutions"), t("services"), t("news"), t("contact"), d_langs, t("contact"))
     return head + drawer
 
 
@@ -376,9 +471,9 @@ def footer():
             '<div class="float"><a class="wa" href="{}" target="_blank" rel="noopener" aria-label="{}">{}</a>'
             '<a href="tel:{}" aria-label="{}">{}</a><button class="top" type="button" aria-label="{}">{}</button></div>').format(
         A, t("co_tag"),
-        col(t("company"), [("about", t("about_profile")), ("vision", t("vision")), ("news", t("news")), ("careers", t("careers"))]),
-        col(t("products"), [(d["id"], t(d["k"])) for d in DIVS]),
-        col(t("support"), [("services", t("services")), ("solutions", t("solutions")), ("quote", t("quote")), ("downloads", t("downloads")), ("faq", t("faq"))]),
+        col(t("company"), [("about", t("about_profile")), ("vision", t("vision")), ("news", t("news"))]),
+        col(t("products"), [(d["id"], t(d["k"])) for d in DIVS] + ([("suppliers", t("sup"))] if SUPPLIERS else [])),
+        col(t("support"), [("services", t("services")), ("solutions", t("solutions")), ("downloads", t("downloads")), ("faq", t("faq"))]),
         t("contact"), ic("pin"), t("addr_full"), ic("phone"), TEL_HREF, TEL, MOB_HREF, MOB, ic("mail"), MAIL, MAIL,
         WA, ic("chat"), MOB_HREF, t("call_us"), ic("phone"), MAIL, t("email"), ic("mail"),
         t("co_name"), t("rights"), t("privacy"), t("terms"), t("sitemap"),
@@ -387,24 +482,26 @@ def footer():
 
 def page(slug, title, body, desc="", overlay=False, active=None):
     lang = LANGS[LI]
-    # Latin, Lao and Thai fonts are self-hosted so the demo works offline; only Chinese is fetched from Google Fonts.
+    # All fonts are self-hosted. Chinese uses a subset of Noto Sans SC (optimize_media.py --zh-font), declared
+    # inline so its URL gets ?v= and only zh pages download it (the language menu shows 中文 on every page).
     fonts = '<link rel="stylesheet" href="{}/fonts/fonts.css">'.format(A)
     if lang == "zh":
-        fonts += ('\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
-                  '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">')
+        fonts += ('\n<link rel="preload" href="{0}/fonts/noto-sans-sc-sub.woff2" as="font" type="font/woff2" crossorigin>\n'
+                  "<style>@font-face{{font-family:'Noto Sans SC';font-style:normal;font-weight:400 600;font-display:swap;"
+                  "src:url({0}/fonts/noto-sans-sc-sub.woff2) format('woff2')}}</style>").format(A)
     alts = "".join('<link rel="alternate" hreflang="{}" href="../{}/{}.html">'.format(HTML_LANG[l], l, slug) for l in LANGS)
     full = title + " | XTK" if slug != "index" else "XTK — " + t("co_name")
     doc = ('<!doctype html>\n<html lang="{}">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
-           '<title>{}</title>\n<meta name="description" content="{}">\n<meta name="theme-color" content="#2f368e">\n'
+           '<title>{}</title>\n<meta name="description" content="{}">\n<meta name="theme-color" content="#2f368e">\n{}'
            '<meta property="og:title" content="{}">\n<meta property="og:description" content="{}">\n<meta property="og:type" content="website">\n{}\n'
            '<link rel="icon" href="{}/img/logo.svg" type="image/svg+xml">\n<link rel="alternate icon" href="{}/img/favicon.png">\n'
            '{}\n<link rel="stylesheet" href="{}/css/style.css">\n</head>\n<body>\n'
-           '{}\n<main id="main">\n{}\n</main>\n{}\n<script src="{}/js/main.js" defer></script>\n</body>\n</html>\n').format(
-        HTML_LANG[lang], e(full), e(desc or t("co_tag")), e(full), e(desc or t("co_tag")), alts, A, A, fonts, A,
-        header(slug, overlay, active), body, footer(), A)
-    out = os.path.join(ROOT, lang, slug + ".html")
+           '{}\n<main id="main">\n{}\n</main>\n{}\n{}<script src="{}/js/main.js" defer></script>\n</body>\n</html>\n').format(
+        HTML_LANG[lang], e(full), e(desc or t("co_tag")), '<meta name="robots" content="noindex, nofollow">\n' if PREVIEW or not INDEXABLE else "", e(full), e(desc or t("co_tag")), alts, A, A, fonts, A,
+        header(slug, overlay, active), body, footer(), '<p class="preview-bar" role="note">' + t("preview_note") + "</p>\n" if PREVIEW else "", A)
+    out = os.path.join(OUT, lang, slug + ".html")
     with open(out, "w", encoding="utf-8") as f:
-        f.write(doc)
+        f.write(versioned(doc))
 
 
 # ---------------------------------------------------------------- pages
@@ -412,10 +509,11 @@ def p_home():
     def slide(n, media, btn_href, btn_label):
         return ('<div class="hero__slide{}">{}<div class="hero__body"><div class="wrap"><div class="hero__text">'
                 '<span class="hero__eyebrow">{}</span><{} class="hero__title">{}</{}><p>{}</p>'
-                '<div class="btns"><a class="btn btn--white" href="{}">{}</a><a class="btn btn--light" href="quote.html">{}</a></div></div></div></div></div>').format(
+                '<div class="btns"><a class="btn btn--white" href="{}">{}</a><a class="btn btn--light" href="contact.html">{}</a></div></div></div></div></div>').format(
             " is-active" if n == 1 else "", media, t("hero%d_eye" % n), "h1" if n == 1 else "p", t("hero%d_t" % n), "h1" if n == 1 else "p",
-            t("hero%d_p" % n), btn_href, btn_label, t("quote"))
-    video = '<video class="hero__media" src="{0}/video/hero-lab.mp4" poster="{0}/img/photo/4773.jpg" autoplay muted loop playsinline preload="metadata"></video>'.format(A)
+            t("hero%d_p" % n), btn_href, btn_label, t("contact"))
+    video = ('<video class="hero__media" poster="{0}/img/photo/4773.webp" autoplay muted loop playsinline preload="metadata">'
+             '<source src="{0}/video/hero-lab.webm" type="video/webm"><source src="{0}/video/hero-lab.mp4" type="video/mp4"></video>').format(A)
     hero = ('<section class="hero" aria-roledescription="carousel">{}{}{}<div class="hero__ui"><div class="wrap">'
             '<span class="hero__scroll">{}</span><div class="hero__nav"><span class="hero__count" aria-live="polite">01 / 03</span><span class="hero__bar"><i></i></span>'
             '<button class="hero__btn hero__btn--prev" type="button" aria-label="{}">{}</button><button class="hero__btn hero__btn--next" type="button" aria-label="{}">{}</button></div></div></div></section>').format(
@@ -425,7 +523,7 @@ def p_home():
         t("scroll"), t("prev"), ic("arrow"), t("next"), ic("arrow"))
 
     loader = '<div class="loader" aria-hidden="true"><img src="{}/img/logo.svg" alt=""></div><noscript><style>.loader{{display:none}}</style></noscript>'.format(A)
-    strip = "".join('<img src="{}/img/photo/{}.jpg" alt="" loading="lazy">'.format(A, n) for n in ("4773", "46364", "4719", "35963", "4767", "47584", "4765", "4733"))
+    strip = "".join(img("photo/{}.jpg".format(n)) for n in ("4773", "46364", "4719", "35963", "4767", "47584", "4765", "4733"))
     marquee = '<div class="marquee" aria-hidden="true"><div class="marquee__track">{0}</div><div class="marquee__track">{0}</div></div>'.format(strip)
     tiles = "".join('<a class="gtile rv" style="--i:{}" href="{}.html#{}"><span class="gtile__ico">{}</span><b>{}</b><span>{}</span></a>'.format(
         i % 6, d["id"], gk, ic(GICON[gk]), t(gk), t(d["k"])) for i, (d, gk) in enumerate((d, gk) for d in DIVS for gk, _ in d["groups"]))
@@ -504,8 +602,8 @@ def p_products():
             + "".join('<section class="sec sec--tight{}"><div class="wrap"><div class="split">{}</div></div></section>'.format(
                 " sec--surface" if i % 2 == 0 else "", (lambda a, b: a + b if i % 2 == 0 else b + a)(
                     '<div class="split__img rv" style="border:1px solid var(--line);background:#fff">' + img(d["img"], t(d["k"])) + "</div>",
-                    '<div class="rv"><span class="tag">0{}</span><h2 class="h2" style="margin:16px 0">{}</h2><p>{}</p><div class="chips">{}</div><div class="btns" style="margin-top:28px"><a class="btn" href="{}.html">{}</a><a class="btn btn--ghost" href="quote.html">{}</a></div></div>'.format(
-                        i + 1, t(d["k"]), t(d["k"] + "_long"), "".join('<span class="tag">' + t(g) + "</span>" for g, _ in d["groups"]), d["id"], t("view_products"), t("quote"))))
+                    '<div class="rv"><span class="tag">0{}</span><h2 class="h2" style="margin:16px 0">{}</h2><p>{}</p><div class="chips">{}</div><div class="btns" style="margin-top:28px"><a class="btn" href="{}.html">{}</a><a class="btn btn--ghost" href="contact.html">{}</a></div></div>'.format(
+                        i + 1, t(d["k"]), t(d["k"] + "_long"), "".join('<span class="tag">' + t(g) + "</span>" for g, _ in d["groups"]), d["id"], t("view_products"), t("contact"))))
                 for i, d in enumerate(DIVS))
             + '<section class="sec"><div class="wrap">{}<div class="grid g-3 steps">{}</div></div></section>'.format(sec_head(t("commit_h"), t("commit_p")), steps(("commit1", "commit2", "commit3")))
             + cta())
@@ -535,36 +633,96 @@ def p_product(d, gk, it):
     model = e(it["name"]) if d["id"] == "security" else t("sp_by_mfr")
     spec = "".join('<tr><th scope="row">{}</th><td>{}</td></tr>'.format(a, b) for a, b in [
         (t("sp_cat"), t(d["k"])), (t("sp_group"), t(gk)), (t("sp_model"), model), (t("sp_std"), t("sp_by_mfr")),
-        (t("sp_warranty"), t("sp_on_request")), (t("sp_install"), t("sp_by_xtk"))])
+        (t("sp_warranty"), t("sp_on_request")), (t("sp_install"), t("sp_by_xtk"))] + (
+        [(t("sp_sup"), ", ".join('<a href="supplier-{}.html">{}</a>'.format(s["slug"], e(s["name"])) for s in sups_of(it)))] if sups_of(it) else []))
     sibs = [x for _, items in d["groups"] for x in items if x["img"] and x is not it]
     same = [x for x in dict(d["groups"])[gk] if x["img"] and x is not it]
     rel = (same + [x for x in sibs if x not in same])[:4]
     body = ('<section class="phead" style="padding-bottom:32px"><div class="wrap">{}</div></section>'
             '<section class="sec sec--tight" style="padding-top:40px"><div class="wrap"><div class="pd"><div class="pd__img rv">{}</div><div class="rv">'
-            '<span class="tag">{}</span><h1>{}</h1>{}<p>{}</p><div class="btns"><a class="btn" href="quote.html">{}</a>'
+            '<span class="tag">{}</span><h1>{}</h1>{}<p>{}</p>{}<div class="btns"><a class="btn" href="contact.html">{}</a>'
             '<a class="btn btn--ghost" href="{}" target="_blank" rel="noopener">{}{}</a></div>'
             '<h2 class="h4" style="margin-bottom:12px">{}</h2><table class="spec"><tbody>{}</tbody></table><p class="small" style="margin-top:12px">{}</p></div></div></div></section>'
             '<section class="sec sec--tight sec--tint"><div class="wrap"><div class="split" style="align-items:start"><div class="rv"><h2 class="h3">{}</h2><p style="margin-top:12px">{}</p><p style="margin-top:1.2em">{}</p></div>'
             '<div class="rv"><h2 class="h3">{}</h2><ul class="checks">{}</ul></div></div></div></section>'
-            '<section class="sec sec--tight"><div class="wrap">{}<div class="grid g-3 steps">{}</div></div></section>'
             '<section class="sec sec--surface sec--tight"><div class="wrap">{}<div class="grid g-4 keep-2">{}</div></div></section>').format(
         crumb([(t("products"), "products.html"), (t(d["k"]), d["id"] + ".html")], e(it["name"])),
         img("products/" + it["img"] + ".jpg", it["name"], lazy=False), t(gk), e(it["name"]),
         '<p class="lead" style="font-size:18px;line-height:1.8;margin-bottom:12px">' + item_text(gk, it) + "</p>" + ('<p class="small" style="margin-bottom:12px">' + e(it["desc"]) + "</p>" if it["desc"] else ""),
-        t("pd_p"), t("quote"), WA, ic("chat"), t("whatsapp"), t("pd_spec"), spec, t("pd_note"),
+        t("pd_p"), supplied_by(it), t("contact"), WA, ic("chat"), t("whatsapp"), t("pd_spec"), spec, t("pd_note"),
         t("pd_use"), t(gk + "_p"), t(d["k"] + "_long"),
         t("pd_srv"), "".join("<li><b>{}</b> — {}</li>".format(t(k), t(k + "_p")) for k, _ in SERVICES),
-        sec_head(t("pd_order"), left=True), steps(("qh1", "qh2", "qh3"), with_p=False),
         sec_head(t("related"), left=True), "".join(product_card(d, x, i) for i, x in enumerate(rel))) + cta()
     page(it["slug"], it["name"], body, it["name"] + " — " + t(d["k"]), active="products")
+
+
+def sup_card(s, i=0):
+    items = sup_items(s)
+    pics = [it for _, _, it in items if it["img"]][:3]
+    more = '<span class="small">{}</span>'.format(t("sup_more").format(len(items) - len(pics))) if len(items) > len(pics) else ""
+    return ('<a class="card card--supplier rv" style="--i:{}" href="supplier-{}.html"><span class="card__logo{}">{}</span><span class="card__body">'
+            '<b class="h4">{}</b><span class="small">{}</span>{}<span class="thumbs">{}{}</span>'
+            '<span class="card__foot">{}<span class="circ">{}</span></span></span></a>').format(
+        i % 3, s["slug"], " logo-tile--dark" if s["on_dark"] else "", sup_logo(s, 72), e(s["name"]), country(s),
+        '<p class="clamp2">' + s["about"][LI] + "</p>" if s["about"] else "",
+        "".join(img("products/" + it["img"] + ".jpg", it["name"]) for it in pics), more, t("sup_view").format(e(s["name"])), ic("arrow"))
+
+
+def sup_tile(s, i=0):
+    return ('<a class="sup-tile rv" style="--i:{}" href="supplier-{}.html" data-divs="{}">{}<b>{}</b><span class="small">{}</span>'
+            '<span class="small">{} {}</span></a>').format(
+        i % 5, s["slug"], " ".join(d["id"] for d in sup_divs(s)), logo_tile(s, 56), e(s["name"]), country(s), len(sup_items(s)), t("items"))
+
+
+def p_suppliers():
+    n_prod = sum(1 for _, _, it in all_items() if SUPPLY.get(it["name"]))
+    stats = "".join('<div class="stat rv" style="--i:{}"><b data-count>{}</b><span>{}</span></div>'.format(i, v, t(k)) for i, (v, k) in enumerate(
+        [(len(SUPPLIERS), "sup_stat1"), (len({s["country"] for s in SUPPLIERS}), "sup_stat2"), (n_prod, "sup_stat3")]))
+    hero = '<section class="phead phead--img on-dark"><div class="wrap">{}<h1>{}</h1><p>{}</p><div class="stats stats--3">{}</div></div></section>'.format(
+        crumb([], t("sup_h")), t("sup_h"), t("sup_lead"), stats)
+    feat = [s for s in SUPPLIERS if s["featured"]][:6]
+    featured = '<section class="sec"><div class="wrap">{}<div class="grid g-3">{}</div></div></section>'.format(
+        sec_head(t("sup_featured"), left=True), "".join(sup_card(s, i) for i, s in enumerate(feat))) if feat else ""
+    used = {d["id"] for s in SUPPLIERS for d in sup_divs(s)}
+    pills = '<button class="pill" type="button" data-g="all" aria-pressed="true">{}</button>'.format(t("all")) + "".join(
+        '<button class="pill" type="button" data-g="{}" aria-pressed="false">{}</button>'.format(d["id"], t(d["k"])) for d in DIVS if d["id"] in used)
+    grid = ('<section class="sec sec--surface"><div class="wrap">{}<div class="filters" data-filter="items">{}</div>'
+            '<p class="small sup-result" aria-live="polite" data-result="{}">{}</p><div class="grid g-5">{}</div></div></section>').format(
+        sec_head(t("sup_grid_h"), left=True), pills, e(t("sup_result")), t("sup_result").format(len(SUPPLIERS)),
+        "".join(sup_tile(s, i) for i, s in enumerate(SUPPLIERS)))
+    desc = t("sup_lead") + " " + ", ".join(s["name"] for s in (feat or SUPPLIERS)[:5])
+    page("suppliers", t("sup_h"), hero + featured + grid + cta(t("sup_cta_h")), desc, active="suppliers")
+
+
+def p_supplier(s):
+    items, divs = sup_items(s), sup_divs(s)
+    sells = t("sup_sells").format(n=len(items), name=e(s["name"]))
+    badges = ('<span class="badge-auth">{}{}</span>'.format(ic("shield"), t(s["partnership"])) if s["partnership"] else "") + (
+        '<span class="tag">{}</span>'.format(t("sup_since").format(s["since"])) if s["since"] else "")
+    head = ('<section class="phead"><div class="wrap">{}<div class="sup-head">{}<div><h1>{}</h1><p class="small">{}</p><div class="chips">{}{}</div>'
+            '<p class="lead">{}</p><div class="btns"><a class="btn" href="contact.html">{}</a>{}</div></div></div></div></section>').format(
+        crumb([(t("sup"), "suppliers.html")], e(s["name"])), logo_tile(s, 120, cls="logo-tile--lg", lazy=False), e(s["name"]), country(s), badges,
+        "".join('<a class="tag" href="{}.html">{}</a>'.format(d["id"], t(d["k"])) for d in divs), sells, t("contact"),
+        '<a class="btn btn--ghost" href="{}" target="_blank" rel="noopener">{}</a>'.format(e(s["web"]), t("sup_web")) if s["web"] else "")
+    groups = "".join('<section class="pgroup"><h3 class="h3 rv">{}</h3><p class="small rv">{} {}</p><div class="grid g-4 keep-2">{}</div></section>'.format(
+        t(d["k"]), len(mine), t("items"), "".join(product_card(d, it, i, gk) for i, (_, gk, it) in enumerate(mine)))
+        for d in divs for mine in [[x for x in items if x[0] is d]])
+    prods = '<section class="sec sec--tight sec--surface"><div class="wrap">{}{}</div></section>'.format(sec_head(t("sup_prod_h").format(e(s["name"])), left=True), groups)
+    about = '<section class="sec sec--tight"><div class="wrap"><div class="prose rv"><h2 class="h3">{}</h2><p>{}</p></div></div></section>'.format(
+        t("sup_about").format(e(s["name"])), s["about"][LI]) if s["about"] else ""
+    ids = {d["id"] for d in divs}
+    others = [o for o in SUPPLIERS if o is not s and ids & {d["id"] for d in sup_divs(o)}][:6]
+    near = '<section class="sec sec--tight sec--tint"><div class="wrap">{}<div class="logo-row rv">{}</div></div></section>'.format(
+        sec_head(t("sup_others"), left=True), "".join(logo_tile(o, 56, "supplier-" + o["slug"] + ".html") for o in others)) if others else ""
+    page("supplier-" + s["slug"], t("sup_title").format(s["name"]), head + prods + about + near + cta(), t("sup_sells").format(n=len(items), name=s["name"]), active="suppliers")
 
 
 def p_solutions():
     secs = []
     for i, (k, pic, chips, link) in enumerate(SOLS):
         text = ('<div class="rv"><span class="tag">{}</span><h2 class="h2" style="margin:16px 0">{}</h2><p>{}</p><h3 class="h4" style="margin-top:28px">{}</h3>'
-                '<div class="chips">{}</div><div class="btns" style="margin-top:28px"><a class="btn" href="{}.html">{}</a><a class="btn btn--ghost" href="quote.html">{}</a></div></div>').format(
-            "0%d" % (i + 1), t("sol_" + k), t("sol_" + k + "_p"), t("sol_rec"), "".join('<span class="tag">' + t(c) + "</span>" for c in chips), link, t("view_products"), t("quote"))
+                '<div class="chips">{}</div><div class="btns" style="margin-top:28px"><a class="btn" href="{}.html">{}</a><a class="btn btn--ghost" href="contact.html">{}</a></div></div>').format(
+            "0%d" % (i + 1), t("sol_" + k), t("sol_" + k + "_p"), t("sol_rec"), "".join('<span class="tag">' + t(c) + "</span>" for c in chips), link, t("view_products"), t("contact"))
         pic_html = '<div class="split__img rv">' + img(pic, "") + "</div>"
         secs.append('<section class="sec{}" id="{}"><div class="wrap"><div class="split">{}</div></div></section>'.format(
             " sec--surface" if i % 2 else "", k, (pic_html + text) if i % 2 else (text + pic_html)))
@@ -598,25 +756,13 @@ def p_news():
     page(slug, t(k + "_t"), art + cta(), t(k + "_p"), active="news")
 
 
-def p_careers():
-    jobs = "".join('<li class="rv"><div><h3 class="h4">{}</h3><p class="meta"><span>{}</span><span>{}</span><span>{}</span></p></div><a class="btn btn--ghost btn--sm" href="#apply">{}</a></li>'.format(
-        t(k), t("vientiane"), t("full_time") if k == "job1" else t("job2"), t(k + "_m"), t("apply")) for k in ("job1", "job2"))
-    f = form([field(t("f_fullname"), "name", req=True), field(t("f_phone"), "tel", "tel", req=True), field(t("email"), "email", "email"),
-              field(t("f_position"), "position", "select", req=True, options=[t("job1"), t("job2")]),
-              field(t("f_files"), "files", "file", full=True, hint=t("apply_p")), field(t("f_message"), "message", "textarea", full=True)], t("f_send_apply"))
-    body = (phead(t("careers"), t("car_lead"), [(t("about"), "about.html")], "photo/4766.jpg")
-            + '<section class="sec"><div class="wrap" style="max-width:1040px">{}<ul class="rows">{}</ul></div></section>'.format(sec_head(t("open_pos"), left=True), jobs)
-            + '<section class="sec sec--surface" id="apply"><div class="wrap"><div class="split split--38"><div class="rv">{}<div class="aside-box" style="background:#fff"><h3 class="h4">{}</h3><p>{}: <a href="tel:{}"><b>{}</b></a></p></div></div><div class="panel rv">{}</div></div></div></section>'.format(
-                sec_head(t("apply_h"), t("apply_p"), left=True), t("car_ask"), t("tel"), TEL_HREF, TEL, f))
-    page("careers", t("careers"), body, t("car_lead"), active="about")
-
-
 def p_contact():
-    tiles = "".join('<a class="tile" href="{}">{}<b>{}</b><span>{}</span></a>'.format(h, ic(icon), t(k), v) for k, icon, h, v in [
-        ("q_general", "phone", "tel:" + TEL_HREF, TEL), ("q_sales", "file", "quote.html", t("quote")),
-        ("q_service", "tool", "tel:" + MOB_HREF, MOB), ("q_career", "users", "careers.html", t("careers"))])
+    tiles = "".join('<a class="tile" href="{}"{}>{}<b>{}</b><span>{}</span></a>'.format(
+        h, ' target="_blank" rel="noopener"' if h.startswith("http") else "", ic(icon), t(k), v) for k, icon, h, v in [
+        ("q_general", "phone", "tel:" + TEL_HREF, TEL), ("q_sales", "mail", "mailto:" + MAIL, MAIL),
+        ("q_service", "tool", "tel:" + MOB_HREF, MOB), ("whatsapp", "chat", WA, MOB)])
     f = form([field(t("f_fullname"), "name", req=True), field(t("f_org"), "org"), field(t("f_phone"), "tel", "tel", req=True), field(t("email"), "email", "email", req=True),
-              field(t("f_subject"), "subject", "select", full=True, options=[t("q_general"), t("q_sales"), t("q_service"), t("q_career"), t("f_other")]),
+              field(t("f_subject"), "subject", "select", full=True, options=[t("q_general"), t("q_sales"), t("q_service"), t("f_other")]),
               field(t("f_message"), "message", "textarea", req=True, full=True)], t("f_send"))
     body = (phead(t("contact"), t("contact_lead"))
             + '<section class="sec sec--tight"><div class="wrap">{}<div class="tiles rv">{}</div></div></section>'.format(sec_head(t("quick"), left=True), tiles)
@@ -624,19 +770,6 @@ def p_contact():
                 sec_head(t("contact_form_h"), left=True), contact_aside().replace('class="aside-box"', 'class="aside-box" style="background:#fff"'), f)
             + '<section class="sec"><div class="wrap">{}{}</div></section>'.format(sec_head(t("home_contact_h")), location_block()))
     page("contact", t("contact"), body, t("contact_lead"), active="contact")
-
-
-def p_quote():
-    f = form([field(t("f_fullname"), "name", req=True), field(t("f_org"), "org", req=True), field(t("f_phone"), "tel", "tel", req=True), field(t("email"), "email", "email", req=True),
-              field(t("f_division"), "division", "select", req=True, options=[t(d["k"]) for d in DIVS]),
-              field(t("f_facility"), "facility", "select", options=[t("sol_" + k) for k, *_ in SOLS] + [t("f_other")]),
-              field(t("f_product"), "product", req=True, full=True), field(t("f_qty"), "qty", "number"),
-              field(t("f_message"), "message", "textarea", full=True)], t("f_send_quote"))
-    how = "".join('<div class="step" style="margin-top:24px"><h3 class="h4" style="font-size:16px;line-height:26px">{}</h3></div>'.format(t(k)) for k in ("qh1", "qh2", "qh3"))
-    body = (phead(t("quote"), t("quote_lead"))
-            + '<section class="sec sec--tight"><div class="wrap"><div class="split split--38"><div class="rv"><h2 class="h3">{}</h2><div class="steps">{}</div><div style="margin-top:40px">{}</div></div><div class="panel rv">{}</div></div></div></section>'.format(
-                t("quote_how"), how, contact_aside(), f))
-    page("quote", t("quote"), body, t("quote_lead"))
 
 
 def p_downloads():
@@ -649,7 +782,7 @@ def p_downloads():
 
 
 def p_faq():
-    qa = [(t("fq1"), t("fa1")), (t("fq2"), t("fa2")), (t("fq3"), t("fa3")), (t("fq4"), t("fa4")), (t("fq5"), t("addr_full")), (t("fq6"), t("fa6"))]
+    qa = [(t("fq1"), t("fa1")), (t("fq2"), t("fa2")), (t("fq3"), t("fa3")), (t("fq4"), t("fa4")), (t("fq5"), t("addr_full"))]
     items = "".join('<details{}><summary>{}{}</summary><p>{}</p></details>'.format(" open" if i == 0 else "", q, ic("chev"), a) for i, (q, a) in enumerate(qa))
     body = (phead(t("faq"), t("faq_lead"))
             + '<section class="sec sec--tight"><div class="wrap" style="max-width:1040px"><div class="faq rv">{}</div><div class="aside-box rv" style="margin-top:56px;text-align:center"><h2 class="h4">{}</h2><div class="btns" style="justify-content:center;margin-top:16px"><a class="btn" href="contact.html">{}</a><a class="btn btn--ghost" href="{}" target="_blank" rel="noopener">{}</a></div></div></div></section>'.format(
@@ -667,8 +800,10 @@ def p_legal(slug, title_k, keys):
 def p_sitemap():
     def box(title, links):
         return '<div><h2 class="h4">{}</h2>{}</div>'.format(title, "".join('<a href="{}.html">{}</a>'.format(p, lab) for p, lab in links))
-    boxes = [box(t("company"), [("index", t("home")), ("about", t("about_profile")), ("vision", t("vision")), ("news", t("news")), ("careers", t("careers"))]),
-             box(t("support"), [("solutions", t("solutions")), ("services", t("services")), ("quote", t("quote")), ("downloads", t("downloads")), ("faq", t("faq")), ("contact", t("contact")), ("privacy", t("privacy")), ("terms", t("terms"))])]
+    boxes = [box(t("company"), [("index", t("home")), ("about", t("about_profile")), ("vision", t("vision")), ("news", t("news"))]),
+             box(t("support"), [("solutions", t("solutions")), ("services", t("services")), ("downloads", t("downloads")), ("faq", t("faq")), ("contact", t("contact")), ("privacy", t("privacy")), ("terms", t("terms"))])]
+    if SUPPLIERS:
+        boxes.append(box(t("sup"), [("suppliers", t("sup_all"))] + [("supplier-" + s["slug"], e(s["name"])) for s in SUPPLIERS]))
     for d in DIVS:
         boxes.append(box(t(d["k"]), [(d["id"], t("all") + " — " + t(d["k"]))] + [(it["slug"], e(it["name"])) for _, items in d["groups"] for it in items if it["slug"]]))
     body = phead(t("sitemap")) + '<section class="sec sec--tight"><div class="wrap"><div class="sitemap">{}</div></div></section>'.format("".join(boxes))
@@ -682,27 +817,42 @@ def p_404():
 
 
 def main():
-    global LI
+    global LI, A, OUT, PREVIEW, SUPPLIERS, SUPPLY, SUP_BY
+    PREVIEW = "--preview" in sys.argv
+    if PREVIEW:
+        OUT, A = os.path.join(ROOT, "preview"), "../../public/assets"
+        SUPPLIERS, SUPPLY = SUPDATA.SAMPLE_SUPPLIERS, SUPDATA.sample_supply(DIVS)
+    else:
+        SUPPLIERS, SUPPLY = SUPDATA.SUPPLIERS, SUPDATA.SUPPLY
+    SUP_BY = {s["slug"]: s for s in SUPPLIERS}
+    names = {it["name"] for _, _, it in all_items()}
+    bad = [n for n in SUPPLY if n not in names] + [k for v in SUPPLY.values() for k in v if k not in SUP_BY] + [s["country"] for s in SUPPLIERS if s["country"] not in COUNTRIES]
+    assert not bad, "unknown product / supplier / country in supplier data: %s" % bad
     missing = [k for k, v in T.items() if len(v) != 4 or not all(v)]
     assert not missing, "incomplete strings: %s" % missing
     n = 0
     for LI, lang in enumerate(LANGS):
-        os.makedirs(os.path.join(ROOT, lang), exist_ok=True)
-        before = len(os.listdir(os.path.join(ROOT, lang)))
+        os.makedirs(os.path.join(OUT, lang), exist_ok=True)
         p_home(); p_about(); p_vision(); p_products()
         for d in DIVS:
             p_division(d)
         for d, gk, it in all_items():
             if it["slug"]:
                 p_product(d, gk, it)
-        p_solutions(); p_services(); p_news(); p_careers(); p_contact(); p_quote(); p_downloads(); p_faq()
+        p_solutions(); p_services(); p_news(); p_contact(); p_downloads(); p_faq()
         p_legal("privacy", "privacy", ["pv1", "pv2", "pv3"]); p_legal("terms", "terms", ["tm1", "tm2", "tm3"])
+        if SUPPLIERS:
+            p_suppliers()
+            for s in SUPPLIERS:
+                p_supplier(s)
         p_sitemap(); p_404()
-        n += len(os.listdir(os.path.join(ROOT, lang)))
-    with open(os.path.join(ROOT, "index.html"), "w", encoding="utf-8") as f:
+        n += len(os.listdir(os.path.join(OUT, lang)))
+    with open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as f:
         f.write('<!doctype html>\n<html lang="lo">\n<head>\n<meta charset="utf-8">\n<title>XTK</title>\n<meta http-equiv="refresh" content="0; url=lo/index.html">\n'
-                '<link rel="canonical" href="lo/index.html">\n</head>\n<body>\n<p><a href="lo/index.html">ລາວ</a> · <a href="en/index.html">English</a> · <a href="th/index.html">ไทย</a> · <a href="zh/index.html">中文</a></p>\n</body>\n</html>\n')
-    print("pages written:", n, "| product items:", N_ITEMS)
+                '<link rel="canonical" href="lo/index.html">\n' + ("" if INDEXABLE and not PREVIEW else '<meta name="robots" content="noindex, nofollow">\n') + '</head>\n<body>\n<p><a href="lo/index.html">ລາວ</a> · <a href="en/index.html">English</a> · <a href="th/index.html">ไทย</a> · <a href="zh/index.html">中文</a></p>\n</body>\n</html>\n')
+    with open(os.path.join(OUT, "robots.txt"), "w", encoding="utf-8") as f:
+        f.write("User-agent: *\nAllow: /\n" if INDEXABLE and not PREVIEW else "User-agent: *\nDisallow: /\n")
+    print("pages written:", n, "| product items:", N_ITEMS, "| suppliers:", len(SUPPLIERS), "| out:", os.path.relpath(OUT, ROOT))
 
 
 if __name__ == "__main__":

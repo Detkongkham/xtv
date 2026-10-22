@@ -1,0 +1,44 @@
+# XTK docroot rules (P0-A6). Tested locally with Apache 2.4; recheck on the cPanel server in phase S.
+Options -Indexes
+DirectoryIndex index.html index.php
+ErrorDocument 404 /lo/404.html
+
+AddType image/webp .webp
+AddType video/webm .webm
+AddType font/woff2 .woff2
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # force HTTPS, except on a local test server
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # admin front controller (phase 1)
+  RewriteRule ^admin/assets/ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^admin(/.*)?$ admin/index.php [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+  # asset URLs carry ?v=<hash>, so they can be cached for a year
+  <FilesMatch "\.(css|js|woff2|jpg|jpeg|png|webp|svg|mp4|webm|pdf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(html|txt|xml)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain application/javascript text/javascript image/svg+xml application/json application/xml
+</IfModule>
+<IfModule !mod_brotli.c>
+  <IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript text/javascript image/svg+xml application/json application/xml
+  </IfModule>
+</IfModule>

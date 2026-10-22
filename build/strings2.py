@@ -3,7 +3,6 @@
 # they deliberately contain no model-specific figures.
 
 FORMAL = {
-    "careers": ("ຮ່ວມງານກັບພວກເຮົາ", "Careers", "ร่วมงานกับเรา", "招贤纳士"),
     "hero1_t": ("ຄູ່ຮ່ວມງານດ້ານການແພດ ທີ່ສະຖານບໍລິການສາທາລະນະສຸກໄວ້ວາງໃຈ", "A trusted healthcare partner for medical facilities in Laos", "พันธมิตรด้านการแพทย์ที่สถานพยาบาลในลาวไว้วางใจ", "老挝医疗机构值得信赖的合作伙伴"),
     "hero1_p": ("ບໍລິສັດ ຊັບທະວີຄູນ ສະໜອງ ແລະ ຈຳໜ່າຍຢາ, ອຸປະກອນການແພດ ແລະ ອຸປະກອນຫ້ອງວິເຄາະ ທີ່ໄດ້ມາດຕະຖານສາກົນ ພ້ອມບໍລິການຫຼັງການຂາຍໂດຍບຸກຄະລາກອນມືອາຊີບ.",
                 "Xupthavykhoun supplies and distributes pharmaceuticals, medical devices and laboratory equipment of international standard, supported by a professional after-sales organisation.",
@@ -24,7 +23,7 @@ FORMAL = {
                    "กรุณาเลือกประเภทสถานที่ของท่านเพื่อพิจารณาอุปกรณ์และบริการที่เหมาะสม",
                    "请选择您的机构类型，以查看适用的设备与服务。"),
     "home_contact_h": ("ສຳນັກງານຂອງບໍລິສັດ", "Our office", "สำนักงานของบริษัท", "公司办公地址"),
-    "cta_h": ("ຕ້ອງການໃບສະເໜີລາຄາ ຫຼື ຄຳປຶກສາຈາກບໍລິສັດ?", "Do you require a quotation or professional advice?", "ต้องการใบเสนอราคาหรือคำปรึกษาจากบริษัท?", "需要报价或专业咨询？"),
+    "cta_h": ("ຕ້ອງການຂໍ້ມູນຜະລິດຕະພັນ ຫຼື ຄຳປຶກສາຈາກບໍລິສັດ?", "Do you require product information or professional advice?", "ต้องการข้อมูลผลิตภัณฑ์หรือคำปรึกษาจากบริษัท?", "需要产品信息或专业咨询？"),
     "cta_p": ("ກະລຸນາແຈ້ງຄວາມຕ້ອງການຂອງທ່ານ ທີມງານຂອງບໍລິສັດຈະຕິດຕໍ່ກັບຫາທ່ານໂດຍໄວ.",
               "Please let us know your requirements and a member of our team will contact you promptly.",
               "กรุณาแจ้งความต้องการของท่าน ทีมงานของบริษัทจะติดต่อกลับโดยเร็ว",
@@ -34,18 +33,10 @@ FORMAL = {
                      "You may enquire about products, request advice or arrange a visit from our team through the channels below.",
                      "ท่านสามารถสอบถามข้อมูลผลิตภัณฑ์ ขอคำปรึกษา หรือนัดหมายทีมงานของบริษัทผ่านช่องทางด้านล่างนี้",
                      "您可通过以下渠道咨询产品、获取建议或预约我们的团队上门。"),
-    "quote_lead": ("ກະລຸນາຕື່ມຂໍ້ມູນຜະລິດຕະພັນທີ່ທ່ານສົນໃຈ ຝ່າຍຂາຍຂອງບໍລິສັດຈະຈັດສົ່ງໃບສະເໜີລາຄາໃຫ້ທ່ານ.",
-                   "Please provide details of the products you are interested in and our sales department will issue a quotation.",
-                   "กรุณากรอกข้อมูลผลิตภัณฑ์ที่ท่านสนใจ ฝ่ายขายของบริษัทจะจัดส่งใบเสนอราคาให้ท่าน",
-                   "请填写您感兴趣的产品信息，销售部门将为您出具报价单。"),
-    "car_lead": ("ບໍລິສັດເປີດຮັບບຸກຄະລາກອນໃນຫຼາຍຕຳແໜ່ງ. ທ່ານສາມາດພິຈາລະນາຕຳແໜ່ງທີ່ເປີດຮັບ ແລະ ຍື່ນໃບສະໝັກທາງອອນລາຍ.",
-                 "The company is recruiting for several positions. You may review the open roles and submit your application online.",
-                 "บริษัทเปิดรับบุคลากรในหลายตำแหน่ง ท่านสามารถพิจารณาตำแหน่งที่เปิดรับและยื่นใบสมัครทางออนไลน์",
-                 "公司正在招聘多个岗位，您可查看空缺职位并在线提交申请。"),
-    "prod_lead": ("ຜະລິດຕະພັນຂອງບໍລິສັດແບ່ງອອກເປັນຫ້າຂະແໜງທຸລະກິດ. ກະລຸນາເລືອກຂະແໜງເພື່ອເບິ່ງລາຍການ ຫຼື ຂໍໃບສະເໜີລາຄາ.",
-                  "The company's products are organised into five business divisions. Please select a division to view its range or to request a quotation.",
-                  "ผลิตภัณฑ์ของบริษัทแบ่งออกเป็นห้ากลุ่มธุรกิจ กรุณาเลือกกลุ่มเพื่อดูรายการหรือขอใบเสนอราคา",
-                  "公司产品分为五大业务板块。请选择板块查看产品或申请报价。"),
+    "prod_lead": ("ຜະລິດຕະພັນຂອງບໍລິສັດແບ່ງອອກເປັນຫ້າຂະແໜງທຸລະກິດ. ກະລຸນາເລືອກຂະແໜງເພື່ອເບິ່ງລາຍການ ຫຼື ຕິດຕໍ່ຝ່າຍຂາຍ.",
+                 "The company's products are organised into five business divisions. Please select a division to view its range or to contact our sales team.",
+                 "ผลิตภัณฑ์ของบริษัทแบ่งออกเป็นห้ากลุ่มธุรกิจ กรุณาเลือกกลุ่มเพื่อดูรายการหรือติดต่อฝ่ายขาย",
+                 "公司产品分为五大业务板块。请选择板块查看产品或联系销售团队。"),
     "faq_lead": ("ຄຳຕອບສຳລັບຄຳຖາມທີ່ລູກຄ້າສອບຖາມເປັນປະຈຳ.", "Answers to the questions most frequently raised by customers.", "คำตอบสำหรับคำถามที่ลูกค้าสอบถามเป็นประจำ", "客户常见问题解答。"),
     "f_ok": ("ຂໍຂອບໃຈ. ໜ້ານີ້ເປັນໜ້າຕົວຢ່າງ ຂໍ້ມູນຂອງທ່ານຍັງບໍ່ຖືກສົ່ງອອກ.", "Thank you. This is a demonstration page; your information has not been sent.", "ขอขอบคุณ หน้านี้เป็นหน้าตัวอย่าง ข้อมูลของท่านยังไม่ถูกส่งออก", "谢谢。此为演示页面，您的信息尚未发送。"),
 }
@@ -162,7 +153,6 @@ EXTRA = {
     # ---- product detail ----
     "pd_use": ("ການນຳໃຊ້", "Application", "การใช้งาน", "应用"),
     "pd_srv": ("ບໍລິການທີ່ມາພ້ອມຜະລິດຕະພັນ", "Services included", "บริการที่มาพร้อมผลิตภัณฑ์", "随附服务"),
-    "pd_order": ("ຂັ້ນຕອນການສັ່ງຊື້", "Ordering procedure", "ขั้นตอนการสั่งซื้อ", "订购流程"),
     "pd_note": ("ຮູບພາບໃຊ້ເພື່ອປະກອບການອະທິບາຍ. ຂໍ້ມູນຈຳເພາະ, ລຸ້ນ ແລະ ອຸປະກອນເສີມ ໃຫ້ຖືຕາມເອກະສານຂອງຜູ້ຜະລິດ ແລະ ໃບສະເໜີລາຄາ.",
                 "Images are for illustration. Specifications, models and accessories are as stated in the manufacturer's documentation and the quotation.",
                 "รูปภาพใช้เพื่อประกอบการอธิบาย ข้อมูลจำเพาะ รุ่น และอุปกรณ์เสริมให้ถือตามเอกสารของผู้ผลิตและใบเสนอราคา",
