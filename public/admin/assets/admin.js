@@ -22,3 +22,16 @@
     if (f.dataset.busy && b) { b.disabled = true; b.textContent = f.dataset.busy; }
   });
 })();
+
+(function () {
+  // <input data-filter-for="id">: hide the labels inside #id whose data-text does not contain what was typed
+  document.querySelectorAll('[data-filter-for]').forEach(function (input) {
+    var box = document.getElementById(input.getAttribute('data-filter-for'));
+    if (!box) return;
+    input.addEventListener('input', function () {
+      var q = input.value.trim().toLowerCase();
+      box.querySelectorAll('[data-text]').forEach(function (el) { el.hidden = q !== '' && el.getAttribute('data-text').indexOf(q) === -1; });
+      box.querySelectorAll('fieldset').forEach(function (fs) { fs.hidden = !fs.querySelector('[data-text]:not([hidden])'); });
+    });
+  });
+})();

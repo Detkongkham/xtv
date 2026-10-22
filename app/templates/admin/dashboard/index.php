@@ -1,5 +1,5 @@
 <?php
-/** @var array $counts @var int $week @var int $month @var array $latest @var int $mailErrors */
+/** @var array $counts @var int $week @var int $month @var array $latest @var int $mailErrors @var int $withoutSupplier */
 use App\Http\Admin\MessageController as MC;
 ?>
 <?php if ($mailErrors > 0): ?>
@@ -36,3 +36,10 @@ use App\Http\Admin\MessageController as MC;
     </ul>
   <?php endif; ?>
 </section>
+
+<?php if ($withoutSupplier > 0): ?>
+<section class="card">
+  <div class="card__head"><h2>ຜູ້ສະໜອງ</h2><a href="/admin/suppliers">ຈັດການຜູ້ສະໜອງ →</a></div>
+  <p>ສິນຄ້າທີ່ຍັງບໍ່ລະບຸຜູ້ສະໜອງ: <b><?= e($withoutSupplier) ?></b>. ເປີດຜູ້ສະໜອງ ແລ້ວກົດ "ເພີ່ມສິນຄ້າ" ຈົນຄົບ.</p>
+</section>
+<?php endif; ?>

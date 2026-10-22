@@ -11,6 +11,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
 use App\Repository\MessageRepository;
+use App\Repository\SettingRepository;
 
 /** Shared helpers for admin controllers. */
 abstract class Controller
@@ -55,6 +56,18 @@ abstract class Controller
             Session::flash('error', 'ໝົດເວລາຂອງຟອມ. ກະລຸນາລອງໃໝ່.');
             Response::redirect(Request::path(), 303);
         }
+    }
+
+    /** Remember that site content changed, so the dashboard can say it is not published yet. */
+    protected function contentChanged(): void
+    {
+        (new SettingRepository(App::db()))->set('content_changed_at', date('Y-m-d\TH:i:s'));
+    }
+
+    /** Whether a page (name without .html) is on the live site now. */
+    protected static function isPublished(string $page): bool
+    {
+        return is_file(dirname(App::path()) . '/public/lo/' . $page . '.html');
     }
 
     protected function back(string $url, string $type, string $text): never

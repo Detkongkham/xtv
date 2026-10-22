@@ -42,6 +42,20 @@ final class Request
         return is_string($v) ? $v : $default;
     }
 
+    /** name[]=1&name[]=2 -> [1, 2]: positive integers only */
+    public static function postIds(string $key): array
+    {
+        $v = $_POST[$key] ?? [];
+        return is_array($v) ? array_values(array_unique(array_filter(array_map('intval', $v), static fn ($i) => $i > 0))) : [];
+    }
+
+    /** One uploaded file, or null when none was chosen. */
+    public static function file(string $key): ?array
+    {
+        $f = $_FILES[$key] ?? null;
+        return is_array($f) && is_string($f['name'] ?? null) && ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE ? $f : null;
+    }
+
     public static function query(string $key, string $default = ''): string
     {
         $v = $_GET[$key] ?? $default;

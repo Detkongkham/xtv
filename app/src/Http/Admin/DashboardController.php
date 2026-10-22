@@ -5,6 +5,7 @@ namespace App\Http\Admin;
 
 use App\Core\App;
 use App\Repository\MessageRepository;
+use App\Repository\SupplierRepository;
 
 final class DashboardController extends Controller
 {
@@ -18,6 +19,7 @@ final class DashboardController extends Controller
             'month' => $messages->countSince('30 DAY'),
             'latest' => $messages->latestNew(5),
             'mailErrors' => $messages->countMailErrors(),
+            'withoutSupplier' => (new SupplierRepository(App::db()))->countProductsWithoutSupplier(),
         ]);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Publish;
 
 use App\Core\App;
+use App\Core\Countries;
 use App\Core\Lang;
 use App\Core\View;
 
@@ -210,7 +211,7 @@ final class SiteView
 
     public function country(array $s): string
     {
-        return Lang::file('countries')[$s['country_code']][$this->lang] ?? $s['country_code'];
+        return Countries::name($s['country_code'], $this->lang);
     }
 
     /** The logo at max height $h. Until the client sends the file, a text placeholder takes its place. */
