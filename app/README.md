@@ -27,7 +27,7 @@ php bin/create-admin.php
 ## Run
 
 ```sh
-python3 build/build.py                                           # static pages → public/
+php app/bin/publish.php                                          # static pages from the database → public/
 php -S 127.0.0.1:8000 -t public app/bin/dev-router.php           # site + /api + /admin
 ```
 
@@ -42,8 +42,13 @@ php -S 127.0.0.1:8000 -t public app/bin/dev-router.php           # site + /api +
 | `php bin/migrate.php [--status]` | apply new `database/migrations/*.sql` |
 | `php bin/seed.php` | load `database/seed/seed.json` into an empty database (refuses if content exists) |
 | `php bin/build-site.php --out=DIR` | render every page from the database into DIR (`--seed=FILE` renders from a seed file instead) |
+| `php bin/publish.php` | build, check links, swap into `public/` (same as the admin's Publish button) |
+| `php bin/publish.php --rollback[=ID]` / `--list` | put a previous build back / list them |
 | `php bin/create-admin.php` | add a user (asks for the password, hidden) |
 | `php bin/cleanup.php` | delete old rate limits, login attempts, spam (30 d) and logs (30 d) |
 | `php bin/backup.php` | gzip dump to `storage/backups/`, keeps 14 |
 | `php bin/backup.php --restore=FILE --db=NAME` | load a backup into another (existing) database |
 | `composer test` | PHPUnit |
+
+`build/build.py` no longer owns `public/<lang>/`: since P2-C4 the pages come from the database through the Publisher.
+Running build.py would overwrite the published pages until the next publish. It stays only for reference until P2-C11.

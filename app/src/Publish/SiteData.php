@@ -23,6 +23,7 @@ final class SiteData
     private array $productsOfSupplier = [];
     private array $news = [];
     private array $settings = [];
+    private array $redirects = [];
 
     private function __construct(array $t)
     {
@@ -83,12 +84,13 @@ final class SiteData
         usort($news, static fn ($a, $b) => [$b['published_on'], (int) $b['id']] <=> [$a['published_on'], (int) $a['id']]);
         $this->news = $news;
         $this->settings = $t['settings'];
+        $this->redirects = $t['redirects'] ?? [];
     }
 
     public static function fromDb(Db $db): self
     {
         $tables = [];
-        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news'] as $table) {
+        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects'] as $table) {
             $tables[$table] = $db->all('SELECT * FROM `' . $table . '`');
         }
         $tables['settings'] = [];
@@ -224,6 +226,12 @@ final class SiteData
     public function hasPage(array $news): bool
     {
         return trim((string) $news['body_en']) !== '';
+    }
+
+    /** @return list<array{from_page: string, to_page: string}> old page names (no .html) and where they moved */
+    public function redirects(): array
+    {
+        return $this->redirects;
     }
 
     public function setting(string $key, mixed $default = null): mixed

@@ -84,7 +84,7 @@
 | P2-C1 | ແປງແມ່ແບບເປັນ PHP | `templates/site/` + `lang/*.php` ຈາກ `build.py`, `strings.py` ແລະ `strings2.py` ([02 §4](02-frontend.md)) |
 | P2-C2 | Seed | migration `002_content.sql`, `build/export_seed.py` → `seed.json`, `bin/seed.php` ([04 §6](04-database.md)) |
 | P2-C3 | **ກວດ HTML ຄືກັນ** | PHP render ຈາກ DB ທຽບກັບ output ຂອງ Python ທັງ 276 ໜ້າ (normalize ຍະຫວ່າງ). ຕ່າງກັນ 0 ໜ້າ ຈຶ່ງໄປຕໍ່ |
-| P2-C4 | Publisher | build → ກວດ → swap → rollback, lock, `publish_log`, `bin/publish.php`, ໜ້າ `/admin/publish` ([03 §4](03-backend.md)). ຟອນຈີນເປັນ subset: ຕົວອັກສອນຈີນໃໝ່ທີ່ບໍ່ຢູ່ໃນ subset ຈະສະແດງດ້ວຍຟອນຂອງເຄື່ອງ. ຕ້ອງຕັດສິນໃຈວິທີສ້າງ subset ໃໝ່ (server ບໍ່ມີ Python) |
+| P2-C4 | Publisher | build → ກວດ → swap → rollback, lock, `publish_log`, `bin/publish.php`, ໜ້າ `/admin/publish` ([03 §4](03-backend.md)). ຟອນຈີນເປັນ subset: ຕົວອັກສອນຈີນໃໝ່ທີ່ບໍ່ຢູ່ໃນ subset ຈະສະແດງດ້ວຍຟອນຂອງເຄື່ອງ. ຕັດສິນໃຈແລ້ວ (22/10/2026): Publisher ກວດຕົວອັກສອນຈີນທຽບກັບ `noto-sans-sc-sub.txt` ແລະ ເຕືອນໃນ `/admin/publish`; ນັກພັດທະນາສ້າງ subset ໃໝ່ໃນເຄື່ອງ (`optimize_media.py --zh-font`) ແລ້ວ deploy. ເຄື່ອງມືນີ້ຕ້ອງເກັບໄວ້ຕອນ C11 |
 | P2-C5 | ຄັງສື່ | ອັບ, ກວດ `finfo`, GD ສ້າງ WebP/JPEG 3 ຂະໜາດ, ສະແດງບ່ອນທີ່ໃຊ້, media picker. ຍ້າຍຮູບສິນຄ້າເກົ່າເຂົ້າ `uploads/` |
 | P2-C6 | ຂະແໜງ ແລະ ກຸ່ມ | CRUD, ລາກລຽງ, ແທັບ 4 ພາສາ |
 | P2-C7 | ສິນຄ້າ | CRUD, specs, ສິນຄ້າແນະນຳ, ລາກລຽງ, ສຳເນົາ, slug + redirects |
@@ -101,11 +101,11 @@
 - [ ] ເພີ່ມສິນຄ້າໃໝ່ພ້ອມຮູບ → ເຜີຍແຜ່ → ປາກົດໃນໜ້າຂະແໜງ, ໜ້າສິນຄ້າ, sitemap ແລະ ແຜນຜັງເວັບ ທັງ 4 ພາສາ
 - [ ] ເພີ່ມຜູ້ສະໜອງໃໝ່ + ໝາຍເປັນຫຼັກ + ເຊື່ອມສິນຄ້າ → ເຜີຍແຜ່ → ປາກົດໃນ mega menu, ໜ້າລວມ (ຕົວກອງຖືກ), ໜ້າລາຍລະອຽດ (ມີສິນຄ້າ), ບລັອກ "ສະໜອງໂດຍ" ໃນໜ້າສິນຄ້າ ແລະ ຊື່ຜູ້ສະໜອງໃນກາດສິນຄ້າ ທັງ 4 ພາສາ. ຕົວເລກສະຖິຕິຂອງໜ້າລວມອັບເດດເອງ
 - [ ] ປ່ຽນ slug → URL ເກົ່າພາໄປ URL ໃໝ່
-- [ ] ເຜີຍແຜ່ທີ່ລົ້ມເຫຼວ (ທົດສອບໂດຍເຮັດໃຫ້ລິ້ງເສຍ) ບໍ່ແຕະເວັບທີ່ອອນລາຍ. Rollback ກັບໄປຊຸດກ່ອນໄດ້
-- [ ] ສອງຄົນກົດເຜີຍແຜ່ພ້ອມກັນ → ຄົນທີສອງໄດ້ຂໍ້ຄວາມລໍຖ້າ
+- [x] ເຜີຍແຜ່ທີ່ລົ້ມເຫຼວ (ທົດສອບໂດຍເຮັດໃຫ້ລິ້ງເສຍ) ບໍ່ແຕະເວັບທີ່ອອນລາຍ. Rollback ກັບໄປຊຸດກ່ອນໄດ້ (22/10/2026: CLI ແລະ `/admin/publish`)
+- [x] ສອງຄົນກົດເຜີຍແຜ່ພ້ອມກັນ → ຄົນທີສອງໄດ້ຂໍ້ຄວາມລໍຖ້າ
 - [ ] ອັບໄຟລ໌ `.php` ທີ່ປອມເປັນ `.jpg` → ຖືກປະຕິເສດ
 - [ ] HTML ອັນຕະລາຍໃນຂ່າວ (`<script>`, `onerror=`) ຖືກລ້າງອອກ
-- [ ] ເຜີຍແຜ່ 276 ໜ້າໃຊ້ເວລາ < 10 ວິນາທີ ໃນເຄື່ອງ (ວັດໃນ server ອີກຄັ້ງໃນເຟດ S)
+- [x] ເຜີຍແຜ່ 276 ໜ້າໃຊ້ເວລາ < 10 ວິນາທີ ໃນເຄື່ອງ (22/10/2026: 0.2–0.25 ວິນາທີ ລວມການກວດລິ້ງ) (ວັດໃນ server ອີກຄັ້ງໃນເຟດ S)
 - [ ] Lighthouse ຍັງ ≥ 90
 
 ---
@@ -116,7 +116,7 @@
 | ລະຫັດ | ວຽກ | ລາຍລະອຽດ |
 |---|---|---|
 | P3-D1 | ການຕັ້ງຄ່າ | ຂໍ້ມູນຕິດຕໍ່, ທີ່ຢູ່ 4 ພາສາ, ສະຖິຕິ, ອີເມວແຈ້ງເຕືອນ, Analytics ID, noindex ([03 §2.9](03-backend.md)) |
-| P3-D2 | FAQ | migration `003_extras.sql`, CRUD + ລາກລຽງ |
+| P3-D2 | FAQ | migration `004_extras.sql`, CRUD + ລາກລຽງ |
 | P3-D3 | Hero | CRUD ສູງສຸດ 5 slide, ຮູບ/ວິດີໂອ + poster |
 | P3-D4 | SEO | `seo_pages`, canonical ແບບ URL ເຕັມ, `hreflang x-default`, JSON-LD (`Organization`, `Product`, `NewsArticle`) |
 | P3-D5 | Preview | `/admin/preview` render ໜ້າດຽວກ່ອນເຜີຍແຜ່ |

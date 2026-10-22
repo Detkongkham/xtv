@@ -318,7 +318,9 @@ CREATE TABLE product_suppliers (
 ```
 ຂະແໜງຂອງຜູ້ສະໜອງ ບໍ່ເກັບແຍກ. ຄິດໄລ່ຈາກ `product_suppliers → products → product_groups → divisions` ເພື່ອບໍ່ໃຫ້ຂໍ້ມູນຂັດກັນ.
 
-### 4.4 ເຟດ 3 — `database/migrations/003_extras.sql`
+`003_publish_warnings.sql` (P2-C4) ເພີ່ມຖັນ `publish_log.warnings TEXT NULL`: ຄຳເຕືອນທີ່ບໍ່ຢຸດການເຜີຍແຜ່ ເຊັ່ນ ຕົວອັກສອນຈີນທີ່ຟອນບໍ່ມີ.
+
+### 4.4 ເຟດ 3 — `database/migrations/004_extras.sql`
 ```sql
 CREATE TABLE faqs (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

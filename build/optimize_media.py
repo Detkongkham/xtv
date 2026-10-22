@@ -81,6 +81,9 @@ def zh_font(ttf):
     sub.subset(font)
     out = os.path.join(ROOT, "public", "assets", "fonts", "noto-sans-sc-sub.woff2")
     subset.save_font(font, out, opts)
+    # the Publisher (app/src/Publish/FontCheck.php) warns when a page uses a character that is not in this list
+    with open(os.path.splitext(out)[0] + ".txt", "w", encoding="utf-8") as f:
+        f.write("".join(chars) + "\n")
     print("{}  {} chars, {} KB".format(os.path.relpath(out, ROOT), len(chars), os.path.getsize(out) // 1024))
 
 

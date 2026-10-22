@@ -6,6 +6,7 @@ use App\Http\Admin\UserController;
 $nav = [
     ['dashboard', '/admin', 'ໜ້າຫຼັກ', 'M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10'],
     ['messages', '/admin/messages', 'ກ່ອງຂໍ້ຄວາມ', 'M4 6h16v12H4zM4 7l8 6 8-6'],
+    ['publish', '/admin/publish', 'ເຜີຍແຜ່', 'M12 16V4M7 9l5-5 5 5M5 20h14'],
 ];
 if (($user['role'] ?? '') === 'admin') {
     $nav[] = ['users', '/admin/users', 'ຜູ້ໃຊ້', 'M16 19v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 10a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM21 19v-1a4 4 0 00-3-3.9M16 3.1a3.5 3.5 0 010 6.8'];

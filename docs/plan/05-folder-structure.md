@@ -113,7 +113,7 @@ xtv/
 │   │   ├── countries.php                    ← ຊື່ປະເທດ 4 ພາສາ ຕາມລະຫັດ ISO (ສຳລັບຜູ້ສະໜອງ)
 │   │   └── admin.php                        ← ຂໍ້ຄວາມຂອງ admin (ລາວ)
 │   ├── database/
-│   │   ├── migrations/ 001_core.sql, 002_content.sql, 003_extras.sql
+│   │   ├── migrations/ 001_core.sql, 002_content.sql, 003_publish_warnings.sql, 004_extras.sql
 │   │   └── seed/seed.json
 │   ├── bin/                        ← ສັ່ງດ້ວຍ php CLI ຫຼື cron
 │   │   ├── migrate.php
