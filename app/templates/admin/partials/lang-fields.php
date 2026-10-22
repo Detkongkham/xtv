@@ -2,7 +2,8 @@
 /**
  * Translated fields in 4 language panels. admin.js turns the panels into tabs; without JS they are stacked.
  * Lao and English are required; Thai and Chinese may stay empty (the site then shows English).
- * @var array $fields  list of [column prefix, label, 'input'|'textarea', max length, hint (optional), optional field (bool)]
+ * @var array $fields  list of [column prefix, label, 'input'|'textarea'|'html', max length, hint (optional), optional field (bool)]
+ *                     'html' is a textarea that admin.js turns into the simple editor (data-editor)
  * @var array $row     current values: <prefix>_<lang>
  * @var array $errors  <prefix>_<lang> => message
  */
@@ -20,7 +21,9 @@ $required = ['lo', 'en'];
       <?php foreach ($fields as $f): [$prefix, $label, $type, $max] = $f; $key = $prefix . '_' . $l; $req = in_array($l, $required, true) && empty($f[5]) ?>
         <div class="field">
           <label for="<?= e($key) ?>"><?= e($label) ?><?= $req ? ' <em>*</em>' : '' ?></label>
-          <?php if ($type === 'textarea'): ?>
+          <?php if ($type === 'html'): ?>
+            <textarea id="<?= e($key) ?>" name="<?= e($key) ?>" rows="12" lang="<?= $l ?>" data-editor<?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>><?= e($row[$key] ?? '') ?></textarea>
+          <?php elseif ($type === 'textarea'): ?>
             <textarea id="<?= e($key) ?>" name="<?= e($key) ?>" rows="<?= $max > 1000 ? 6 : 3 ?>" maxlength="<?= e($max) ?>" lang="<?= $l ?>"<?= $req ? ' required' : '' ?><?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>><?= e($row[$key] ?? '') ?></textarea>
           <?php else: ?>
             <input id="<?= e($key) ?>" name="<?= e($key) ?>" maxlength="<?= e($max) ?>" lang="<?= $l ?>" value="<?= e($row[$key] ?? '') ?>"<?= $req ? ' required' : '' ?><?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>>

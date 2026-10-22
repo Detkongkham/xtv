@@ -264,3 +264,26 @@ code { font-size: 13px; }
 details.card > summary { cursor: pointer; list-style-position: outside; }
 @media (max-width: 1279px) { .filters--products { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 767px) { .spec-row__main { grid-template-columns: 1fr; } }
+
+/* news */
+.grid2--wide { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.rte { border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--white); }
+.rte:focus-within { border-color: var(--brand-600); box-shadow: 0 0 0 1px var(--brand-600); }
+.rte__bar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-card) var(--radius-card) 0 0; }
+.rte__bar button { min-width: 36px; height: 36px; padding: 0 10px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--ink); font: 500 14px/1 var(--font-sans); cursor: pointer; }
+.rte__bar button:hover { background: var(--white); border-color: var(--line); }
+.rte__bar button:focus-visible { outline: 2px solid var(--brand-600); }
+.rte__bar .sep { width: 1px; margin: 4px 2px; background: var(--line); }
+.rte__area { min-height: 320px; max-height: 70vh; overflow: auto; padding: 16px 20px; color: var(--ink); font: 400 16px/1.8 var(--font-sans); outline: 0; }
+.rte__area > * + * { margin-top: .8em; }
+.rte__area h2 { font-size: 22px; } .rte__area h3 { font-size: 18px; }
+.rte__area ul, .rte__area ol { padding-left: 1.4em; }
+.rte__area blockquote { margin-left: 0; padding-left: 16px; border-left: 3px solid var(--brand-100); color: var(--body); }
+.rte__area img { max-width: 100%; height: auto; }
+.rte__area figure { margin-left: 0; margin-right: 0; }
+.rte__area a { color: var(--brand-600); }
+.rte-dialog { width: min(760px, 92vw); border: 0; border-radius: var(--radius-card); padding: 24px; }
+.rte-dialog::backdrop { background: rgba(10, 12, 40, .5); }
+.rte-dialog .media-choices { max-height: 60vh; }
+.rte-dialog button.media-choice { background: var(--white); text-align: left; font: inherit; font-size: 12px; }
+@media (max-width: 1023px) { .grid2--wide { grid-template-columns: 1fr; } }

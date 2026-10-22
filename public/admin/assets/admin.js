@@ -111,3 +111,116 @@
     if (b.dataset.spec !== 'remove') b.focus();
   });
 })();
+
+(function () {
+  // textarea[data-editor]: a small editor (headings, bold, italic, lists, quote, link, picture). The textarea stays
+  // the value that is sent; the server cleans the HTML with an allow-list. Without JS the textarea takes raw HTML.
+  var areas = document.querySelectorAll('textarea[data-editor]');
+  if (!areas.length || !document.execCommand) return;
+  var holder = document.querySelector('[data-rte-images]');
+  var images = holder ? JSON.parse(holder.getAttribute('data-rte-images') || '[]') : [];
+  document.execCommand('defaultParagraphSeparator', false, 'p');
+  var tools = [
+    ['H2', 'ຫົວຂໍ້ຍ່ອຍ', function () { document.execCommand('formatBlock', false, 'h2'); }],
+    ['H3', 'ຫົວຂໍ້ນ້ອຍ', function () { document.execCommand('formatBlock', false, 'h3'); }],
+    ['¶', 'ຫຍໍ້ໜ້າທຳມະດາ', function () { document.execCommand('formatBlock', false, 'p'); }],
+    null,
+    ['B', 'ຕົວໜາ', function () { document.execCommand('bold'); }],
+    ['I', 'ຕົວອຽງ', function () { document.execCommand('italic'); }],
+    null,
+    ['• ລາຍການ', 'ລາຍການ', function () { document.execCommand('insertUnorderedList'); }],
+    ['1. ລາຍການ', 'ລາຍການມີເລກ', function () { document.execCommand('insertOrderedList'); }],
+    ['“ ”', 'ຄຳອ້າງອີງ', function () { document.execCommand('formatBlock', false, 'blockquote'); }],
+    null,
+    ['ລິ້ງ', 'ໃສ່ລິ້ງ', function () {
+      var url = window.prompt('ລິ້ງ: ຊື່ໜ້າໃນເວັບ (ເຊັ່ນ healthcare.html) ຫຼື https://…', 'https://');
+      if (url && url !== 'https://') document.execCommand('createLink', false, url.trim());
+    }],
+    ['ລຶບລິ້ງ', 'ລຶບລິ້ງ', function () { document.execCommand('unlink'); }],
+    ['ຮູບ', 'ໃສ່ຮູບຈາກຄັງສື່', null],
+    ['ລ້າງຮູບແບບ', 'ລ້າງຮູບແບບ', function () { document.execCommand('removeFormat'); document.execCommand('formatBlock', false, 'p'); }]
+  ];
+  var pickImage = function (done) {
+    var dlg = document.createElement('dialog');
+    dlg.className = 'rte-dialog';
+    dlg.innerHTML = '<h2>ເລືອກຮູບ</h2><p class="hint">ອັບຮູບໃໝ່ທີ່ໜ້າ ຄັງສື່ ກ່ອນ.</p><div class="media-choices"></div><div class="btns" style="margin-top:16px"><button class="btn btn--ghost" type="button">ຍົກເລີກ</button></div>';
+    var grid = dlg.querySelector('.media-choices');
+    images.forEach(function (img) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'media-choice';
+      b.innerHTML = '<img alt="" loading="lazy"><span></span>';
+      b.querySelector('img').src = img.thumb;
+      b.querySelector('span').textContent = img.name;
+      b.addEventListener('click', function () { dlg.close(); dlg.remove(); done(img); });
+      grid.appendChild(b);
+    });
+    if (!images.length) grid.textContent = 'ຍັງບໍ່ມີຮູບໃນຄັງສື່.';
+    dlg.querySelector('.btn--ghost').addEventListener('click', function () { dlg.close(); dlg.remove(); done(null); });
+    document.body.appendChild(dlg);
+    dlg.showModal();
+  };
+  areas.forEach(function (ta) {
+    var box = document.createElement('div');
+    box.className = 'rte';
+    var bar = document.createElement('div');
+    bar.className = 'rte__bar';
+    bar.setAttribute('role', 'toolbar');
+    bar.setAttribute('aria-label', 'ຮູບແບບຂໍ້ຄວາມ');
+    var area = document.createElement('div');
+    area.className = 'rte__area';
+    area.contentEditable = 'true';
+    area.setAttribute('role', 'textbox');
+    area.setAttribute('aria-multiline', 'true');
+    area.lang = ta.lang;
+    var label = document.querySelector('label[for="' + ta.id + '"]');
+    if (label) { label.id = label.id || ta.id + '-label'; area.setAttribute('aria-labelledby', label.id); label.addEventListener('click', function () { area.focus(); }); }
+    area.innerHTML = ta.value;
+    var sync = function () { ta.value = area.innerHTML.trim() === '<br>' ? '' : area.innerHTML; };
+    var saved = null;
+    tools.forEach(function (t) {
+      if (!t) { var s = document.createElement('span'); s.className = 'sep'; bar.appendChild(s); return; }
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t[0];
+      b.title = t[1];
+      b.setAttribute('aria-label', t[1]);
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); }); // keep the selection in the text
+      b.addEventListener('click', function () {
+        area.focus();
+        if (t[2]) { t[2](); sync(); return; }
+        var sel = window.getSelection();
+        saved = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+        pickImage(function (img) {
+          area.focus();
+          if (saved) { sel.removeAllRanges(); sel.addRange(saved); }
+          if (img) {
+            // a picture is its own block: it goes after the paragraph or heading the cursor is in, never inside it
+            var block = saved ? saved.startContainer : null;
+            while (block && block.parentNode !== area) block = block.parentNode;
+            var fig = document.createElement('figure');
+            var el = document.createElement('img');
+            el.src = img.src; el.alt = ''; el.width = img.w; el.height = img.h;
+            fig.appendChild(el);
+            area.insertBefore(fig, block ? block.nextSibling : null);
+            var after = document.createElement('p');
+            after.appendChild(document.createElement('br'));
+            area.insertBefore(after, fig.nextSibling);
+            var r = document.createRange();
+            r.setStart(after, 0);
+            sel.removeAllRanges();
+            sel.addRange(r);
+            sync();
+          }
+        });
+      });
+      bar.appendChild(b);
+    });
+    area.addEventListener('input', sync);
+    box.appendChild(bar);
+    box.appendChild(area);
+    ta.hidden = true;
+    ta.parentNode.insertBefore(box, ta);
+    if (ta.getAttribute('aria-invalid')) area.setAttribute('aria-invalid', 'true');
+  });
+})();
