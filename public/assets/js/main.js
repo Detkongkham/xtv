@@ -209,6 +209,17 @@
     });
   });
 
+  // Chinese font (zh pages, see templates/site/layout.php): fetched after the page has loaded
+  var zhFont = $('meta[name="font-zh"]');
+  if (zhFont && window.FontFace) {
+    var loadZh = function () {
+      new FontFace('Noto Sans SC', 'url(' + zhFont.content + ') format("woff2")', { weight: '400 600', display: 'swap' })
+        .load().then(function (f) { document.fonts.add(f); }, function () {});
+    };
+    if (document.readyState === 'complete') loadZh();
+    else window.addEventListener('load', loadZh);
+  }
+
   // loading screen (home): hide once the page has loaded
   var loader = $('.loader');
   if (loader) {

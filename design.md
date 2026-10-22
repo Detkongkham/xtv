@@ -97,7 +97,7 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 --font-sans: "Inter", "Noto Sans Lao", "Noto Sans Thai", "Noto Sans SC", system-ui, sans-serif;
 ```
 
-ໃຊ້ນ້ຳໜັກ 400, 500, 600 ເທົ່ານັ້ນ. Inter, Noto Sans Lao ແລະ Noto Sans Thai ເກັບໄວ້ໃນ `public/assets/fonts/` ຈຶ່ງໃຊ້ໄດ້ໂດຍບໍ່ມີອິນເຕີເນັດ. Noto Sans SC ເກັບໄວ້ເອງເປັນ subset (`noto-sans-sc-sub.woff2`, ນ້ຳໜັກ 400–600, ສະເພາະຕົວອັກສອນທີ່ໜ້າ `zh/` ໃຊ້, ~130 KB) ແລະ ໂຫຼດສະເພາະໜ້າພາສາຈີນ. ເມື່ອ Publisher ເຕືອນວ່າມີຕົວອັກສອນຈີນໃໝ່ທີ່ບໍ່ຢູ່ໃນ subset, ນັກພັດທະນາສັ່ງ `scripts/optimize_media.py --zh-font` ແລ້ວ deploy ຟອນ.
+ໃຊ້ນ້ຳໜັກ 400, 500, 600 ເທົ່ານັ້ນ. Inter, Noto Sans Lao ແລະ Noto Sans Thai ເກັບໄວ້ໃນ `public/assets/fonts/` ຈຶ່ງໃຊ້ໄດ້ໂດຍບໍ່ມີອິນເຕີເນັດ. Noto Sans SC ເກັບໄວ້ເອງເປັນ subset (`noto-sans-sc-sub.woff2`, ນ້ຳໜັກ 400–600, ສະເພາະຕົວອັກສອນທີ່ໜ້າ `zh/` ໃຊ້, ~130 KB) ແລະ ໂຫຼດສະເພາະໜ້າພາສາຈີນ, ຫຼັງໜ້າເວັບໂຫຼດແລ້ວ (`main.js`) ເພື່ອບໍ່ໃຫ້ແຍ່ງ bandwidth ກັບ CSS ໃນມືຖື. ລະຫວ່າງນັ້ນໃຊ້ຟອນຈີນຂອງເຄື່ອງ. ເມື່ອ Publisher ເຕືອນວ່າມີຕົວອັກສອນຈີນໃໝ່ທີ່ບໍ່ຢູ່ໃນ subset, ນັກພັດທະນາສັ່ງ `scripts/optimize_media.py --zh-font` ແລ້ວ deploy ຟອນ.
 
 ### ຂະໜາດ
 

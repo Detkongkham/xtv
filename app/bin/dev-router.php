@@ -15,5 +15,15 @@ if (!is_file($file) && !is_file(rtrim($file, '/') . '/index.html') && !is_file(r
     readfile(__DIR__ . '/../../public/lo/404.html');
     return true;
 }
-// everything else (static pages, assets, /api/contact.php) is served as-is
+// text files compressed like mod_brotli/mod_deflate do, so local Lighthouse runs measure what production sends
+$types = ['html' => 'text/html; charset=utf-8', 'css' => 'text/css', 'js' => 'text/javascript', 'svg' => 'image/svg+xml', 'xml' => 'application/xml', 'txt' => 'text/plain'];
+$ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+if (isset($types[$ext]) && is_file($file) && str_contains($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip')) {
+    header('Content-Type: ' . $types[$ext]);
+    header('Content-Encoding: gzip');
+    header('Vary: Accept-Encoding');
+    echo gzencode((string) file_get_contents($file), 6);
+    return true;
+}
+// everything else (assets, /api/contact.php) is served as-is
 return false;

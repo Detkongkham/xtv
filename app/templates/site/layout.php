@@ -17,12 +17,14 @@ $alts = '';
 foreach (Lang::CODES as $l) {
     $alts .= '<link rel="alternate" hreflang="' . Lang::HTML[$l] . '" href="../' . $l . '/' . $meta['slug'] . '.html">';
 }
-// all fonts are self-hosted; Chinese uses a subset of Noto Sans SC declared inline, so only zh pages download it
+// all fonts are self-hosted; Chinese uses a subset of Noto Sans SC that only zh pages download.
+// main.js loads it after the page (meta font-zh): at 134 KB it would otherwise compete with the CSS and delay the
+// first paint on slow phones. Until it arrives the system Chinese font is used. No JS: plain @font-face.
 $fonts = '<link rel="stylesheet" href="' . $a . '/fonts/fonts.css">';
 if ($v->lang === 'zh') {
-    $fonts .= "\n" . '<link rel="preload" href="' . $a . '/fonts/noto-sans-sc-sub.woff2" as="font" type="font/woff2" crossorigin>' . "\n"
-        . "<style>@font-face{font-family:'Noto Sans SC';font-style:normal;font-weight:400 600;font-display:swap;"
-        . "src:url(" . $a . "/fonts/noto-sans-sc-sub.woff2) format('woff2')}</style>";
+    $fonts .= "\n" . '<meta name="font-zh" content="' . $a . '/fonts/noto-sans-sc-sub.woff2">' . "\n"
+        . "<noscript><style>@font-face{font-family:'Noto Sans SC';font-style:normal;font-weight:400 600;font-display:swap;"
+        . "src:url(" . $a . "/fonts/noto-sans-sc-sub.woff2) format('woff2')}</style></noscript>";
 }
 ?>
 <!doctype html>
