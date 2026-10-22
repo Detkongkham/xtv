@@ -52,5 +52,7 @@ php -d upload_max_filesize=20M -d post_max_size=64M -S 127.0.0.1:8000 -t public 
 | `php bin/backup.php --restore=FILE --db=NAME` | load a backup into another (existing) database |
 | `composer test` | PHPUnit |
 
-`build/build.py` no longer owns `public/<lang>/`: since P2-C4 the pages come from the database through the Publisher.
-Running build.py would overwrite the published pages until the next publish. It stays only for reference until P2-C11.
+`public/<lang>/` comes only from the database through the Publisher. The old Python build (`build/`) was removed in P2-C11;
+it is in git history before that commit. `scripts/optimize_media.py` stays (Python, run on a developer machine): WebP for
+`public/assets/img/`, the hero video, and `--zh-font` to rebuild the Chinese font subset when the Publisher warns about
+missing characters. The GitHub Pages preview is built from `database/seed/seed.json` (`.github/workflows/pages.yml`).

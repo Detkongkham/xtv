@@ -6,7 +6,7 @@ namespace App\Publish;
 /**
  * The Chinese web font is a subset with only the characters the site used when it was made. The server cannot
  * make a new subset (no Python), so the Publisher only warns: missing characters show in the visitor's system
- * font until a developer runs `build/optimize_media.py --zh-font` and deploys.
+ * font until a developer runs `scripts/optimize_media.py --zh-font` and deploys.
  */
 final class FontCheck
 {

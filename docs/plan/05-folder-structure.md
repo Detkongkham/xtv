@@ -134,10 +134,9 @@ xtv/
 │       ├── ValidatorTest.php, HtmlSanitizerTest.php, RateLimiterTest.php, SluggerTest.php
 │       └── PublisherTest.php
 │
-├── build/                          ← Python ເກົ່າ. ເກັບໄວ້ຈົນ P2-C3 (ກວດ HTML ຄືກັນ) ຜ່ານ ແລ້ວລຶບ
-│   ├── build.py, strings.py, strings2.py
-│   └── export_seed.py              ← [ໃໝ່, ເຟດ 2] ສົ່ງອອກຂໍ້ມູນເປັນ seed.json
-├── scripts/
+├── scripts/                        ← ເຄື່ອງມືຂອງນັກພັດທະນາ, ບໍ່ deploy (Python `build/` ເກົ່າລຶບແລ້ວໃນ P2-C11)
+│   ├── optimize_media.py           ← WebP ຂອງ assets/img, ວິດີໂອ hero, `--zh-font` ສ້າງ subset ຟອນຈີນ
+│   ├── media/hero-lab-source.mp4   ← ຕົ້ນສະບັບວິດີໂອ hero
 │   └── deploy.sh                   ← rsync ຂຶ້ນ server (ເບິ່ງ 07-deployment.md)
 ├── docs/plan/                      ← ແຜນນີ້
 ├── design.md

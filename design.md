@@ -97,7 +97,7 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 --font-sans: "Inter", "Noto Sans Lao", "Noto Sans Thai", "Noto Sans SC", system-ui, sans-serif;
 ```
 
-ໃຊ້ນ້ຳໜັກ 400, 500, 600 ເທົ່ານັ້ນ. Inter, Noto Sans Lao ແລະ Noto Sans Thai ເກັບໄວ້ໃນ `public/assets/fonts/` ຈຶ່ງໃຊ້ໄດ້ໂດຍບໍ່ມີອິນເຕີເນັດ. Noto Sans SC ເກັບໄວ້ເອງເປັນ subset (`noto-sans-sc-sub.woff2`, ນ້ຳໜັກ 400–600, ສະເພາະຕົວອັກສອນທີ່ໜ້າ `zh/` ໃຊ້, ~130 KB) ແລະ ໂຫຼດສະເພາະໜ້າພາສາຈີນ. ເພີ່ມຂໍ້ຄວາມຈີນໃໝ່ແລ້ວ ໃຫ້ສັ່ງ `optimize_media.py --zh-font` ອີກຄັ້ງ.
+ໃຊ້ນ້ຳໜັກ 400, 500, 600 ເທົ່ານັ້ນ. Inter, Noto Sans Lao ແລະ Noto Sans Thai ເກັບໄວ້ໃນ `public/assets/fonts/` ຈຶ່ງໃຊ້ໄດ້ໂດຍບໍ່ມີອິນເຕີເນັດ. Noto Sans SC ເກັບໄວ້ເອງເປັນ subset (`noto-sans-sc-sub.woff2`, ນ້ຳໜັກ 400–600, ສະເພາະຕົວອັກສອນທີ່ໜ້າ `zh/` ໃຊ້, ~130 KB) ແລະ ໂຫຼດສະເພາະໜ້າພາສາຈີນ. ເມື່ອ Publisher ເຕືອນວ່າມີຕົວອັກສອນຈີນໃໝ່ທີ່ບໍ່ຢູ່ໃນ subset, ນັກພັດທະນາສັ່ງ `scripts/optimize_media.py --zh-font` ແລ້ວ deploy ຟອນ.
 
 ### ຂະໜາດ
 
@@ -350,15 +350,15 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 | ທີ່ຢູ່ | ໜ້າທີ່ |
 |---|---|
 | `public/index.html` | ສົ່ງຕໍ່ໄປ `lo/index.html` |
-| `public/lo/`, `public/en/`, `public/th/`, `public/zh/` | ໜ້າ HTML ທີ່ສ້າງແລ້ວ. ບໍ່ commit. ຫ້າມແກ້ດ້ວຍມື ເພາະຈະຖືກຂຽນທັບ |
+| `public/lo/`, `public/en/`, `public/th/`, `public/zh/` | ໜ້າ HTML ທີ່ Publisher ສ້າງຈາກຖານຂໍ້ມູນ ເມື່ອກົດ "ເຜີຍແຜ່" ໃນ admin. ບໍ່ commit. ຫ້າມແກ້ດ້ວຍມື ເພາະຈະຖືກຂຽນທັບ |
 | `public/assets/css/style.css` | CSS ທັງໝົດ ຕາມ tokens ໃນພາກ 9 |
 | `public/assets/js/main.js` | ເມນູມືຖື, hero slider, ແທັບ, ຕົວກອງ, reveal |
 | `public/assets/img/`, `public/assets/video/` | ໂລໂກ້, ຮູບສິນຄ້າ, ຮູບບັນຍາກາດ, ວິດີໂອ hero |
 | `public/assets/fonts/` | ຟອນລາຕິນ, ລາວ, ໄທ ແລະ `fonts.css` |
-| `build/strings.py` | ຂໍ້ຄວາມທັງໝົດ 4 ພາສາ |
-| `build/strings2.py` | ຖ້ອຍຄຳສະບັບທາງການ, ຄຳອະທິບາຍຂະແໜງ, ກຸ່ມສິນຄ້າ ແລະ ສິນຄ້າແຕ່ລະລາຍການ |
-| `build/build.py` | ແມ່ແບບໜ້າ ແລະ ຂໍ້ມູນສິນຄ້າ. ແກ້ແລ້ວສັ່ງ `python3 build/build.py` |
-| `build/optimize_media.py` | ສ້າງ WebP ຂ້າງທຸກຮູບ `.jpg`/`.png`. ເພີ່ມ ຫຼື ປ່ຽນຮູບແລ້ວ ສັ່ງກ່ອນ build. `--video <ffmpeg>` ບີບວິດີໂອ hero ຈາກ `build/media/hero-lab-source.mp4` |
+| `app/templates/site/` | ແມ່ແບບໜ້າເວັບ (PHP). ແກ້ແລ້ວກົດ "ເຜີຍແຜ່" ຫຼື ສັ່ງ `php app/bin/publish.php` |
+| `app/lang/lo.php`, `en.php`, `th.php`, `zh.php` | ຂໍ້ຄວາມ UI ແລະ ໜ້າຄົງທີ່ (ກ່ຽວກັບ, ວິໄສທັດ, ກົດໝາຍ) 4 ພາສາ. ນັກພັດທະນາແກ້ |
+| ຖານຂໍ້ມູນ (admin `/admin`) | ຂະແໜງ, ກຸ່ມສິນຄ້າ, ສິນຄ້າ, ຜູ້ສະໜອງ, ຂ່າວ, ໄຟລ໌ດາວໂຫຼດ ແລະ ຮູບ. ພະນັກງານແກ້ |
+| `scripts/optimize_media.py` | WebP ຂ້າງທຸກຮູບ `.jpg`/`.png` ໃນ `public/assets/img/` (ຮູບທີ່ອັບຜ່ານ admin ຖືກຫຍໍ້ໃຫ້ເອງ). `--video <ffmpeg>` ບີບວິດີໂອ hero ຈາກ `scripts/media/hero-lab-source.mp4`. `--zh-font <ttf>` ສ້າງ subset ຟອນຈີນ |
 
 ---
 

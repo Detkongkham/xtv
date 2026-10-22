@@ -1,6 +1,6 @@
 <?php
 // UI text of the public site (lo). Placeholders: {} in order, {n} / {name} by name.
-// Created from build/strings*.py by build/export_lang.py; edit this file from now on.
+// Exported once from the old Python build (removed in P2-C11); this file is the source now.
 declare(strict_types=1);
 
 return [

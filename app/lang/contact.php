@@ -1,6 +1,6 @@
 <?php
 // Contact form texts used on the server: the no-JS result page and the auto-reply email.
-// Field labels and subject names match build/strings.py so the page and the email say the same thing.
+// Field labels and subject names match the site's lang/*.php so the page and the email say the same thing.
 declare(strict_types=1);
 
 return [

@@ -1,4 +1,5 @@
-# Builds the static site into public/ and publishes it to GitHub Pages (client preview until phase S).
+# Builds the static site from app/database/seed/seed.json with the PHP templates and publishes it to
+# GitHub Pages (client preview until phase S). No database: the preview shows the seed content, not admin edits.
 name: Pages
 
 on:
@@ -20,14 +21,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: shivammathur/setup-php@v2
         with:
-          python-version: "3.12"
-      - run: pip install pillow
-      - run: python build/build.py
+          php-version: "8.3"
+          extensions: intl, mbstring
+          tools: composer
+      - id: pages
+        uses: actions/configure-pages@v5
+      - run: composer install --no-dev --no-interaction --no-progress --working-dir=app
+      # config.php is not in git; the example is enough without a database. base_url feeds sitemap.xml and robots.txt.
+      - run: php -r '$c = require "app/config/config.example.php"; $c["base_url"] = getenv("BASE_URL"); file_put_contents("app/config/config.php", "<?php\nreturn " . var_export($c, true) . ";\n");'
+        env:
+          BASE_URL: ${{ steps.pages.outputs.base_url }}
+      # only the static site: public/admin and public/api are PHP and stay off Pages
+      - run: |
+          mkdir -p _site
+          cp -R public/assets _site/assets
+          php app/bin/build-site.php --out=_site --seed=app/database/seed/seed.json
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: _site
 
   deploy:
     needs: build

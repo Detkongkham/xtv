@@ -1,18 +1,20 @@
 """
 Make web-ready copies of the site media (P0-A7). Run after adding or replacing a file:
 
-    python3 build/optimize_media.py                # WebP next to every .jpg/.png in public/assets/img/
-    python3 build/optimize_media.py --video FFMPEG # also re-encode the hero video (needs an ffmpeg binary)
-    python3 build/optimize_media.py --zh-font TTF  # rebuild the Chinese font subset (needs fonttools + brotli)
+    python3 scripts/optimize_media.py                # WebP next to every .jpg/.png in public/assets/img/
+    python3 scripts/optimize_media.py --video FFMPEG # also re-encode the hero video (needs an ffmpeg binary)
+    python3 scripts/optimize_media.py --zh-font TTF  # rebuild the Chinese font subset (needs fonttools + brotli)
 
 Needs Pillow with WebP support. A WebP is only rewritten when its source is newer.
-The video source is build/media/hero-lab-source.mp4 (kept out of public/); output is
+The video source is scripts/media/hero-lab-source.mp4 (kept out of public/); output is
 public/assets/video/hero-lab.mp4 (H.264) and hero-lab.webm (VP9), both silent and at most 2 MB.
 
 The Chinese font is Noto Sans SC (SIL OFL), variable TTF from
 https://github.com/google/fonts/raw/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf
-It is cut to weights 400-600 and to the characters on the built public/zh/ pages, so run
-build.py first, then this, then build.py again. Characters added later fall back to the system font.
+It is cut to weights 400-600 and to the characters on the published public/zh/ pages, so publish
+first (admin or `php app/bin/publish.php`), then run this, then deploy the font. Characters added later
+fall back to the system font until then; the Publisher warns about them.
+Uploads made in the admin get their sizes from app/src/Service/MediaService.php, not from this script.
 """
 import glob
 import os
@@ -24,7 +26,7 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMG = os.path.join(ROOT, "public", "assets", "img")
-VIDEO_SRC = os.path.join(ROOT, "build", "media", "hero-lab-source.mp4")
+VIDEO_SRC = os.path.join(ROOT, "scripts", "media", "hero-lab-source.mp4")
 VIDEO_OUT = os.path.join(ROOT, "public", "assets", "video", "hero-lab")
 VIDEO_MAX = 2 * 1024 * 1024
 
@@ -71,7 +73,7 @@ def zh_font(ttf):
             text += f.read()
     # CJK punctuation, ideographs and full-width forms; Latin, Lao and Thai come from fonts.css
     chars = sorted(set(re.findall("[　-〿㐀-䶿一-鿿＀-￯]", text)))
-    assert chars, "no Chinese text found: run build.py first"
+    assert chars, "no Chinese text found: publish the site first"
     font = instancer.instantiateVariableFont(TTFont(ttf), {"wght": (400, 600)})
     opts = subset.Options()
     opts.flavor = "woff2"
