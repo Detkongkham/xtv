@@ -24,6 +24,7 @@ final class SiteData
     private array $news = [];
     private array $settings = [];
     private array $redirects = [];
+    private array $downloads = [];
 
     private function __construct(array $t)
     {
@@ -85,12 +86,18 @@ final class SiteData
         $this->news = $news;
         $this->settings = $t['settings'];
         $this->redirects = $t['redirects'] ?? [];
+        foreach ($sorted($visible($t['downloads'] ?? [])) as $dl) {
+            // a division that is hidden takes its catalogue with it
+            if (isset($this->media[(int) $dl['file_id']]) && ($dl['division_id'] === null || isset($this->divisions[(int) $dl['division_id']]))) {
+                $this->downloads[] = $dl;
+            }
+        }
     }
 
     public static function fromDb(Db $db): self
     {
         $tables = [];
-        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects'] as $table) {
+        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects', 'downloads'] as $table) {
             $tables[$table] = $db->all('SELECT * FROM `' . $table . '`');
         }
         $tables['settings'] = [];
@@ -232,6 +239,17 @@ final class SiteData
     public function redirects(): array
     {
         return $this->redirects;
+    }
+
+    /** Visible downloads with a file, in display order. */
+    public function downloads(): array
+    {
+        return $this->downloads;
+    }
+
+    public function divisionById(?int $id): ?array
+    {
+        return $id === null ? null : ($this->divisions[$id] ?? null);
     }
 
     public function setting(string $key, mixed $default = null): mixed

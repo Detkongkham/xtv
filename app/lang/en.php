@@ -177,6 +177,7 @@ return [
     'dl_lead' => 'Download the company profile and the product catalogue of each division.',
     'dl_profile' => 'Company profile',
     'dl_catalog' => 'Catalogue',
+    'dl_empty' => 'The documents are being prepared. Please contact us to request them.',
     'download' => 'Download',
     'faq_lead' => 'Answers to the questions most frequently raised by customers.',
     'fq1' => 'How do I ask about prices?',

@@ -287,3 +287,4 @@ details.card > summary { cursor: pointer; list-style-position: outside; }
 .rte-dialog .media-choices { max-height: 60vh; }
 .rte-dialog button.media-choice { background: var(--white); text-align: left; font: inherit; font-size: 12px; }
 @media (max-width: 1023px) { .grid2--wide { grid-template-columns: 1fr; } }
+h2 .req { color: var(--accent-red-text); font-style: normal; }

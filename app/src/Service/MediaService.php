@@ -40,7 +40,7 @@ final class MediaService
         $mime = self::mime($tmp);
         $name = self::originalName($file);
         if ($mime === 'application/pdf' && !$imagesOnly) {
-            return $this->storePdf($tmp, $name, $userId);
+            return $this->writePdf($tmp, $name, $userId);
         }
         if (!in_array($mime, self::IMAGE_TYPES, true)) {
             throw new \InvalidArgumentException($name . ($imagesOnly ? ': ຮັບສະເພາະຮູບ JPG, PNG ຫຼື WebP.' : ': ຮັບສະເພາະຮູບ JPG, PNG, WebP ຫຼື ໄຟລ໌ PDF.'));
@@ -49,6 +49,20 @@ final class MediaService
             throw new \InvalidArgumentException($name . ': ຮູບໃຫຍ່ເກີນ ' . (self::IMAGE_MAX_BYTES >> 20) . ' MB.');
         }
         return $this->storeImage($this->decode($tmp, $mime, $name), $name, $userId);
+    }
+
+    /**
+     * A document for the downloads page: PDF only, ≤ 20 MB.
+     * @throws \InvalidArgumentException with a message for the user
+     */
+    public function storePdf(array $file, ?int $userId): int
+    {
+        $tmp = $this->checkUpload($file, self::PDF_MAX_BYTES);
+        $name = self::originalName($file);
+        if (self::mime($tmp) !== 'application/pdf') {
+            throw new \InvalidArgumentException($name . ': ຮັບສະເພາະໄຟລ໌ PDF.');
+        }
+        return $this->writePdf($tmp, $name, $userId);
     }
 
     /**
@@ -158,7 +172,7 @@ final class MediaService
         return [$largest['src'], $variants, $largest['w'], $largest['h'], $alpha ? 'image/png' : 'image/jpeg'];
     }
 
-    private function storePdf(string $tmp, string $name, ?int $userId): int
+    private function writePdf(string $tmp, string $name, ?int $userId): int
     {
         // a PDF cannot be rebuilt like an image; it is only ever served as a download, never run
         $path = $this->newBase() . '.pdf';

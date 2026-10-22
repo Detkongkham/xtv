@@ -11,6 +11,7 @@ $nav = [
     ['products', '/admin/products', 'ສິນຄ້າ', 'M4 8l8-4 8 4v8l-8 4-8-4V8zM4 8l8 4 8-4M12 12v8'],
     ['suppliers', '/admin/suppliers', 'ຜູ້ສະໜອງ', 'M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6M9 11h.01M15 11h.01'],
     ['news', '/admin/news', 'ຂ່າວສານ', 'M5 4h11v16H5zM16 8h3v10a2 2 0 01-2 2M8 8h5M8 12h5M8 16h3'],
+    ['downloads', '/admin/downloads', 'ໄຟລ໌ດາວໂຫຼດ', 'M12 4v11M7 11l5 5 5-5M5 20h14'],
     ['media', '/admin/media', 'ຄັງສື່', 'M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5M15 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z'],
     ['publish', '/admin/publish', 'ເຜີຍແຜ່', 'M12 16V4M7 9l5-5 5 5M5 20h14'],
 ];

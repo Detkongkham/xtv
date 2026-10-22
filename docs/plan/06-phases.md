@@ -89,7 +89,7 @@
 | P2-C6 | ຂະແໜງ ແລະ ກຸ່ມ | CRUD, ລາກລຽງ, ແທັບ 4 ພາສາ |
 | P2-C7 | ສິນຄ້າ | CRUD, specs, ສິນຄ້າແນະນຳ, ລາກລຽງ, ສຳເນົາ, slug + redirects |
 | P2-C8 | ຂ່າວ | CRUD, editor ງ່າຍ, sanitizer, draft/published |
-| P2-C9 | ດາວໂຫຼດ | CRUD + ອັບ PDF ຈິງຈາກລູກຄ້າ (ປັດຈຸບັນລິ້ງເປັນ `#`) |
+| P2-C9 | ດາວໂຫຼດ | CRUD + ອັບ PDF ຈິງຈາກລູກຄ້າ. admin ພ້ອມ (22/10/2026); ລໍ PDF 6 ໄຟລ໌: Company Profile + ແຄັດຕາລັອກ 5 ຂະແໜງ. ລະຫວ່າງນີ້ໜ້າດາວໂຫຼດສະແດງ "ເອກະສານກຳລັງກະກຽມ" + ປຸ່ມຕິດຕໍ່ (ແທນລິ້ງ `#` ເກົ່າ) |
 | P2-C10 | Dashboard | ປ້າຍ "ຍັງບໍ່ເຜີຍແຜ່", ຄຳແປທີ່ຂາດ, ປະຫວັດເຜີຍແຜ່ຫຼ້າສຸດ |
 | P2-C11 | ປົດ Python | ລຶບ `build/`, ອັບເດດ `design.md` §10 ແລະ ແຜນນີ້ |
 | P2-C12 | ⭐ ຜູ້ສະໜອງ | ຕາຕະລາງ `suppliers`, `product_suppliers`, seed, admin `/admin/suppliers`, ແມ່ແບບ PHP ([08](08-suppliers.md)) |
