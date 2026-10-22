@@ -17,7 +17,7 @@ $cover = $v->data->media($n['cover_id'] === null ? null : (int) $n['cover_id']);
   <p class="lead" style="font-size:18px"><?= $v->tr($n, 'summary') ?></p>
   <?= $v->raw($n, 'body') ?>
   <?php if ($cover): ?>
-  <figure style="margin:32px 0;border:1px solid var(--line)"><?= $v->media($cover) ?></figure>
+  <figure style="margin:32px 0;border:1px solid var(--line)"><?= $v->media($cover, sizes: App\Publish\SiteView::SIZES_WIDE) ?></figure>
   <?php endif ?>
   <div class="btns"><?php if ($n['link_url']): ?><a class="btn" href="<?= $v->e($n['link_url']) ?>"><?= $v->t('view_products') ?></a><?php endif ?><a class="btn btn--ghost" href="news.html"><?= $v->t('back_news') ?></a></div>
 </div></div></section>

@@ -21,6 +21,7 @@ composer install
 cp config/config.example.php config/config.php   # fill in db.pass and hmac_secret
 php bin/migrate.php
 php bin/seed.php                                 # first content (divisions, products, news) from database/seed/seed.json
+php bin/import-media.php                         # old pictures → uploads/ with 480/960/1600 sizes
 php bin/create-admin.php
 ```
 
@@ -28,7 +29,7 @@ php bin/create-admin.php
 
 ```sh
 php app/bin/publish.php                                          # static pages from the database → public/
-php -S 127.0.0.1:8000 -t public app/bin/dev-router.php           # site + /api + /admin
+php -d upload_max_filesize=20M -d post_max_size=64M -S 127.0.0.1:8000 -t public app/bin/dev-router.php   # site + /api + /admin
 ```
 
 - Site: http://127.0.0.1:8000/lo/contact.html
@@ -44,6 +45,7 @@ php -S 127.0.0.1:8000 -t public app/bin/dev-router.php           # site + /api +
 | `php bin/build-site.php --out=DIR` | render every page from the database into DIR (`--seed=FILE` renders from a seed file instead) |
 | `php bin/publish.php` | build, check links, swap into `public/` (same as the admin's Publish button) |
 | `php bin/publish.php --rollback[=ID]` / `--list` | put a previous build back / list them |
+| `php bin/import-media.php` | give pictures from the old site (assets/img) the upload sizes in `uploads/` (once, after seed) |
 | `php bin/create-admin.php` | add a user (asks for the password, hidden) |
 | `php bin/cleanup.php` | delete old rate limits, login attempts, spam (30 d) and logs (30 d) |
 | `php bin/backup.php` | gzip dump to `storage/backups/`, keeps 14 |

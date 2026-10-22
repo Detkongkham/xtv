@@ -65,10 +65,10 @@ final class SiteBuildTest extends TestCase
     {
         $dir = self::$out . '-broken';
         mkdir($dir . '/en', 0755, true);
-        file_put_contents($dir . '/en/a.html', '<a href="b.html">b</a><img src="../assets/img/nope.jpg"><a href="tel:+856">t</a><a href="#x">x</a><a href="../../up.html">u</a>');
+        file_put_contents($dir . '/en/a.html', '<a href="b.html">b</a><img src="../assets/img/nope.jpg"><a href="tel:+856">t</a><a href="#x">x</a><a href="../../up.html">u</a><source srcset="../assets/img/logo.svg 480w, ../assets/img/gone.webp 960w">');
         $broken = (new LinkChecker($dir, self::$public))->broken();
         exec('rm -rf ' . escapeshellarg($dir));
-        self::assertSame(['en/a.html → b.html', 'en/a.html → ../assets/img/nope.jpg', 'en/a.html → ../../up.html'], $broken);
+        self::assertSame(['en/a.html → b.html', 'en/a.html → ../assets/img/nope.jpg', 'en/a.html → ../../up.html', 'en/a.html → ../assets/img/gone.webp'], $broken);
     }
 
     public function testRedirectPagesFollowChainsAndSkipLoopsAndLivePages(): void

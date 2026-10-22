@@ -1,5 +1,10 @@
 # XTK docroot rules (P0-A6). Tested locally with Apache 2.4; recheck on the cPanel server in phase S.
 Options -Indexes
+
+# per-folder PHP settings (admin/.user.ini) and Apache files are never served
+<FilesMatch "^\.(user\.ini|ht)">
+  Require all denied
+</FilesMatch>
 DirectoryIndex index.html index.php
 ErrorDocument 404 /lo/404.html
 

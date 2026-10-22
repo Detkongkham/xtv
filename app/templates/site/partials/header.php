@@ -36,7 +36,7 @@ $suppliers = $v->data->suppliers();
             <div><p class="mega__title"><?= $v->t('products') ?></p><p><?= $v->t('home_prod_p') ?></p><?= $v->arrowLink($v->t('all_products'), 'products.html') ?></div>
             <div class="mega__cards">
               <?php foreach ($divisions as $d): ?>
-              <a class="mega__card" href="<?= $d['slug'] ?>.html"><span class="ph"><?= $v->media($v->data->media($d['image_id'])) ?></span><?= $v->tr($d, 'name') ?></a>
+              <a class="mega__card" href="<?= $d['slug'] ?>.html"><span class="ph"><?= $v->media($v->data->media($d['image_id']), sizes: '240px') ?></span><?= $v->tr($d, 'name') ?></a>
               <?php endforeach ?>
             </div>
           </div></div>

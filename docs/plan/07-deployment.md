@@ -14,7 +14,7 @@
 ### 2.1 ໃນ cPanel
 1. **Domains → Create a New Domain**: `new.xtklaos.com`, ບໍ່ໝາຍ "Share document root", Document Root = `xtk/public`.
 2. **MultiPHP Manager**: ຕັ້ງ `new.xtklaos.com` ເປັນ `ea-php83`.
-3. **MultiPHP INI Editor** (PHP 8.3): `display_errors = Off`, `log_errors = On`, `upload_max_filesize = 20M`, `post_max_size = 24M`, `memory_limit = 256M`, `max_execution_time = 60`, `session.cookie_secure = On`, `session.cookie_httponly = On`, `expose_php = Off`.
+3. **MultiPHP INI Editor** (PHP 8.3): `display_errors = Off`, `log_errors = On`, `upload_max_filesize = 20M`, `post_max_size = 64M`, `memory_limit = 512M`, `max_execution_time = 120` (ຄືກັບ `public/admin/.user.ini`; GD ຕ້ອງໃຊ້ໜ່ວຍຄວາມຈຳຫຼາຍຕອນຫຍໍ້ຮູບຂະໜາດໃຫຍ່), `session.cookie_secure = On`, `session.cookie_httponly = On`, `expose_php = Off`.
 4. **SSL/TLS Status**: ກວດວ່າ AutoSSL ຄອບຄຸມ subdomain (ໃບ wildcard ທີ່ມີຢູ່ຄວນຄອບຄຸມແລ້ວ).
 5. **SSH Access → Manage SSH Keys**: Import public key ຈາກເຄື່ອງນັກພັດທະນາ ແລ້ວ **Authorize**. ທົດສອບ: `ssh -p 32 xtklaos@xtklaos.com`.
 6. **MySQL Database Wizard** (ເຟດ 1): DB `xtklaos_xtk`, user `xtklaos_app`, ລະຫັດສຸ່ມ 32 ຕົວ, ສິດ: `SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES, LOCK TABLES`.

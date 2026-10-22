@@ -10,6 +10,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
+use App\Repository\MediaRepository;
 use App\Repository\MessageRepository;
 use App\Repository\SettingRepository;
 
@@ -62,6 +63,31 @@ abstract class Controller
     protected function contentChanged(): void
     {
         (new SettingRepository(App::db()))->set('content_changed_at', date('Y-m-d\TH:i:s'));
+    }
+
+    /**
+     * Value of a media-picker field: a new upload wins, then the chosen library picture, else $current.
+     * @return array{0: ?int, 1: ?string} media id (null = none), error message
+     */
+    protected function pickedMedia(string $name, ?int $current): array
+    {
+        $file = Request::file($name . '_upload');
+        if ($file !== null) {
+            try {
+                return [MediaController::service()->store($file, Auth::id(), true), null];
+            } catch (\InvalidArgumentException $e) {
+                return [$current, $e->getMessage()];
+            }
+        }
+        if (!array_key_exists($name, $_POST)) {
+            return [$current, null];
+        }
+        $id = (int) Request::post($name);
+        if ($id === 0) {
+            return [null, null];
+        }
+        $m = (new MediaRepository(App::db()))->find($id);
+        return $m !== null && $m['kind'] === 'image' ? [$id, null] : [$current, 'ບໍ່ພົບຮູບທີ່ເລືອກ.'];
     }
 
     /** Whether a page (name without .html) is on the live site now. */

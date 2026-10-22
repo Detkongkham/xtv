@@ -20,7 +20,7 @@ $groups = $v->data->groups($d);
     <p><?= $v->tr($d, 'body') ?></p>
     <ul class="checks"><li><?= $v->t('commit1_p') ?></li><li><?= $v->t('commit2_p') ?></li><li><?= $v->t('commit3_p') ?></li></ul>
   </div>
-  <div class="split__img rv" style="border:1px solid var(--line)"><?= $v->media($v->data->media($d['image_id']), $v->raw($d, 'name')) ?></div>
+  <div class="split__img rv" style="border:1px solid var(--line)"><?= $v->media($v->data->media($d['image_id']), $v->raw($d, 'name'), sizes: App\Publish\SiteView::SIZES_WIDE) ?></div>
 </div></div></section>
 <section class="sec sec--tight sec--surface"><div class="wrap">
   <?php if (count($groups) > 1): ?>

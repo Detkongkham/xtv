@@ -56,6 +56,29 @@ final class Request
         return is_array($f) && is_string($f['name'] ?? null) && ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE ? $f : null;
     }
 
+    /** files[]: the chosen files as separate $_FILES-style entries. */
+    public static function files(string $key): array
+    {
+        $f = $_FILES[$key] ?? null;
+        if (!is_array($f) || !is_array($f['name'] ?? null)) {
+            return [];
+        }
+        $out = [];
+        foreach (array_keys($f['name']) as $i) {
+            if (($f['error'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $out[] = ['name' => $f['name'][$i], 'type' => $f['type'][$i], 'tmp_name' => $f['tmp_name'][$i], 'error' => $f['error'][$i], 'size' => $f['size'][$i]];
+            }
+        }
+        return $out;
+    }
+
+    /** True when the body was bigger than post_max_size: PHP then drops all of $_POST and $_FILES. */
+    public static function tooLarge(): bool
+    {
+        $max = ini_parse_quantity((string) ini_get('post_max_size'));
+        return self::isPost() && $max > 0 && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > $max;
+    }
+
     public static function query(string $key, string $default = ''): string
     {
         $v = $_GET[$key] ?? $default;

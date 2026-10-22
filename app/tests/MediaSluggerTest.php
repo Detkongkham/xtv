@@ -41,6 +41,14 @@ final class MediaSluggerTest extends TestCase
         self::assertSame(300, imagesx($small));
     }
 
+    public function testWidthsNeverEnlarge(): void
+    {
+        self::assertSame([480, 960, 1600], MediaService::widthsFor(3000));
+        self::assertSame([480, 960, 1600], MediaService::widthsFor(1600));
+        self::assertSame([480, 800], MediaService::widthsFor(800));
+        self::assertSame([300], MediaService::widthsFor(300));
+    }
+
     public function testCountryNames(): void
     {
         self::assertSame('ຈີນ', Countries::name('CN', 'lo'));

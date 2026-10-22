@@ -103,10 +103,10 @@
 - [ ] ປ່ຽນ slug → URL ເກົ່າພາໄປ URL ໃໝ່
 - [x] ເຜີຍແຜ່ທີ່ລົ້ມເຫຼວ (ທົດສອບໂດຍເຮັດໃຫ້ລິ້ງເສຍ) ບໍ່ແຕະເວັບທີ່ອອນລາຍ. Rollback ກັບໄປຊຸດກ່ອນໄດ້ (22/10/2026: CLI ແລະ `/admin/publish`)
 - [x] ສອງຄົນກົດເຜີຍແຜ່ພ້ອມກັນ → ຄົນທີສອງໄດ້ຂໍ້ຄວາມລໍຖ້າ
-- [ ] ອັບໄຟລ໌ `.php` ທີ່ປອມເປັນ `.jpg` → ຖືກປະຕິເສດ
+- [x] ອັບໄຟລ໌ `.php` ທີ່ປອມເປັນ `.jpg` → ຖືກປະຕິເສດ (22/10/2026: ທັງຄັງສື່ ແລະ ໂລໂກ້ຜູ້ສະໜອງ)
 - [ ] HTML ອັນຕະລາຍໃນຂ່າວ (`<script>`, `onerror=`) ຖືກລ້າງອອກ
 - [x] ເຜີຍແຜ່ 276 ໜ້າໃຊ້ເວລາ < 10 ວິນາທີ ໃນເຄື່ອງ (22/10/2026: 0.2–0.25 ວິນາທີ ລວມການກວດລິ້ງ) (ວັດໃນ server ອີກຄັ້ງໃນເຟດ S)
-- [ ] Lighthouse ຍັງ ≥ 90
+- [ ] Lighthouse ຍັງ ≥ 90 (22/10/2026 ຫຼັງ C5, ໃນເຄື່ອງດ້ວຍ `php -S`: ໜ້າຂະແໜງ/ສິນຄ້າ 97, ໜ້າຫຼັກ en 90, **ໜ້າຫຼັກ zh 85**. ໜ້າເກົ່າຂອງ Python ໃນ server ດຽວກັນກໍໄດ້ 85: LCP ແມ່ນຫົວຂໍ້ hero ທີ່ລໍຟອນຈີນ, ບໍ່ແມ່ນຮູບ. ຕ້ອງແກ້ກ່ອນປິດເຟດ 2)
 
 ---
 
@@ -140,7 +140,7 @@
 | P0-A3 | ສ້າງ subdomain | ຊື່ຕາມທີ່ລູກຄ້າເລືອກ (ຕົວຢ່າງ `new.xtklaos.com`), docroot `/home/xtklaos/xtk/public`, PHP 8.3, ກວດ SSL |
 | P0-A4 | SSH key | ສ້າງ key ໃນເຄື່ອງ, import + authorize ໃນ cPanel → SSH Access, ທົດສອບ `ssh -p 32` |
 | P0-A8 | Deploy script | `scripts/deploy.sh` (rsync ຜ່ານ SSH), deploy ຄັ້ງທຳອິດ ([07](07-deployment.md)) |
-| S-1 | DB ແລະ config | ສ້າງ DB + user ໃນ cPanel, `config/config.php` ໃນ server, ແລ່ນ migrate + seed |
+| S-1 | DB ແລະ config | ສ້າງ DB + user ໃນ cPanel, `config/config.php` ໃນ server, ແລ່ນ migrate + seed + `import-media.php` (ຮູບໃນ `uploads/` ບໍ່ຢູ່ໃນ git; ຕ້ອງມີ GD + WebP) + publish |
 | S-2 | ອີເມວແທ້ | Mailbox `noreply@xtklaos.com`, SPF/DKIM/DMARC, ສົ່ງທົດສອບໄປ Gmail ແລະ Outlook |
 | S-3 | Cron | `bin/cleanup.php` ທຸກມື້ 03:00, `bin/backup.php` 03:30, backup `uploads/` ທຸກອາທິດ |
 | S-4 | ກວດ ແລະ ສົ່ງລູກຄ້າ | ແລ່ນເງື່ອນໄຂຂ້າງລຸ່ມ, ສົ່ງ URL ໃຫ້ລູກຄ້າ |

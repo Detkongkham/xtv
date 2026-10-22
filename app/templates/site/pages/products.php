@@ -9,7 +9,7 @@ $v->meta('products', $v->t('products'), $v->t('prod_lead'), active: 'products');
 <section class="sec"><div class="wrap"><?= $v->partial('cards/divisions', ['cols' => 3]) ?></div></section>
 <?php foreach ($v->data->divisions() as $i => $d): ?>
 <?php
-$pic = '<div class="split__img rv" style="border:1px solid var(--line);background:#fff">' . $v->media($v->data->media($d['image_id']), $v->raw($d, 'name')) . '</div>';
+$pic = '<div class="split__img rv" style="border:1px solid var(--line);background:#fff">' . $v->media($v->data->media($d['image_id']), $v->raw($d, 'name'), sizes: App\Publish\SiteView::SIZES_WIDE) . '</div>';
 $text = '<div class="rv"><span class="tag">0' . ($i + 1) . '</span><h2 class="h2" style="margin:16px 0">' . $v->tr($d, 'name') . '</h2><p>' . $v->tr($d, 'body') . '</p>'
     . $v->partial('chips', ['codes' => array_column($v->data->groups($d), 'code')])
     . '<div class="btns" style="margin-top:28px"><a class="btn" href="' . $d['slug'] . '.html">' . $v->t('view_products') . '</a><a class="btn btn--ghost" href="contact.html">' . $v->t('contact') . '</a></div></div>';

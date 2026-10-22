@@ -34,7 +34,7 @@ $crumb = $v->partial('breadcrumb', ['trail' => [[$v->t('products'), 'products.ht
 ?>
 <section class="phead" style="padding-bottom:32px"><div class="wrap"><?= $crumb ?></div></section>
 <section class="sec sec--tight" style="padding-top:40px"><div class="wrap"><div class="pd">
-  <div class="pd__img rv"><?= $v->media($v->data->media((int) $p['image_id']), $p['name'], '', false) ?></div>
+  <div class="pd__img rv"><?= $v->media($v->data->media((int) $p['image_id']), $p['name'], '', false, App\Publish\SiteView::SIZES_WIDE) ?></div>
   <div class="rv">
     <span class="tag"><?= $v->tr($g, 'name') ?></span>
     <h1><?= $v->e($p['name']) ?></h1>

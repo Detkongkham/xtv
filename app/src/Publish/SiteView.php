@@ -119,9 +119,28 @@ final class SiteView
     }
 
     /** Image from the media library. */
-    public function media(?array $m, string $alt = '', string $cls = '', bool $lazy = true): string
+    /** How wide images are shown, for srcset: cards and thumbnails (default), and the big ones beside text. */
+    public const SIZES_CARD = '(max-width: 767px) 50vw, 400px';
+    public const SIZES_WIDE = '(max-width: 1023px) 100vw, 640px';
+
+    /**
+     * Image from the media library. Uploads have several widths: the browser picks one through srcset/sizes.
+     * Files from the old site that were never resized keep the single <img> + WebP of img().
+     */
+    public function media(?array $m, string $alt = '', string $cls = '', bool $lazy = true, string $sizes = self::SIZES_CARD): string
     {
-        return $m === null ? '' : $this->picture($m['path'], [(int) $m['width'], (int) $m['height']], $alt, $cls, $lazy);
+        if ($m === null) {
+            return '';
+        }
+        $variants = is_string($m['variants'] ?? null) ? json_decode($m['variants'], true) : ($m['variants'] ?? null);
+        if (!$variants) {
+            return $this->picture($m['path'], [(int) $m['width'], (int) $m['height']], $alt, $cls, $lazy);
+        }
+        $set = fn (string $key): string => implode(', ', array_map(fn ($v) => $this->root . $v[$key] . ' ' . $v['w'] . 'w', $variants));
+        $sizesAttr = count($variants) > 1 ? ' sizes="' . $sizes . '"' : '';
+        return sprintf('<picture><source srcset="%s"%s type="image/webp"><img src="%s"%s%s alt="%s" width="%d" height="%d"%s%s></picture>',
+            $set('webp'), $sizesAttr, $this->root . $m['path'], count($variants) > 1 ? ' srcset="' . $set('src') . '"' : '', $sizesAttr,
+            $this->e($alt), $m['width'], $m['height'], $cls !== '' ? ' class="' . $cls . '"' : '', $lazy ? ' loading="lazy"' : '');
     }
 
     /** <img> with its real size (no layout shift), in a <picture> with the WebP next to it when there is one. */

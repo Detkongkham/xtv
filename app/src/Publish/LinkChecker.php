@@ -25,8 +25,13 @@ final class LinkChecker
         $files = array_merge(glob($this->buildDir . '/index.html') ?: [], glob($this->buildDir . '/{lo,en,th,zh}/*.html', GLOB_BRACE) ?: []);
         foreach ($files as $file) {
             $rel = substr($file, strlen($this->buildDir) + 1);
-            preg_match_all('/\s(?:href|src|srcset)="([^"]*)"/', (string) file_get_contents($file), $m);
-            foreach (array_unique($m[1]) as $url) {
+            preg_match_all('/\s(href|src|srcset)="([^"]*)"/', (string) file_get_contents($file), $m, PREG_SET_ORDER);
+            $urls = [];
+            foreach ($m as [, $attr, $value]) {
+                // srcset: "a.webp 480w, b.webp 960w"
+                $urls = array_merge($urls, $attr === 'srcset' ? array_map(static fn ($c) => preg_split('/\s+/', trim($c))[0], explode(',', $value)) : [$value]);
+            }
+            foreach (array_unique($urls) as $url) {
                 $url = html_entity_decode($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 if ($url === '' || $url[0] === '#' || preg_match('#^([a-z][a-z0-9+.-]*:|//)#i', $url)) {
                     continue;
