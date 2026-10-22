@@ -10,7 +10,7 @@
   <ul class="contact-list">
     <li><?= $v->ic('pin') ?><span><?= $v->address() ?></span></li>
     <li><?= $v->ic('phone') ?><span><?= $v->t('tel') ?>: <a href="tel:<?= $v->telHref($tel) ?>"><?= $v->e($tel) ?></a><br><?= $v->t('mobile') ?>: <a href="tel:<?= $v->telHref($mob) ?>"><?= $v->e($mob) ?></a></span></li>
-    <li><?= $v->ic('print') ?><span><?= $v->t('fax') ?>: <?= $v->e($fax) ?></span></li>
+    <?php if ($fax !== ''): ?><li><?= $v->ic('print') ?><span><?= $v->t('fax') ?>: <?= $v->e($fax) ?></span></li><?php endif ?>
     <li><?= $v->ic('mail') ?><a href="mailto:<?= $v->e($mail) ?>"><?= $v->e($mail) ?></a></li>
   </ul>
 </div>

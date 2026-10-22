@@ -26,6 +26,10 @@ if ($v->lang === 'zh') {
         . "<noscript><style>@font-face{font-family:'Noto Sans SC';font-style:normal;font-weight:400 600;font-display:swap;"
         . "src:url(" . $a . "/fonts/noto-sans-sc-sub.woff2) format('woff2')}</style></noscript>";
 }
+// Google Analytics 4 only when the admin set a Measurement ID (/admin/settings); the ID is checked there (G-XXXX)
+$ga = $v->preview ? '' : (string) $v->data->setting('analytics_id', '');
+$analytics = $ga === '' ? '' : '<script async src="https://www.googletagmanager.com/gtag/js?id=' . $v->e($ga) . '"></script>' . "\n"
+    . "<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','" . $v->e($ga) . "')</script>\n";
 ?>
 <!doctype html>
 <html lang="<?= Lang::HTML[$v->lang] ?>">
@@ -44,7 +48,7 @@ if ($v->lang === 'zh') {
 <link rel="alternate icon" href="<?= $a ?>/img/favicon.png">
 <?= $fonts . "\n" ?>
 <link rel="stylesheet" href="<?= $a ?>/css/style.css">
-</head>
+<?= $analytics ?></head>
 <body>
 <?= $v->partial('header', ['slug' => $meta['slug'], 'overlay' => $meta['overlay'], 'active' => $meta['active']]) . "\n" ?>
 <main id="main">

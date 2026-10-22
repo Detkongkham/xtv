@@ -88,4 +88,22 @@ final class SiteBuildTest extends TestCase
         self::assertStringNotContainsString('404.html', $xml);
         self::assertStringNotContainsString('product-old.html', $xml);
     }
+
+    public function testSettingsReachThePages(): void
+    {
+        $seed = json_decode((string) file_get_contents(App::path('database/seed/seed.json')), true);
+        $seed['settings']['contact'] = ['tel' => '(856-21) 777888', 'fax' => ''] + $seed['settings']['contact'];
+        $seed['settings']['analytics_id'] = 'G-TEST1234';
+        $dir = self::$out . '-settings';
+        file_put_contents($dir . '.json', json_encode($seed));
+        (new SiteBuilder(SiteData::fromSeedFile($dir . '.json'), self::$public, '../assets', false, 'https://new.example.com'))->build($dir);
+        $contact = (string) file_get_contents($dir . '/en/contact.html');
+        $about = (string) file_get_contents($dir . '/en/about.html');
+        exec('rm -rf ' . escapeshellarg($dir) . ' ' . escapeshellarg($dir . '.json'));
+
+        self::assertStringContainsString('<a href="tel:+85621777888">(856-21) 777888</a>', $contact);
+        self::assertStringNotContainsString('Fax', $contact . $about);   // an empty fax is left out
+        self::assertStringContainsString("gtag('config','G-TEST1234')", $contact);
+        self::assertStringNotContainsString('gtag', (string) file_get_contents(self::$out . '/en/contact.html'));
+    }
 }

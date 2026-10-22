@@ -17,6 +17,7 @@ $nav = [
 ];
 if (($user['role'] ?? '') === 'admin') {
     $nav[] = ['users', '/admin/users', 'ຜູ້ໃຊ້', 'M16 19v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 10a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM21 19v-1a4 4 0 00-3-3.9M16 3.1a3.5 3.5 0 010 6.8'];
+    $nav[] = ['settings', '/admin/settings', 'ການຕັ້ງຄ່າ', 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4'];
 }
 $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__DIR__ . '/../../../public' . $f), -6);
 ?><!doctype html>

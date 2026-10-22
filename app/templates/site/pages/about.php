@@ -12,7 +12,7 @@ $facts = [
     [$v->t('f_reg'), $v->t('f_reg_v')],
     [$v->t('f_biz'), implode(' · ', $names)],
     [$v->t('head_office'), $v->address()],
-    [$v->t('contact'), $v->t('tel') . ' ' . $v->e($v->contact('tel')) . ' · ' . $v->t('fax') . ' ' . $v->e($v->contact('fax'))],
+    [$v->t('contact'), $v->t('tel') . ' ' . $v->e($v->contact('tel')) . ($v->contact('fax') !== '' ? ' · ' . $v->t('fax') . ' ' . $v->e($v->contact('fax')) : '')],
     [$v->t('email'), $v->e($v->contact('email'))],
 ];
 ?>

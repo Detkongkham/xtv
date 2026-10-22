@@ -115,7 +115,7 @@
 
 | ລະຫັດ | ວຽກ | ລາຍລະອຽດ |
 |---|---|---|
-| P3-D1 | ການຕັ້ງຄ່າ | ຂໍ້ມູນຕິດຕໍ່, ທີ່ຢູ່ 4 ພາສາ, ສະຖິຕິ, ອີເມວແຈ້ງເຕືອນ, Analytics ID, noindex ([03 §2.9](03-backend.md)) |
+| P3-D1 | ການຕັ້ງຄ່າ | ຂໍ້ມູນຕິດຕໍ່, ທີ່ຢູ່ 4 ພາສາ, ສະຖິຕິ, ອີເມວແຈ້ງເຕືອນ, Analytics ID, noindex ([03 §2.9](03-backend.md)). ສຳເລັດ (22/10/2026): `/admin/settings` ສະເພາະ admin. ແຟັກຫວ່າງ = ບໍ່ສະແດງ. Analytics ID ແບບ GA4 (`G-…`) ໃສ່ gtag ທຸກໜ້າ (ບໍ່ໃສ່ໃນ preview). ອີເມວແຈ້ງເຕືອນໃຊ້ທັນທີ ບໍ່ຕ້ອງເຜີຍແຜ່ |
 | P3-D2 | FAQ | migration `004_extras.sql`, CRUD + ລາກລຽງ |
 | P3-D3 | Hero | CRUD ສູງສຸດ 5 slide, ຮູບ/ວິດີໂອ + poster |
 | P3-D4 | SEO | `seo_pages`, canonical ແບບ URL ເຕັມ, `hreflang x-default`, JSON-LD (`Organization`, `Product`, `NewsArticle`) |
@@ -125,7 +125,7 @@
 | P3-D8 | Turnstile (ຖ້າຈຳເປັນ) | ເພີ່ມສະເພາະເມື່ອ spam ຍັງຜ່ານ honeypot + rate limit ຫຼາຍກວ່າ 5 ອັນຕໍ່ອາທິດ |
 
 **ເງື່ອນໄຂຮັບວຽກ**
-- [ ] ປ່ຽນເບີໂທໃນ admin → ເຜີຍແຜ່ → ເບີໃໝ່ຂຶ້ນທຸກໜ້າ (header, footer, ປຸ່ມລອຍ, ໜ້າຕິດຕໍ່)
+- [x] ປ່ຽນເບີໂທໃນ admin → ເຜີຍແຜ່ → ເບີໃໝ່ຂຶ້ນທຸກໜ້າ (header, footer, ປຸ່ມລອຍ, ໜ້າຕິດຕໍ່) (22/10/2026: ເບີໂທ ແລະ ມືຖື ປ່ຽນແລ້ວຂຶ້ນທັງ 276 ໜ້າ. header ບໍ່ມີເບີໂທ; ປຸ່ມລອຍ ແລະ ໄອຄອນໃນ footer ໃຊ້ເບີມືຖື)
 - [ ] Google Rich Results Test ຜ່ານສຳລັບໜ້າສິນຄ້າ ແລະ ໜ້າຂ່າວ
 - [ ] Restore ຈາກ backup ເຕັມ (DB + uploads) ໃສ່ໂຟນເດີທົດສອບໃນເຄື່ອງໄດ້
 

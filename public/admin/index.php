@@ -17,6 +17,7 @@ use App\Http\Admin\MessageController;
 use App\Http\Admin\NewsController;
 use App\Http\Admin\ProductController;
 use App\Http\Admin\PublishController;
+use App\Http\Admin\SettingController;
 use App\Http\Admin\SupplierController;
 use App\Http\Admin\UserController;
 
@@ -43,6 +44,7 @@ $groups = new GroupController();
 $prods = new ProductController();
 $news = new NewsController();
 $dls = new DownloadController();
+$settings = new SettingController();
 
 $r = new Router();
 $r->get('/admin', [$dash, 'index']);
@@ -112,6 +114,8 @@ $r->post('/admin/suppliers/{id}/primary', [$sup, 'primary']);
 $r->get('/admin/publish', [$pub, 'index']);
 $r->post('/admin/publish', [$pub, 'publish']);
 $r->post('/admin/publish/rollback', [$pub, 'rollback']);
+$r->get('/admin/settings', [$settings, 'index']);
+$r->post('/admin/settings', [$settings, 'update']);
 $r->get('/admin/users', [$users, 'index']);
 $r->get('/admin/users/new', [$users, 'create']);
 $r->post('/admin/users/new', [$users, 'store']);

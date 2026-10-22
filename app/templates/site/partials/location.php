@@ -12,7 +12,7 @@
       <h3 class="h4"><?= $v->t('co_name') ?></h3>
       <dl>
         <div><?= $v->ic('pin') ?><dd><?= $v->address() ?></dd></div>
-        <div><?= $v->ic('phone') ?><dd><?= $v->t('tel') ?>: <a href="tel:<?= $v->telHref($tel) ?>"><?= $v->e($tel) ?></a><br><?= $v->t('mobile') ?>: <a href="tel:<?= $v->telHref($mob) ?>"><?= $v->e($mob) ?></a><br><?= $v->t('fax') ?>: <?= $v->e($fax) ?></dd></div>
+        <div><?= $v->ic('phone') ?><dd><?= $v->t('tel') ?>: <a href="tel:<?= $v->telHref($tel) ?>"><?= $v->e($tel) ?></a><br><?= $v->t('mobile') ?>: <a href="tel:<?= $v->telHref($mob) ?>"><?= $v->e($mob) ?></a><?php if ($fax !== ''): ?><br><?= $v->t('fax') ?>: <?= $v->e($fax) ?><?php endif ?></dd></div>
         <div><?= $v->ic('mail') ?><dd><a href="mailto:<?= $v->e($mail) ?>"><?= $v->e($mail) ?></a></dd></div>
       </dl>
     </div>
