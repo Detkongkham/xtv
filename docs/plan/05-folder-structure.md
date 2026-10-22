@@ -89,9 +89,10 @@ xtv/
 │   │   │   ├── partials/
 │   │   │   │   ├── header.php, footer.php, drawer.php
 │   │   │   │   ├── page-head.php, breadcrumb.php, section-head.php
-│   │   │   │   ├── cta.php, location.php, contact-aside.php, contact-form.php
+│   │   │   │   ├── cta.php, location.php, contact-aside.php, contact-form.php, supplied-by.php
+│   │   │   │   ├── steps.php, chips.php
 │   │   │   │   ├── icons.php       ← SVG ໄອຄອນ (ICONS ໃນ build.py)
-│   │   │   │   └── cards/ product.php, division.php, news.php, service.php, why.php, supplier.php, logo-tile.php
+│   │   │   │   └── cards/ product.php, divisions.php, news.php, text.php (ບໍລິການ + ເປັນຫຍັງ), supplier.php, supplier-tile.php, logo-tile.php
 │   │   │   └── pages/
 │   │   │       ├── home.php, about.php, vision.php
 │   │   │       ├── products.php, division.php, product.php
@@ -117,6 +118,7 @@ xtv/
 │   ├── bin/                        ← ສັ່ງດ້ວຍ php CLI ຫຼື cron
 │   │   ├── migrate.php
 │   │   ├── seed.php
+│   │   ├── build-site.php          ← render ທຸກໜ້າໃສ່ໂຟນເດີທີ່ເລືອກ (ທົດສອບ, P2-C3)
 │   │   ├── create-admin.php
 │   │   ├── publish.php
 │   │   ├── check-links.php

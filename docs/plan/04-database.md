@@ -142,7 +142,8 @@ CREATE TABLE settings (
 CREATE TABLE media (
   id             INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   kind           ENUM('image','pdf','video') NOT NULL,
-  path           VARCHAR(255) NOT NULL,          -- uploads/2026/10/ab12cd34  (ບໍ່ມີນາມສະກຸນ)
+  path           VARCHAR(255) NOT NULL,          -- path ໃຕ້ public/ ຂອງໄຟລ໌ຕົ້ນສະບັບ: uploads/2026/10/ab12cd34.jpg (ຂະໜາດອື່ນຢູ່ variants)
+                                                 -- ຮູບຈາກເວັບເກົ່າຢູ່ບ່ອນເດີມ: assets/img/products/h00.jpg (variants NULL)
   original_name  VARCHAR(255) NOT NULL,
   mime           VARCHAR(100) NOT NULL,
   size_bytes     INT UNSIGNED NOT NULL,
@@ -226,7 +227,7 @@ CREATE TABLE news (
   slug          VARCHAR(120) NOT NULL,           -- security-division -> news-security-division.html
   category      ENUM('product','company','event') NOT NULL DEFAULT 'company',
   cover_id      INT UNSIGNED NULL,
-  link_url      VARCHAR(255) NULL,               -- ປຸ່ມ "ເບິ່ງສິນຄ້າ" (ບໍ່ບັງຄັບ)
+  link_url      VARCHAR(255) NULL,               -- ປຸ່ມ "ເບິ່ງສິນຄ້າ" (ບໍ່ບັງຄັບ). ຂ່າວທີ່ body ຫວ່າງ ບໍ່ມີໜ້າຂອງຕົນເອງ: ກາດລິ້ງໄປ link_url
   published_on  DATE         NOT NULL,
   status        ENUM('draft','published') NOT NULL DEFAULT 'draft',
   title_lo VARCHAR(200) NOT NULL, title_en VARCHAR(200) NOT NULL, title_th VARCHAR(200) NULL, title_zh VARCHAR(200) NULL,
