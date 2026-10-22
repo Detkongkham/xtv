@@ -66,6 +66,36 @@ abstract class Controller
     }
 
     /**
+     * Reads translated fields (see partials/lang-fields.php). Lao and English are required; empty Thai/Chinese become NULL.
+     * @param array $fields list of [column prefix, label, type, max length]
+     * @return array{0: array, 1: array<string, string>}
+     */
+    protected function translatedInput(array $fields): array
+    {
+        $data = [];
+        $errors = [];
+        foreach ($fields as [$prefix, $label, , $max]) {
+            foreach (['lo', 'en', 'th', 'zh'] as $l) {
+                $key = $prefix . '_' . $l;
+                $value = trim(str_replace("\r\n", "\n", Request::post($key)));
+                if ($value === '' && ($l === 'lo' || $l === 'en')) {
+                    $errors[$key] = 'ກະລຸນາໃສ່' . $label . ($l === 'lo' ? 'ພາສາລາວ' : 'ພາສາອັງກິດ') . '.';
+                } elseif (mb_strlen($value) > $max) {
+                    $errors[$key] = 'ຍາວເກີນ ' . $max . ' ຕົວອັກສອນ.';
+                }
+                $data[$key] = $value === '' ? null : $value;
+            }
+        }
+        return [$data, $errors];
+    }
+
+    /** One place up or down in a list, from order-buttons.php. */
+    protected static function direction(): int
+    {
+        return Request::post('dir') === 'up' ? -1 : 1;
+    }
+
+    /**
      * Value of a media-picker field: a new upload wins, then the chosen library picture, else $current.
      * @return array{0: ?int, 1: ?string} media id (null = none), error message
      */

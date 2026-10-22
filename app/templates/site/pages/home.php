@@ -12,7 +12,7 @@ $health = $v->data->division('healthcare');
 // hero slides move to the database in phase 3 (P3-D3)
 $slides = [
     [1, '<video class="hero__media" poster="' . $a . '/img/photo/4773.webp" autoplay muted loop playsinline preload="metadata"><source src="' . $a . '/video/hero-lab.webm" type="video/webm"><source src="' . $a . '/video/hero-lab.mp4" type="video/mp4"></video>', 'products.html', $v->t('view_products')],
-    [2, $v->img('photo/46364.jpg', '', 'hero__media', false), 'healthcare.html', $health ? $v->tr($health, 'name') : $v->t('products')],
+    [2, $v->img('photo/46364.jpg', '', 'hero__media', false), $health ? 'healthcare.html' : 'products.html', $health ? $v->tr($health, 'name') : $v->t('products')],
     [3, $v->img('photo/4765.jpg', '', 'hero__media', false), 'services.html', $v->t('services')],
 ];
 $stats = [

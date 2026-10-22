@@ -35,3 +35,50 @@
     });
   });
 })();
+
+(function () {
+  // [data-lang-tabs]: one tab per language panel. A dot marks a tab with an error (red) or empty Thai/Chinese (amber).
+  document.querySelectorAll('[data-lang-tabs]').forEach(function (box, n) {
+    var panels = Array.prototype.slice.call(box.querySelectorAll('.lang-panel'));
+    var list = document.createElement('div');
+    list.className = 'lang-tablist';
+    list.setAttribute('role', 'tablist');
+    var first = panels.findIndex(function (p) { return p.dataset.state === 'error'; });
+    var tabs = panels.map(function (p, i) {
+      var t = document.createElement('button');
+      t.type = 'button';
+      t.className = 'lang-tab';
+      t.id = 'lt' + n + '-' + i;
+      t.textContent = p.dataset.label;
+      t.dataset.state = p.dataset.state;
+      t.setAttribute('role', 'tab');
+      p.setAttribute('role', 'tabpanel');
+      p.setAttribute('aria-labelledby', t.id);
+      list.appendChild(t);
+      return t;
+    });
+    var show = function (i, focus) {
+      tabs.forEach(function (t, k) {
+        t.setAttribute('aria-selected', k === i ? 'true' : 'false');
+        t.tabIndex = k === i ? 0 : -1;
+        panels[k].hidden = k !== i;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { show(i); });
+      t.addEventListener('keydown', function (e) {
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (d) { e.preventDefault(); show((i + d + tabs.length) % tabs.length, true); }
+      });
+    });
+    // a required field in a hidden tab: show that tab so the browser can point at it
+    box.addEventListener('invalid', function (e) {
+      var i = panels.indexOf(e.target.closest('.lang-panel'));
+      if (i >= 0) show(i);
+    }, true);
+    box.insertBefore(list, box.firstChild);
+    box.classList.add('is-tabbed');
+    show(first >= 0 ? first : 0);
+  });
+})();

@@ -43,7 +43,7 @@ final class SupplierRepository
     /** New suppliers go to the end of the list. */
     public function create(array $data): int
     {
-        $data['sort'] = (int) $this->db->value('SELECT COALESCE(MAX(sort), 0) + 10 FROM suppliers');
+        $data['sort'] = SortOrder::next($this->db, 'suppliers');
         return $this->db->insert('suppliers', $data);
     }
 
@@ -62,18 +62,7 @@ final class SupplierRepository
     /** Moves a supplier one place up (-1) or down (+1) in the list. */
     public function move(int $id, int $dir): void
     {
-        $this->db->transaction(function (Db $db) use ($id, $dir): void {
-            $ids = array_map('intval', array_column($db->all('SELECT id FROM suppliers ORDER BY sort, id'), 'id'));
-            $i = array_search($id, $ids, true);
-            $j = $i === false ? false : $i + $dir;
-            if ($j === false || $j < 0 || $j >= count($ids)) {
-                return;
-            }
-            [$ids[$i], $ids[$j]] = [$ids[$j], $ids[$i]];
-            foreach ($ids as $n => $sid) {
-                $db->run('UPDATE suppliers SET sort = ? WHERE id = ?', [($n + 1) * 10, $sid]);
-            }
-        });
+        SortOrder::move($this->db, 'suppliers', $id, $dir);
     }
 
     /** Products this supplier is linked to, in site order, with whether it is the product's primary (first) supplier. */

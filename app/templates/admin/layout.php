@@ -6,6 +6,8 @@ use App\Http\Admin\UserController;
 $nav = [
     ['dashboard', '/admin', 'ໜ້າຫຼັກ', 'M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10'],
     ['messages', '/admin/messages', 'ກ່ອງຂໍ້ຄວາມ', 'M4 6h16v12H4zM4 7l8 6 8-6'],
+    ['divisions', '/admin/divisions', 'ຂະແໜງທຸລະກິດ', 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z'],
+    ['groups', '/admin/groups', 'ກຸ່ມສິນຄ້າ', 'M4 6h16M4 12h16M4 18h10'],
     ['suppliers', '/admin/suppliers', 'ຜູ້ສະໜອງ', 'M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6M9 11h.01M15 11h.01'],
     ['media', '/admin/media', 'ຄັງສື່', 'M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5M15 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z'],
     ['publish', '/admin/publish', 'ເຜີຍແຜ່', 'M12 16V4M7 9l5-5 5 5M5 20h14'],

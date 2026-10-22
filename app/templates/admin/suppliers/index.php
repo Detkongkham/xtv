@@ -2,6 +2,7 @@
 /** @var array $rows @var int $withoutSupplier */
 use App\Core\Countries;
 use App\Core\Csrf;
+use App\Core\View;
 use App\Repository\SupplierRepository;
 
 $featured = count(array_filter($rows, static fn ($r) => (int) $r['is_featured'] === 1));
@@ -27,11 +28,7 @@ $last = count($rows) - 1;
         <?php foreach ($rows as $i => $r): ?>
           <tr id="s<?= e($r['id']) ?>"<?= (int) $r['is_visible'] ? '' : ' class="is-hidden"' ?>>
             <td data-label="ລຳດັບ">
-              <div class="order">
-                <?php foreach (['up' => ['↑', 'ຍ້າຍຂຶ້ນ', $i === 0], 'down' => ['↓', 'ຍ້າຍລົງ', $i === $last]] as $dir => [$arrow, $label, $off]): ?>
-                  <form method="post" action="/admin/suppliers/<?= e($r['id']) ?>/move"><?= Csrf::field() ?><input type="hidden" name="dir" value="<?= $dir ?>"><button class="icon-btn" type="submit" aria-label="<?= e($label . ' ' . $r['name']) ?>"<?= $off ? ' disabled' : '' ?>><?= $arrow ?></button></form>
-                <?php endforeach; ?>
-              </div>
+              <?= View::render('admin/partials/order-buttons', ['action' => '/admin/suppliers/' . $r['id'] . '/move', 'label' => $r['name'], 'first' => $i === 0, 'last' => $i === $last]) ?>
             </td>
             <td data-label="ໂລໂກ້">
               <span class="logo-box<?= (int) $r['logo_on_dark'] ? ' logo-box--dark' : '' ?>">

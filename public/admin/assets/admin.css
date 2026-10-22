@@ -224,3 +224,27 @@ code { font-size: 13px; }
 .media-choice:has(input:checked) { border-color: var(--brand-600); background: var(--brand-50); }
 .media-choice--none { justify-content: center; align-items: center; min-height: 100px; }
 @media (max-width: 767px) { .filters--2 { grid-template-columns: 1fr; } }
+
+/* translated fields: tabs made by admin.js; without JS the panels are stacked */
+.lang-panel { display: grid; gap: 16px; }
+.lang-panel + .lang-panel { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); }
+.lang-panel__title { font-size: 16px; }
+.lang-panel__title em { color: var(--accent-red-text); font-style: normal; }
+.lang-panel__title small { font-weight: 400; }
+.is-tabbed .lang-panel + .lang-panel { margin-top: 0; padding-top: 0; border-top: 0; }
+.is-tabbed .lang-panel__title { display: none; }
+.lang-tablist { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+.lang-tab { position: relative; padding: 10px 16px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--muted); font: 500 15px/24px var(--font-sans); cursor: pointer; }
+.lang-tab[aria-selected="true"] { color: var(--brand-600); border-bottom-color: var(--brand-600); }
+.lang-tab[data-state="error"]::after, .lang-tab[data-state="missing"]::after { content: ""; position: absolute; top: 8px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-red-text); }
+.lang-tab[data-state="missing"]::after { background: #e0a100; }
+.lang-tab:focus-visible { outline: 2px solid var(--brand-600); outline-offset: -2px; }
+/* icons */
+.icon-choices { display: grid; grid-template-columns: repeat(auto-fill, 52px); gap: 8px; }
+.icon-choice { display: grid; place-items: center; width: 52px; height: 52px; border: 2px solid var(--line); border-radius: 8px; cursor: pointer; }
+.icon-choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.icon-choice svg, .icon-cell { width: 26px; height: 26px; fill: none; stroke: var(--brand-600); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.icon-choice:has(input:checked) { border-color: var(--brand-600); background: var(--brand-50); }
+.icon-choice:has(input:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.thumb { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; background: var(--surface); }
+.lang-panel[hidden] { display: none; }
