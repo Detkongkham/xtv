@@ -39,7 +39,7 @@ use App\Http\Admin\MessageController as MC;
 
 <?php if ($withoutSupplier > 0): ?>
 <section class="card">
-  <div class="card__head"><h2>ຜູ້ສະໜອງ</h2><a href="/admin/suppliers">ຈັດການຜູ້ສະໜອງ →</a></div>
+  <div class="card__head"><h2>ຜູ້ສະໜອງ</h2><a href="/admin/products?show=nosupplier">ເບິ່ງລາຍການ →</a></div>
   <p>ສິນຄ້າທີ່ຍັງບໍ່ລະບຸຜູ້ສະໜອງ: <b><?= e($withoutSupplier) ?></b>. ເປີດຜູ້ສະໜອງ ແລ້ວກົດ "ເພີ່ມສິນຄ້າ" ຈົນຄົບ.</p>
 </section>
 <?php endif; ?>

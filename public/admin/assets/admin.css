@@ -248,3 +248,19 @@ code { font-size: 13px; }
 .icon-choice:has(input:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: 2px; }
 .thumb { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; background: var(--surface); }
 .lang-panel[hidden] { display: none; }
+
+/* products */
+.filters--products { grid-template-columns: 2fr repeat(3, minmax(0, 1fr)) auto; }
+.spec-rows { display: grid; gap: 12px; }
+.spec-row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 12px; }
+.spec-row__main { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 8px; grid-column: 1; }
+.spec-row details { grid-column: 1; }
+.spec-row details summary { cursor: pointer; font-size: 13px; color: var(--brand-600); margin-bottom: 8px; }
+.spec-row__tools { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 4px; }
+.spec-row input { width: 100%; min-height: 40px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius-card); font: 400 15px/1.5 var(--font-sans); color: var(--ink); }
+.spec-row input:focus { outline: 0; border-color: var(--brand-600); box-shadow: 0 0 0 1px var(--brand-600); }
+.sup-pick td, .sup-pick th { padding: 8px 12px; }
+.sup-pick td:last-child, .sup-pick th:last-child { width: 60px; text-align: center; }
+details.card > summary { cursor: pointer; list-style-position: outside; }
+@media (max-width: 1279px) { .filters--products { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 767px) { .spec-row__main { grid-template-columns: 1fr; } }

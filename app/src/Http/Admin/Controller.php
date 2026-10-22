@@ -66,19 +66,26 @@ abstract class Controller
     }
 
     /**
-     * Reads translated fields (see partials/lang-fields.php). Lao and English are required; empty Thai/Chinese become NULL.
-     * @param array $fields list of [column prefix, label, type, max length]
+     * Reads translated fields (see partials/lang-fields.php). Empty values become NULL.
+     * Required fields need Lao and English; an optional field, once filled in any language, needs both too.
+     * @param array $fields list of [column prefix, label, type, max length, hint?, optional?]
      * @return array{0: array, 1: array<string, string>}
      */
     protected function translatedInput(array $fields): array
     {
         $data = [];
         $errors = [];
-        foreach ($fields as [$prefix, $label, , $max]) {
+        foreach ($fields as $f) {
+            [$prefix, $label, , $max] = $f;
+            $optional = !empty($f[5]);
+            $any = false;
+            foreach (['lo', 'en', 'th', 'zh'] as $l) {
+                $any = $any || trim(Request::post($prefix . '_' . $l)) !== '';
+            }
             foreach (['lo', 'en', 'th', 'zh'] as $l) {
                 $key = $prefix . '_' . $l;
                 $value = trim(str_replace("\r\n", "\n", Request::post($key)));
-                if ($value === '' && ($l === 'lo' || $l === 'en')) {
+                if ($value === '' && ($l === 'lo' || $l === 'en') && (!$optional || $any)) {
                     $errors[$key] = 'ກະລຸນາໃສ່' . $label . ($l === 'lo' ? 'ພາສາລາວ' : 'ພາສາອັງກິດ') . '.';
                 } elseif (mb_strlen($value) > $max) {
                     $errors[$key] = 'ຍາວເກີນ ' . $max . ' ຕົວອັກສອນ.';

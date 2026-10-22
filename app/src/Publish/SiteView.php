@@ -222,6 +222,16 @@ final class SiteView
         return 'product-' . $p['slug'];
     }
 
+    /** Plain text from the admin as paragraphs: a blank line starts a new one, a single line break stays. */
+    public function paragraphs(string $text, string $attrs = ''): string
+    {
+        $out = '';
+        foreach (preg_split('/\n\s*\n/', trim($text)) ?: [] as $para) {
+            $out .= '<p' . $attrs . '>' . nl2br($this->e(trim($para)), false) . '</p>';
+        }
+        return $out;
+    }
+
     /** One sentence about the product; falls back to the group summary. */
     public function productText(array $p, array $group): string
     {

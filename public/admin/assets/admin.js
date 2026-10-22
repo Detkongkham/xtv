@@ -82,3 +82,32 @@
     show(first >= 0 ? first : 0);
   });
 })();
+
+(function () {
+  // product specs: add, move and remove rows. Without JS there is always one empty row to fill in.
+  var box = document.querySelector('[data-spec-rows]');
+  var tpl = document.querySelector('[data-spec-template]');
+  var add = document.querySelector('[data-spec-add]');
+  if (!box || !tpl || !add) return;
+  var n = 0;
+  var tools = function (row) { var t = row.querySelector('[data-spec-tools]'); if (t) t.hidden = false; };
+  box.querySelectorAll('[data-spec-row]').forEach(tools);
+  add.hidden = false;
+  add.addEventListener('click', function () {
+    var wrap = document.createElement('div');
+    wrap.innerHTML = tpl.innerHTML.replace(/__N__/g, 'n' + (++n));
+    var row = wrap.firstElementChild;
+    tools(row);
+    box.appendChild(row);
+    row.querySelector('input').focus();
+  });
+  box.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-spec]');
+    if (!b) return;
+    var row = b.closest('[data-spec-row]');
+    if (b.dataset.spec === 'remove') row.remove();
+    if (b.dataset.spec === 'up' && row.previousElementSibling) box.insertBefore(row, row.previousElementSibling);
+    if (b.dataset.spec === 'down' && row.nextElementSibling) box.insertBefore(row.nextElementSibling, row);
+    if (b.dataset.spec !== 'remove') b.focus();
+  });
+})();

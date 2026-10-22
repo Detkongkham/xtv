@@ -2,7 +2,7 @@
 /**
  * Translated fields in 4 language panels. admin.js turns the panels into tabs; without JS they are stacked.
  * Lao and English are required; Thai and Chinese may stay empty (the site then shows English).
- * @var array $fields  list of [column prefix, label, 'input'|'textarea', max length, hint (optional)]
+ * @var array $fields  list of [column prefix, label, 'input'|'textarea', max length, hint (optional), optional field (bool)]
  * @var array $row     current values: <prefix>_<lang>
  * @var array $errors  <prefix>_<lang> => message
  */
@@ -12,12 +12,12 @@ $required = ['lo', 'en'];
 <div class="lang-tabs" data-lang-tabs>
   <?php foreach ($langs as $l => $langName): ?>
     <?php
-    $missing = !in_array($l, $required, true) && array_filter($fields, static fn ($f) => trim((string) ($row[$f[0] . '_' . $l] ?? '')) === '') !== [];
+    $missing = !in_array($l, $required, true) && array_filter($fields, static fn ($f) => trim((string) ($row[$f[0] . '_' . $l] ?? '')) === '' && trim((string) ($row[$f[0] . '_en'] ?? '')) !== '') !== [];
     $hasError = array_filter($fields, static fn ($f) => isset($errors[$f[0] . '_' . $l])) !== [];
     ?>
     <section class="lang-panel" data-label="<?= e($langName) ?>" data-state="<?= $hasError ? 'error' : ($missing ? 'missing' : '') ?>">
       <h3 class="lang-panel__title"><?= e($langName) ?><?= in_array($l, $required, true) ? ' <em>*</em>' : ' <small>(ຫວ່າງ = ໃຊ້ພາສາອັງກິດ)</small>' ?></h3>
-      <?php foreach ($fields as $f): [$prefix, $label, $type, $max] = $f; $key = $prefix . '_' . $l; $req = in_array($l, $required, true) ?>
+      <?php foreach ($fields as $f): [$prefix, $label, $type, $max] = $f; $key = $prefix . '_' . $l; $req = in_array($l, $required, true) && empty($f[5]) ?>
         <div class="field">
           <label for="<?= e($key) ?>"><?= e($label) ?><?= $req ? ' <em>*</em>' : '' ?></label>
           <?php if ($type === 'textarea'): ?>

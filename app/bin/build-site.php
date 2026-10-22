@@ -19,6 +19,6 @@ if (empty($opt['out'])) {
 }
 $start = microtime(true);
 $data = isset($opt['seed']) ? SiteData::fromSeedFile($opt['seed']) : SiteData::fromDb(App::db());
-$builder = new SiteBuilder($data, dirname(App::path()) . '/public', $opt['assets'] ?? '../assets', isset($opt['preview']));
+$builder = new SiteBuilder($data, dirname(App::path()) . '/public', $opt['assets'] ?? '../assets', isset($opt['preview']), App::config('base_url'));
 $n = $builder->build(rtrim($opt['out'], '/'));
 printf("pages written: %d | %.2f s | out: %s\n", $n, microtime(true) - $start, $opt['out']);

@@ -55,7 +55,11 @@ $crumb = $v->partial('breadcrumb', ['trail' => [[$v->t('products'), 'products.ht
   </div>
 </div></div></section>
 <section class="sec sec--tight sec--tint"><div class="wrap"><div class="split" style="align-items:start">
+  <?php if ($v->raw($p, 'body') !== ''): ?>
+  <div class="rv"><h2 class="h3"><?= $v->t('pd_use') ?></h2><?= $v->paragraphs($v->raw($p, 'body'), ' style="margin-top:12px"') ?></div>
+  <?php else: ?>
   <div class="rv"><h2 class="h3"><?= $v->t('pd_use') ?></h2><p style="margin-top:12px"><?= $v->tr($g, 'summary') ?></p><p style="margin-top:1.2em"><?= $v->tr($d, 'body') ?></p></div>
+  <?php endif ?>
   <div class="rv">
     <h2 class="h3"><?= $v->t('pd_srv') ?></h2>
     <ul class="checks">

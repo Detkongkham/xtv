@@ -9,7 +9,7 @@ $featured = count(array_filter($rows, static fn ($r) => (int) $r['is_featured'] 
 $last = count($rows) - 1;
 ?>
 <?php if ($withoutSupplier > 0): ?>
-  <p class="flash flash--error" role="status">ມີ <?= e($withoutSupplier) ?> ສິນຄ້າທີ່ຍັງບໍ່ລະບຸຜູ້ສະໜອງ. ເປີດຜູ້ສະໜອງ ແລ້ວກົດ "ເພີ່ມສິນຄ້າ" ເພື່ອເຊື່ອມ.</p>
+  <p class="flash flash--error" role="status">ມີ <a href="/admin/products?show=nosupplier"><?= e($withoutSupplier) ?> ສິນຄ້າ</a> ທີ່ຍັງບໍ່ລະບຸຜູ້ສະໜອງ. ເປີດຜູ້ສະໜອງ ແລ້ວກົດ "ເພີ່ມສິນຄ້າ", ຫຼື ເລືອກຜູ້ສະໜອງໃນຟອມສິນຄ້າ.</p>
 <?php endif; ?>
 <div class="bar">
   <p><b><?= e(count($rows)) ?></b> ຜູ້ສະໜອງ · ຫຼັກ <?= e($featured) ?>/<?= SupplierRepository::MAX_FEATURED ?></p>
