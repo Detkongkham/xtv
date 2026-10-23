@@ -66,7 +66,7 @@ $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__
         </div>
       <?php endforeach; ?>
     </nav>
-    <p class="side__site"><a href="/lo/index.html" target="_blank" rel="noopener">ເບິ່ງໜ້າເວັບ ↗</a></p>
+    <p class="side__site"><a href="/lo/index.html" target="_blank" rel="noopener"><span>ເບິ່ງໜ້າເວັບ</span> ↗</a></p>
   </aside>
   <div class="main">
     <header class="top">
@@ -126,8 +126,18 @@ $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__
       <ul class="cmd__list" role="listbox" data-cmd-list></ul>
       <p class="cmd__empty" data-cmd-empty hidden>ບໍ່ພົບເມນູນີ້ — ລອງພິມ “ສິນຄ້າ” ຫຼື “ຂ່າວ”</p>
     </dialog>
+    <div class="crumbs">
+      <button class="crumbs__toggle" type="button" aria-label="ຫຍໍ້ແຖບຂ້າງ" aria-keyshortcuts="Meta+B Control+B" aria-controls="side" aria-pressed="false" data-collapse hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path class="crumbs__arrow" d="M16 15l-3-3 3-3"/></svg>
+      </button>
+      <nav aria-label="Breadcrumb">
+        <a href="/admin" aria-label="ໜ້າຫຼັກ"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 21v-8a1 1 0 00-1-1h-4a1 1 0 00-1 1v8"/><path d="M3 10a2 2 0 01.7-1.5l7-6a2 2 0 012.6 0l7 6A2 2 0 0121 10v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></a>
+        <svg class="crumbs__sep" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        <span aria-current="page"><?= e($title) ?></span>
+      </nav>
+    </div>
     <main id="main" tabindex="-1">
-      <h1 class="page-title"><?= e($title) ?></h1>
+      <?php if ($active !== 'dashboard'): // the dashboard has its own header ?><h1 class="page-title"><?= e($title) ?></h1><?php endif; ?>
       <?php foreach ($flash as $f): ?>
         <p class="flash flash--<?= e($f['type']) ?>" role="<?= $f['type'] === 'error' ? 'alert' : 'status' ?>"><?= e($f['text']) ?></p>
       <?php endforeach; ?>

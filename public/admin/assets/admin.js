@@ -308,3 +308,47 @@
   document.addEventListener('click', function (e) { if (box.open && !box.contains(e.target)) box.open = false; });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.open) { box.open = false; box.querySelector('summary').focus(); } });
 })();
+
+(function () {
+  // sidebar collapse (desktop): button in the breadcrumb bar or Cmd/Ctrl+B, remembered in this browser
+  var btn = document.querySelector('[data-collapse]'), shell = document.querySelector('.shell');
+  if (!btn || !shell) return;
+  var links = document.querySelectorAll('.side nav a');
+  var set = function (on) {
+    shell.classList.toggle('is-collapsed', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.setAttribute('aria-label', on ? 'ຂະຫຍາຍແຖບຂ້າງ' : 'ຫຍໍ້ແຖບຂ້າງ');
+    links.forEach(function (a) { if (on) a.title = a.querySelector('span').textContent; else a.removeAttribute('title'); });
+    try { localStorage.setItem('xtk-side', on ? 'mini' : ''); } catch (e) {}
+  };
+  try { if (localStorage.getItem('xtk-side') === 'mini') set(true); } catch (e) {}
+  btn.hidden = false;
+  btn.addEventListener('click', function () { set(!shell.classList.contains('is-collapsed')); });
+  document.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b' && window.matchMedia('(min-width: 1024px)').matches) {
+      e.preventDefault();
+      set(!shell.classList.contains('is-collapsed'));
+    }
+  });
+})();
+
+(function () {
+  // dashboard: show/hide chart lines; reload every minute while the tab is visible and nothing is being typed
+  document.querySelectorAll('[data-chart-toggles] [data-series]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var on = b.getAttribute('aria-pressed') !== 'true';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      var g = document.querySelector('[data-chart] [data-line="' + b.getAttribute('data-series') + '"]');
+      if (g) g.toggleAttribute('hidden', !on);
+    });
+  });
+  var r = document.querySelector('[data-refresh]');
+  if (!r) return;
+  r.addEventListener('click', function () { r.classList.add('is-spinning'); });
+  setInterval(function () {
+    var a = document.activeElement;
+    if (document.visibilityState !== 'visible' || (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) || document.querySelector('dialog[open], details[open].top__user')) return;
+    r.classList.add('is-spinning');
+    location.reload();
+  }, 60000);
+})();
