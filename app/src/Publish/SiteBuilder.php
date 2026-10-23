@@ -50,11 +50,9 @@ final class SiteBuilder
                 throw new \RuntimeException('Cannot create ' . $dir);
             }
             foreach ($pages as [$template, $vars]) {
-                $body = $v->page($template, $vars);
-                $meta = $v->takeMeta();
-                $html = View::render('site/layout', ['v' => $v, 'meta' => $meta, 'body' => $body, 'noindex' => $noindex]);
-                self::write($dir . '/' . $meta['slug'] . '.html', $v->versioned($html));
-                $this->slugs[$meta['slug']] = true;
+                [$slug, $html] = self::renderPage($v, $template, $vars, $noindex);
+                self::write($dir . '/' . $slug . '.html', $html);
+                $this->slugs[$slug] = true;
                 $count++;
             }
         }
@@ -74,6 +72,18 @@ final class SiteBuilder
             . '</body>' . "\n" . '</html>' . "\n");
         self::write($outDir . '/robots.txt', $noindex ? "User-agent: *\nDisallow: /\n" : "User-agent: *\nAllow: /\n");
         return $count;
+    }
+
+    /**
+     * One page in the layout: [page name, HTML]. $bar replaces the sample-data note at the bottom (admin preview).
+     * @return array{0: string, 1: string}
+     */
+    public static function renderPage(SiteView $v, string $template, array $vars, bool $noindex, ?string $bar = null): array
+    {
+        $body = $v->page($template, $vars);
+        $meta = $v->takeMeta();
+        $html = View::render('site/layout', ['v' => $v, 'meta' => $meta, 'body' => $body, 'noindex' => $noindex, 'bar' => $bar]);
+        return [(string) $meta['slug'], $v->versioned($html)];
     }
 
     /** Old page => final page. Old names that are pages again are skipped; chains are followed, loops dropped. */

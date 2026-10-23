@@ -58,7 +58,7 @@ $editorImages = array_map(static function (array $m): array {
       </div>
     </div>
     <div class="card"><?= View::render('admin/partials/media-picker', ['name' => 'cover_id', 'label' => 'ຮູບປົກ', 'current' => $cover, 'images' => $images, 'error' => $errors['cover_id'] ?? null]) ?></div>
-    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມຂ່າວ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/news">ຍົກເລີກ</a></div>
+    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມຂ່າວ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/news">ຍົກເລີກ</a><?= $isNew ? '' : View::render('admin/partials/preview-link', ['page' => 'news-' . $n['slug']]) ?></div>
   </div>
 </form>
 <?php if (!$isNew): ?>

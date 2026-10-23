@@ -19,7 +19,7 @@ $isNew = (int) $faq['id'] === 0;
     <div class="card stack">
       <label class="check"><input type="checkbox" name="is_visible" value="1"<?= (int) $faq['is_visible'] ? ' checked' : '' ?>><span>ສະແດງໃນໜ້າເວັບ</span></label>
     </div>
-    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/faqs">ຍົກເລີກ</a></div>
+    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/faqs">ຍົກເລີກ</a><?= $isNew ? '' : View::render('admin/partials/preview-link', ['page' => 'faq']) ?></div>
   </div>
 </form>
 <?php if (!$isNew): ?>

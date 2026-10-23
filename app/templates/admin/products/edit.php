@@ -110,7 +110,7 @@ $specRow = static function (string $i, array $s): string {
         </table>
       <?php endif; ?>
     </fieldset>
-    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມສິນຄ້າ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/products">ຍົກເລີກ</a></div>
+    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມສິນຄ້າ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/products">ຍົກເລີກ</a><?= $isNew ? '' : View::render('admin/partials/preview-link', ['page' => 'product-' . $p['slug']]) ?></div>
   </div>
 </form>
 

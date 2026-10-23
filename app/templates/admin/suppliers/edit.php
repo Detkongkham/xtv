@@ -3,6 +3,7 @@
  * @var array $s @var array $errors @var array $countries @var array $products @var array $unlinked @var bool $published
  */
 use App\Core\Csrf;
+use App\Core\View;
 use App\Http\Admin\SupplierController as SC;
 use App\Repository\SupplierRepository;
 use App\Service\MediaService;
@@ -102,7 +103,7 @@ foreach ($unlinked as $p) {
       </div>
     </div>
 
-    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມຜູ້ສະໜອງ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/suppliers">ຍົກເລີກ</a></div>
+    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມຜູ້ສະໜອງ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/suppliers">ຍົກເລີກ</a><?= $isNew ? '' : View::render('admin/partials/preview-link', ['page' => 'supplier-' . $s['slug']]) ?></div>
   </div>
 </form>
 

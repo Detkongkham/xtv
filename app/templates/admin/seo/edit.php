@@ -19,6 +19,6 @@ use App\Http\Admin\SeoController as SC;
       <p class="hint"><?= e($page) ?>.html ທັງ 4 ພາສາ. ຖ້າໃສ່ພາສາໃດໜຶ່ງ ຕ້ອງໃສ່ທັງລາວ ແລະ ອັງກິດ; ໄທ ແລະ ຈີນ ຫວ່າງ = ໃຊ້ພາສາອັງກິດ.</p>
       <p class="hint">ລຶບຂໍ້ຄວາມອອກໝົດແລ້ວບັນທຶກ = ກັບໄປໃຊ້ຫົວຂໍ້ປົກກະຕິ.</p>
     </div>
-    <div class="btns"><button class="btn" type="submit">ບັນທຶກ</button><a class="btn btn--ghost" href="/admin/seo">ຍົກເລີກ</a></div>
+    <div class="btns"><button class="btn" type="submit">ບັນທຶກ</button><a class="btn btn--ghost" href="/admin/seo">ຍົກເລີກ</a><?= View::render('admin/partials/preview-link', ['page' => $page]) ?></div>
   </div>
 </form>

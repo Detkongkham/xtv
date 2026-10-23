@@ -550,6 +550,7 @@ a.logo-tile:hover, .sup-tile:hover .logo-tile { border-color: var(--brand-100); 
 .supplied-by b a { color: var(--ink); }
 .supplied-by a:hover { color: var(--brand-600); }
 .preview-bar { position: fixed; left: 16px; bottom: 16px; z-index: 300; max-width: min(520px, calc(100% - 112px)); padding: 10px 16px; border-radius: var(--radius-card); background: var(--accent-red-text); color: var(--white); font-size: 13px; line-height: 20px; box-shadow: var(--shadow-float); }
+.preview-bar a { color: inherit; text-decoration: underline; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1279px) {

@@ -22,6 +22,8 @@ final class SiteData
     private array $suppliersOf = [];
     private array $productsOfSupplier = [];
     private array $news = [];
+    /** draft news by slug, for the admin preview only */
+    private array $draftNews = [];
     private array $settings = [];
     private array $redirects = [];
     private array $downloads = [];
@@ -87,6 +89,11 @@ final class SiteData
         $news = array_values(array_filter($t['news'], static fn ($n) => $n['status'] === 'published'));
         usort($news, static fn ($a, $b) => [$b['published_on'], (int) $b['id']] <=> [$a['published_on'], (int) $a['id']]);
         $this->news = $news;
+        foreach ($t['news'] as $n) {
+            if ($n['status'] === 'draft') {
+                $this->draftNews[$n['slug']] = $n;
+            }
+        }
         $this->settings = $t['settings'];
         $this->redirects = $t['redirects'] ?? [];
         foreach ($sorted($visible($t['downloads'] ?? [])) as $dl) {
@@ -239,6 +246,12 @@ final class SiteData
     public function news(): array
     {
         return $this->news;
+    }
+
+    /** A draft news item, which no published page shows (admin preview). */
+    public function draftNews(string $slug): ?array
+    {
+        return $this->draftNews[$slug] ?? null;
     }
 
     /** News with a body get their own page (news-<slug>.html); the others only link to link_url. */

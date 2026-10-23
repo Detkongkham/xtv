@@ -38,7 +38,13 @@ final class PageList
      */
     public static function names(SiteData $data): array
     {
-        return array_map(static fn (array $page): string => match ($page[0]) {
+        return array_map(self::name(...), self::of($data));
+    }
+
+    /** @param array{0: string, 1: array} $page an entry of of() */
+    public static function name(array $page): string
+    {
+        return match ($page[0]) {
             'home' => 'index',
             'division' => $page[1]['d']['slug'],
             'product' => 'product-' . $page[1]['p']['slug'],
@@ -46,7 +52,7 @@ final class PageList
             'supplier' => 'supplier-' . $page[1]['s']['slug'],
             'legal' => $page[1]['slug'],
             default => $page[0],
-        }, self::of($data));
+        };
     }
 
     /** @return list<array{0: string, 1: array}> */

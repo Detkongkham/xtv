@@ -7,6 +7,7 @@
  * @var array $meta  slug, title, desc, overlay, active, own (title from /admin/seo), ld (JSON-LD objects); raw text, escaped here
  * @var string $body
  * @var bool $noindex
+ * @var ?string $bar  HTML of the note fixed at the bottom; null = the sample-data note on preview builds
  */
 use App\Core\Lang;
 
@@ -36,6 +37,7 @@ if ($v->lang === 'zh') {
         . "<noscript><style>@font-face{font-family:'Noto Sans SC';font-style:normal;font-weight:400 600;font-display:swap;"
         . "src:url(" . $a . "/fonts/noto-sans-sc-sub.woff2) format('woff2')}</style></noscript>";
 }
+$bar ??= $v->preview ? '<p class="preview-bar" role="note">' . $v->t('preview_note') . '</p>' : '';
 // Google Analytics 4 only when the admin set a Measurement ID (/admin/settings); the ID is checked there (G-XXXX)
 $ga = $v->preview ? '' : (string) $v->data->setting('analytics_id', '');
 $analytics = $ga === '' ? '' : '<script async src="https://www.googletagmanager.com/gtag/js?id=' . $v->e($ga) . '"></script>' . "\n"
@@ -65,7 +67,7 @@ $analytics = $ga === '' ? '' : '<script async src="https://www.googletagmanager.
 <?= $body . "\n" ?>
 </main>
 <?= $v->partial('footer') . "\n" ?>
-<?= $v->preview ? '<p class="preview-bar" role="note">' . $v->t('preview_note') . "</p>\n" : '' ?>
+<?= $bar !== '' ? $bar . "\n" : '' ?>
 <script src="<?= $a ?>/js/main.js" defer></script>
 </body>
 </html>

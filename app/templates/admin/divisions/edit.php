@@ -27,7 +27,7 @@ $isNew = (int) $d['id'] === 0;
     </div>
     <div class="card"><?= View::render('admin/partials/icon-picker', ['name' => 'icon', 'current' => $d['icon'], 'error' => $errors['icon'] ?? null]) ?></div>
     <div class="card"><?= View::render('admin/partials/media-picker', ['name' => 'image_id', 'label' => 'ຮູບຂະແໜງ', 'current' => $image, 'images' => $images, 'error' => $errors['image_id'] ?? null]) ?></div>
-    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມຂະແໜງ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/divisions">ຍົກເລີກ</a></div>
+    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມຂະແໜງ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/divisions">ຍົກເລີກ</a><?= $isNew ? '' : View::render('admin/partials/preview-link', ['page' => $d['slug']]) ?></div>
   </div>
 </form>
 <?php if (!$isNew): ?>

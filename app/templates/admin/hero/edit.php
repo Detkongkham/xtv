@@ -72,7 +72,7 @@ $videoId = (int) ($video['id'] ?? 0);
     <div class="card stack">
       <label class="check"><input type="checkbox" name="is_visible" value="1"<?= (int) $slide['is_visible'] ? ' checked' : '' ?><?= $inv('is_visible') ?>><span>ສະແດງໃນໜ້າເວັບ</span></label><?= $err('is_visible') ?>
     </div>
-    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/hero">ຍົກເລີກ</a></div>
+    <div class="btns"><button class="btn" type="submit"><?= $isNew ? 'ເພີ່ມ' : 'ບັນທຶກ' ?></button><a class="btn btn--ghost" href="/admin/hero">ຍົກເລີກ</a><?= $isNew ? '' : View::render('admin/partials/preview-link', ['page' => 'index']) ?></div>
   </div>
 </form>
 <?php if (!$isNew): ?>

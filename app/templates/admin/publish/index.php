@@ -1,6 +1,7 @@
 <?php
 /** @var array $history @var list<string> $builds @var bool $busy */
 use App\Core\Csrf;
+use App\Core\View;
 use App\Http\Admin\PublishController as PC;
 
 $tagClass = ['success' => 'done', 'failed' => 'error', 'rolled_back' => 'in_progress', 'running' => 'new'];
@@ -13,7 +14,7 @@ $tagClass = ['success' => 'done', 'failed' => 'error', 'rolled_back' => 'in_prog
   <?php endif; ?>
   <form method="post" action="/admin/publish" data-busy="ກຳລັງເຜີຍແຜ່…">
     <?= Csrf::field() ?>
-    <button class="btn" type="submit"<?= $busy ? ' disabled' : '' ?>>ເຜີຍແຜ່ດຽວນີ້</button>
+    <div class="btns"><button class="btn" type="submit"<?= $busy ? ' disabled' : '' ?>>ເຜີຍແຜ່ດຽວນີ້</button><?= View::render('admin/partials/preview-link', ['page' => 'index']) ?></div>
   </form>
 </section>
 
