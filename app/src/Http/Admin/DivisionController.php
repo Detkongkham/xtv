@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Request;
 use App\Publish\PageList;
 use App\Repository\DivisionRepository;
+use App\Repository\GroupRepository;
 use App\Repository\MediaRepository;
 use App\Repository\RedirectRepository;
 use App\Service\Slugger;
@@ -126,13 +127,19 @@ final class DivisionController extends Controller
 
     private function form(array $d, array $errors, int $status = 200): never
     {
+        $id = (int) $d['id'];
         $media = new MediaRepository(App::db());
-        $this->page('divisions/edit', (int) $d['id'] === 0 ? 'ເພີ່ມຂະແໜງ' : ($d['name_lo'] ?? 'ຂະແໜງ'), [
+        // the saved row (not the posted one) gives the counts and the place in the menu
+        $all = $this->repo()->all();
+        $pos = array_search($id, array_map('intval', array_column($all, 'id')), true);
+        $this->page('divisions/edit', $id === 0 ? 'ເພີ່ມຂະແໜງ' : ($d['name_lo'] ?? 'ຂະແໜງ'), [
             'd' => $d,
             'errors' => $errors,
             'image' => $d['image_id'] ? $media->find((int) $d['image_id']) : null,
             'images' => $media->images(),
-            'published' => (int) $d['id'] !== 0 && self::isPublished($d['slug']),
+            'published' => $id !== 0 && self::isPublished($d['slug']),
+            'saved' => $pos === false ? null : $all[$pos] + ['pos' => $pos + 1, 'of' => count($all)],
+            'groups' => $id === 0 ? [] : array_values(array_filter((new GroupRepository(App::db()))->all(), static fn (array $g): bool => (int) $g['division_id'] === $id)),
         ], $status);
     }
 

@@ -175,6 +175,26 @@ final class ProductRepository
         ), 'label', 'id');
     }
 
+    /** @return array{all:int, hidden:int, featured:int, noimage:int, nosupplier:int} counts for the list's stat cards and tabs */
+    public function counts(): array
+    {
+        $r = $this->db->one(
+            'SELECT COUNT(*) AS `all`, SUM(is_visible = 0) AS hidden, SUM(is_featured = 1) AS featured, SUM(image_id IS NULL) AS noimage,
+                    SUM(NOT EXISTS (SELECT 1 FROM product_suppliers ps WHERE ps.product_id = p.id)) AS nosupplier
+             FROM products p'
+        ) ?? [];
+        return array_map('intval', array_merge(['all' => 0, 'hidden' => 0, 'featured' => 0, 'noimage' => 0, 'nosupplier' => 0], array_filter($r, 'is_numeric')));
+    }
+
+    /** @return list<array{id:int|string, division_id:int|string, name_lo:string, n:int|string}> groups in site order with their product count */
+    public function groupCounts(): array
+    {
+        return $this->db->all(
+            'SELECT g.id, g.division_id, g.name_lo, COUNT(p.id) AS n FROM product_groups g JOIN divisions d ON d.id = g.division_id
+             LEFT JOIN products p ON p.group_id = g.id GROUP BY g.id ORDER BY d.sort, d.id, g.sort, g.id'
+        );
+    }
+
     /** Suppliers for the product form: id => name, in list order. */
     public function supplierOptions(): array
     {

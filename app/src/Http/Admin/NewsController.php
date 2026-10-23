@@ -34,8 +34,15 @@ final class NewsController extends Controller
     public function index(): never
     {
         $this->requireLogin();
-        $status = Request::query('status');
-        $this->page('news/index', 'ຂ່າວສານ', ['rows' => $this->repo()->all($status), 'status' => $status]);
+        $filters = [
+            'status' => isset(self::STATUS_NAMES[Request::query('status')]) ? Request::query('status') : '',
+            'category' => isset(self::CATEGORY_NAMES[Request::query('category')]) ? Request::query('category') : '',
+            'show' => Request::query('show') === 'nocover' ? 'nocover' : '',
+            'q' => mb_substr(trim(Request::query('q')), 0, 100),
+        ];
+        // live: the article's own page is on the site (published at least once)
+        $rows = array_map(static fn (array $r): array => $r + ['live' => (int) $r['has_page'] === 1 && self::isPublished('news-' . $r['slug'])], $this->repo()->all());
+        $this->page('news/index', 'ຂ່າວສານ', ['rows' => $rows, 'filters' => $filters]);
     }
 
     public function create(): never

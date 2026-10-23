@@ -42,12 +42,13 @@ final class ProductController extends Controller
             $f['show'] = '';
         }
         $page = max(1, (int) Request::query('page', '1'));
-        $result = $this->repo()->search($f, $page);
+        $repo = $this->repo();
+        $result = $repo->search($f, $page);
         $this->page('products/index', 'ສິນຄ້າ', [
             'rows' => $result['rows'], 'total' => $result['total'], 'page' => $page,
             'pages' => max(1, (int) ceil($result['total'] / ProductRepository::PER_PAGE)),
-            'filters' => $f, 'groups' => $this->repo()->groupOptions(), 'divisions' => (new DivisionRepository(App::db()))->names(),
-            'featured' => $this->repo()->countFeatured(),
+            'filters' => $f, 'groups' => $repo->groupCounts(), 'divisions' => (new DivisionRepository(App::db()))->names(),
+            'counts' => $repo->counts(),
         ]);
     }
 
@@ -170,6 +171,7 @@ final class ProductController extends Controller
             'groups' => $this->repo()->groupOptions(), 'supplierOptions' => $this->repo()->supplierOptions(),
             'image' => $p['image_id'] ? $media->find((int) $p['image_id']) : null, 'images' => $media->images(),
             'published' => (int) $p['id'] !== 0 && self::isPublished('product-' . $p['slug']),
+            'featuredOthers' => $this->repo()->countFeatured((int) $p['id']),
         ], $status);
     }
 

@@ -30,7 +30,7 @@ abstract class Controller
             'user' => $user,
             'flash' => Session::takeFlash(),
             'active' => explode('/', $template)[0],
-            'ownHeader' => in_array($template, ['dashboard/index', 'messages/index', 'divisions/index', 'groups/index'], true),
+            'ownHeader' => in_array($template, ['dashboard/index', 'messages/index', 'divisions/index', 'divisions/edit', 'groups/index', 'groups/edit', 'products/index', 'products/edit', 'suppliers/index', 'suppliers/edit'], true),
             'newCount' => $user === null ? 0 : (new MessageRepository(App::db()))->countByStatus()['new'],
             'unpublished' => $user !== null && self::publishState()['reason'] !== null,
         ]), $status);

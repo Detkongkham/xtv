@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Request;
 use App\Repository\DivisionRepository;
 use App\Repository\GroupRepository;
+use App\Repository\ProductRepository;
 use App\Service\Slugger;
 
 /**
@@ -141,11 +142,19 @@ final class GroupController extends Controller
 
     private function form(array $g, array $errors, int $status = 200): never
     {
-        $this->page('groups/edit', (int) $g['id'] === 0 ? 'ເພີ່ມກຸ່ມສິນຄ້າ' : ($g['name_lo'] ?? 'ກຸ່ມ'), [
+        $id = (int) $g['id'];
+        // the saved row (not the posted one) says which division the group sits in and where
+        $saved = $id ? $this->repo()->find($id) : null;
+        $siblings = $saved === null ? [] : array_values(array_filter($this->repo()->all(), static fn (array $s): bool => (int) $s['division_id'] === (int) $saved['division_id']));
+        $products = $id ? (new ProductRepository(App::db()))->search(['group' => $id], 1) : ['rows' => [], 'total' => 0];
+        $this->page('groups/edit', $id === 0 ? 'ເພີ່ມກຸ່ມສິນຄ້າ' : ($g['name_lo'] ?? 'ກຸ່ມ'), [
             'g' => $g,
             'errors' => $errors,
             'divisions' => (new DivisionRepository(App::db()))->names(),
-            'productCount' => (int) $g['id'] ? $this->repo()->countProducts((int) $g['id']) : 0,
+            'productCount' => $products['total'],
+            'products' => $products['rows'],
+            'saved' => $saved,
+            'siblings' => $siblings,
         ], $status);
     }
 

@@ -31,9 +31,11 @@ final class SupplierController extends Controller
     public function index(): never
     {
         $this->requireLogin();
+        $show = Request::query('show');
         $this->page('suppliers/index', 'ຜູ້ສະໜອງ', [
             'rows' => $this->repo()->all(),
             'withoutSupplier' => $this->repo()->countProductsWithoutSupplier(),
+            'filters' => ['show' => in_array($show, ['featured', 'visible', 'hidden'], true) ? $show : '', 'q' => trim(Request::query('q'))],
         ]);
     }
 
@@ -178,6 +180,9 @@ final class SupplierController extends Controller
             'products' => $isNew ? [] : $this->repo()->products((int) $s['id']),
             'unlinked' => $isNew ? [] : $this->repo()->unlinkedProducts((int) $s['id']),
             'published' => !$isNew && self::isPublished('supplier-' . $s['slug']),
+            // the stored row (not the posted one) names the page in the header
+            'saved' => $isNew ? null : $this->repo()->find((int) $s['id']),
+            'featuredOthers' => $this->repo()->countFeatured((int) $s['id']),
         ], $status);
     }
 

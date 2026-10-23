@@ -139,7 +139,7 @@ $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__
       </nav>
     </div>
     <main id="main" tabindex="-1">
-      <?php if (empty($ownHeader)): // the dashboard, the inbox, the divisions and the groups draw their own header ?><h1 class="page-title"><?= e($title) ?></h1><?php endif; ?>
+      <?php if (empty($ownHeader)): // the dashboard, the inbox, divisions, groups and products draw their own header ?><h1 class="page-title"><?= e($title) ?></h1><?php endif; ?>
       <?php foreach ($flash as $f): ?>
         <p class="flash flash--<?= e($f['type']) ?>" role="<?= $f['type'] === 'error' ? 'alert' : 'status' ?>"><?= e($f['text']) ?></p>
       <?php endforeach; ?>
