@@ -9,6 +9,17 @@ use App\Publish\SiteView;
 ['division' => $d, 'group' => $g] = $v->data->placeOf($p);
 $v->meta($v->productPage($p), $v->raw($p, 'seo_title') ?: $p['name'], $v->raw($p, 'seo_desc') ?: $p['name'] . ' — ' . $v->raw($d, 'name'), active: 'products');
 $sups = $v->data->suppliersOf($p);
+$picture = $v->data->media((int) $p['image_id']);
+// brand only when one supplier makes it: a product that is a range (rapid tests, syringes) comes from several
+$v->schema([
+    '@type' => 'Product',
+    'name' => $p['name'],
+    'description' => $v->raw($p, 'summary') ?: $v->raw($g, 'summary'),
+    'image' => $v->fileUrl($picture['path']),
+    'url' => $v->url($v->productPage($p)),
+    'category' => $v->raw($d, 'name') . ' > ' . $v->raw($g, 'name'),
+    'brand' => count($sups) === 1 ? ['@type' => 'Brand', 'name' => $sups[0]['name']] : null,
+]);
 
 $spec = [[$v->t('sp_cat'), $v->tr($d, 'name')], [$v->t('sp_group'), $v->tr($g, 'name')]];
 $custom = $v->data->specs($p);
@@ -34,7 +45,7 @@ $crumb = $v->partial('breadcrumb', ['trail' => [[$v->t('products'), 'products.ht
 ?>
 <section class="phead" style="padding-bottom:32px"><div class="wrap"><?= $crumb ?></div></section>
 <section class="sec sec--tight" style="padding-top:40px"><div class="wrap"><div class="pd">
-  <div class="pd__img rv"><?= $v->media($v->data->media((int) $p['image_id']), $p['name'], '', false, App\Publish\SiteView::SIZES_WIDE) ?></div>
+  <div class="pd__img rv"><?= $v->media($picture, $p['name'], '', false, App\Publish\SiteView::SIZES_WIDE) ?></div>
   <div class="rv">
     <span class="tag"><?= $v->tr($g, 'name') ?></span>
     <h1><?= $v->e($p['name']) ?></h1>

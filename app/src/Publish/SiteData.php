@@ -27,6 +27,7 @@ final class SiteData
     private array $downloads = [];
     private array $faqs = [];
     private array $heroSlides = [];
+    private array $seoPages = [];
 
     private function __construct(array $t)
     {
@@ -100,12 +101,15 @@ final class SiteData
                 $this->heroSlides[] = $h;
             }
         }
+        foreach ($t['seo_pages'] ?? [] as $row) {
+            $this->seoPages[$row['page']] = $row;
+        }
     }
 
     public static function fromDb(Db $db): self
     {
         $tables = [];
-        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects', 'downloads', 'faqs', 'hero_slides'] as $table) {
+        foreach (['media', 'divisions', 'product_groups', 'products', 'product_specs', 'suppliers', 'product_suppliers', 'news', 'redirects', 'downloads', 'faqs', 'hero_slides', 'seo_pages'] as $table) {
             $tables[$table] = $db->all('SELECT * FROM `' . $table . '`');
         }
         $tables['settings'] = [];
@@ -265,6 +269,12 @@ final class SiteData
     public function heroSlides(): array
     {
         return $this->heroSlides;
+    }
+
+    /** Title/description entered for a fixed page in /admin/seo (columns title_<lang>, desc_<lang>), if any. */
+    public function seoPage(string $page): ?array
+    {
+        return $this->seoPages[$page] ?? null;
     }
 
     public function divisionById(?int $id): ?array

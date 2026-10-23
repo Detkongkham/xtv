@@ -8,6 +8,15 @@ $items = $v->data->supplierProducts($s);
 $divs = $v->data->supplierDivisions($s);
 $name = $v->e($s['name']);
 $v->meta('supplier-' . $s['slug'], $v->f('sup_title', $s['name']), $v->f('sup_sells', n: count($items), name: $s['name']), active: 'suppliers');
+$logo = $v->data->media($s['logo_id'] === null ? null : (int) $s['logo_id']);
+$v->schema([
+    '@type' => 'Organization',
+    'name' => $s['name'],
+    'url' => $s['website_url'],
+    'logo' => $v->fileUrl($logo['path'] ?? null),
+    'description' => $v->raw($s, 'summary'),
+    'address' => ['@type' => 'PostalAddress', 'addressCountry' => $s['country_code']],
+]);
 $partnership = ['exclusive' => 'sup_exclusive', 'authorized' => 'sup_auth', 'distributor' => 'sup_distributor'];
 $ids = array_flip(array_column($divs, 'id'));
 $others = array_slice(array_values(array_filter($v->data->suppliers(), static function ($o) use ($v, $s, $ids): bool {

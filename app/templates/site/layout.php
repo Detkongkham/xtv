@@ -4,18 +4,28 @@
  * PHP drops the newline right after "?>", so lines that end in a value add "\n" themselves.
  *
  * @var App\Publish\SiteView $v
- * @var array $meta  slug, title, desc, overlay, active (raw text, escaped here)
+ * @var array $meta  slug, title, desc, overlay, active, own (title from /admin/seo), ld (JSON-LD objects); raw text, escaped here
  * @var string $body
  * @var bool $noindex
  */
 use App\Core\Lang;
 
 $a = $v->a;
-$full = $v->e($meta['slug'] !== 'index' ? $meta['title'] . ' | XTK' : 'XTK — ' . $v->t('co_name'));
+$full = $v->e($meta['slug'] !== 'index' ? $meta['title'] . ' | XTK' : ($meta['own'] ? $meta['title'] : 'XTK — ' . $v->t('co_name')));
 $desc = $v->e($meta['desc'] !== '' ? $meta['desc'] : $v->t('co_tag'));
+// with a base URL: full URLs, a canonical (not on 404, which is served at any address) and og:url
+$href = static fn (string $l): string => $v->e($v->url($meta['slug'], $l) ?? '../' . $l . '/' . $meta['slug'] . '.html');
 $alts = '';
 foreach (Lang::CODES as $l) {
-    $alts .= '<link rel="alternate" hreflang="' . Lang::HTML[$l] . '" href="../' . $l . '/' . $meta['slug'] . '.html">';
+    $alts .= '<link rel="alternate" hreflang="' . Lang::HTML[$l] . '" href="' . $href($l) . '">';
+}
+$alts .= '<link rel="alternate" hreflang="x-default" href="' . $href(Lang::X_DEFAULT) . '">';
+$canonical = $v->url($meta['slug']) === null || $meta['slug'] === '404' ? ''
+    : '<link rel="canonical" href="' . $href($v->lang) . '">' . "\n" . '<meta property="og:url" content="' . $href($v->lang) . '">' . "\n";
+// JSON-LD: JSON_HEX_TAG keeps a "</script>" in the text from closing the tag
+$ld = '';
+foreach ($meta['ld'] as $thing) {
+    $ld .= '<script type="application/ld+json">' . json_encode($thing, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_THROW_ON_ERROR) . "</script>\n";
 }
 // all fonts are self-hosted; Chinese uses a subset of Noto Sans SC that only zh pages download.
 // main.js loads it after the page (meta font-zh): at 134 KB it would otherwise compete with the CSS and delay the
@@ -42,13 +52,13 @@ $analytics = $ga === '' ? '' : '<script async src="https://www.googletagmanager.
 <?= $noindex ? '<meta name="robots" content="noindex, nofollow">' . "\n" : '' ?>
 <meta property="og:title" content="<?= $full ?>">
 <meta property="og:description" content="<?= $desc ?>">
-<meta property="og:type" content="website">
-<?= $alts . "\n" ?>
+<meta property="og:type" content="<?= str_starts_with($meta['slug'], 'news-') ? 'article' : 'website' ?>">
+<?= $canonical ?><?= $alts . "\n" ?>
 <link rel="icon" href="<?= $a ?>/img/logo.svg" type="image/svg+xml">
 <link rel="alternate icon" href="<?= $a ?>/img/favicon.png">
 <?= $fonts . "\n" ?>
 <link rel="stylesheet" href="<?= $a ?>/css/style.css">
-<?= $analytics ?></head>
+<?= $ld ?><?= $analytics ?></head>
 <body>
 <?= $v->partial('header', ['slug' => $meta['slug'], 'overlay' => $meta['overlay'], 'active' => $meta['active']]) . "\n" ?>
 <main id="main">

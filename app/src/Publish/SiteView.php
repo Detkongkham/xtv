@@ -34,6 +34,8 @@ final class SiteView
     /** prefix that turns a path under public/ into a link from public/<lang>/ */
     private string $root;
     private array $meta = [];
+    /** JSON-LD objects for this page, set by the page template through schema() */
+    private array $ld = [];
 
     public function __construct(
         private Lang $l,
@@ -41,6 +43,8 @@ final class SiteView
         private string $publicDir,
         public readonly string $a = '../assets',
         public readonly bool $preview = false,
+        /** full origin (https://xtklaos.com) for canonical, hreflang and JSON-LD; null = relative links only */
+        private ?string $baseUrl = null,
     ) {
         $this->lang = $l->code;
         $this->root = substr($a, 0, -strlen('assets'));
@@ -188,15 +192,72 @@ final class SiteView
     }
 
     // ------------------------------------------------------------ page meta, set by each page template
+    /** A title or description entered in /admin/seo for this page (PageList::SEO) wins over the template's. */
     public function meta(string $slug, string $title, string $desc = '', bool $overlay = false, ?string $active = null): void
     {
-        $this->meta = compact('slug', 'title', 'desc', 'overlay', 'active');
+        $seo = $this->data->seoPage($slug) ?? [];
+        $own = $this->l->tr($seo, 'title') !== '';
+        $title = $own ? $this->l->tr($seo, 'title') : $title;
+        $desc = $this->l->tr($seo, 'desc') ?: $desc;
+        $this->meta = compact('slug', 'title', 'desc', 'overlay', 'active', 'own');
     }
 
+    /** @return array meta() values + ld (JSON-LD objects) */
     public function takeMeta(): array
     {
-        [$meta, $this->meta] = [$this->meta, []];
-        return $meta ?: throw new \LogicException('Page template did not call $v->meta()');
+        [$meta, $ld, $this->meta, $this->ld] = [$this->meta, $this->ld, [], []];
+        return $meta ? $meta + ['ld' => $ld] : throw new \LogicException('Page template did not call $v->meta()');
+    }
+
+    // ------------------------------------------------------------ full URLs and structured data (JSON-LD)
+    /** Full URL of a page in this language (or $lang), or null without a base URL. */
+    public function url(string $page, ?string $lang = null): ?string
+    {
+        return $this->baseUrl === null ? null : rtrim($this->baseUrl, '/') . '/' . ($lang ?? $this->lang) . '/' . $page . '.html';
+    }
+
+    /** Full URL of a file under public/ (assets/..., uploads/...), or null without a base URL. */
+    public function fileUrl(?string $path): ?string
+    {
+        return $this->baseUrl === null || $path === null ? null : rtrim($this->baseUrl, '/') . '/' . $path;
+    }
+
+    /** Adds a schema.org object to the page head. Empty values (no base URL, no picture) are left out. */
+    public function schema(array $thing): void
+    {
+        $this->ld[] = ['@context' => 'https://schema.org'] + self::withoutEmpty($thing);
+    }
+
+    private static function withoutEmpty(array $a): array
+    {
+        foreach ($a as $k => $value) {
+            if (is_array($value)) {
+                $a[$k] = $value = self::withoutEmpty($value);
+            }
+            if ($value === null || $value === '' || $value === []) {
+                unset($a[$k]);
+            }
+        }
+        return $a;
+    }
+
+    /** The company, for the home page and as author/publisher of news. */
+    public function organization(): array
+    {
+        $a = $this->data->setting('address', []);
+        return [
+            '@type' => 'Organization',
+            'name' => $this->t('co_name'),
+            'alternateName' => 'XTK',
+            'url' => $this->url('index'),
+            'logo' => $this->fileUrl('assets/img/logo.png'),
+            'description' => $this->t('co_tag'),
+            'email' => $this->contact('email'),
+            'telephone' => $this->contact('tel') !== '' ? $this->telHref($this->contact('tel')) : '',
+            'foundingDate' => (string) ($this->data->setting('stats')['founded'] ?? ''),
+            'address' => ['@type' => 'PostalAddress', 'streetAddress' => ($a[$this->lang] ?? '') !== '' ? $a[$this->lang] : ($a['en'] ?? ''),
+                'addressLocality' => 'Vientiane', 'addressCountry' => 'LA'],
+        ];
     }
 
     // ------------------------------------------------------------ contact details (settings)

@@ -88,6 +88,93 @@ final class SiteBuildTest extends TestCase
         self::assertStringContainsString('<loc>https://new.example.com/zh/product-ct-scan.html</loc>', $xml);
         self::assertStringNotContainsString('404.html', $xml);
         self::assertStringNotContainsString('product-old.html', $xml);
+        self::assertStringContainsString('<xhtml:link rel="alternate" hreflang="x-default" href="https://new.example.com/en/product-ct-scan.html"/>', $xml);
+    }
+
+    public function testCanonicalAndHreflangWithFullUrls(): void
+    {
+        $page = (string) file_get_contents(self::$out . '/th/about.html');
+        self::assertStringContainsString('<link rel="canonical" href="https://new.example.com/th/about.html">', $page);
+        self::assertStringContainsString('<link rel="alternate" hreflang="zh-Hans" href="https://new.example.com/zh/about.html">', $page);
+        self::assertStringContainsString('<link rel="alternate" hreflang="x-default" href="https://new.example.com/en/about.html">', $page);
+        self::assertStringNotContainsString('rel="canonical"', (string) file_get_contents(self::$out . '/lo/404.html'));
+    }
+
+    /** @return list<array> the JSON-LD objects of a built page */
+    private static function jsonLd(string $file): array
+    {
+        preg_match_all('#<script type="application/ld\+json">(.*?)</script>#', (string) file_get_contents(self::$out . '/' . $file), $m);
+        return array_map(static fn (string $json): array => json_decode($json, true, 512, JSON_THROW_ON_ERROR), $m[1]);
+    }
+
+    public function testStructuredData(): void
+    {
+        [$org] = self::jsonLd('en/index.html');
+        self::assertSame(['https://schema.org', 'Organization', 'https://new.example.com/en/index.html', '+85621563121'],
+            [$org['@context'], $org['@type'], $org['url'], $org['telephone']]);
+
+        [$product] = self::jsonLd('lo/product-ct-scan.html');
+        self::assertSame('Product', $product['@type']);
+        self::assertSame('CT Scan', $product['name']);
+        self::assertStringStartsWith('https://new.example.com/assets/img/', $product['image']);
+        self::assertSame([], self::jsonLd('lo/products.html'));
+
+        $news = array_values(array_filter(self::$builder->slugs(), static fn ($s) => str_starts_with($s, 'news-')));
+        [$article] = self::jsonLd('zh/' . $news[0] . '.html');
+        self::assertSame('NewsArticle', $article['@type']);
+        self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}$/', $article['datePublished']);
+        self::assertSame('Organization', $article['publisher']['@type']);
+    }
+
+    public function testSupplierOrganizationAndProductBrand(): void
+    {
+        $seed = json_decode((string) file_get_contents(App::path('database/seed/seed.json')), true);
+        $ct = array_values(array_filter($seed['products'], static fn ($p) => $p['slug'] === 'ct-scan'))[0];
+        $sup = static fn (int $id, string $slug): array => ['id' => $id, 'slug' => $slug, 'name' => ucfirst($slug), 'country_code' => 'CN',
+            'website_url' => 'https://' . $slug . '.example', 'logo_id' => null, 'logo_on_dark' => 0, 'partnership' => null, 'since_year' => null,
+            'certificate_id' => null, 'summary_lo' => 'ຜູ້ຜະລິດ', 'summary_en' => 'Maker', 'summary_th' => null, 'summary_zh' => null,
+            'about_lo' => null, 'about_en' => null, 'about_th' => null, 'about_zh' => null, 'is_featured' => 0, 'featured_sort' => 0, 'sort' => $id, 'is_visible' => 1];
+        $seed['suppliers'] = [$sup(1, 'acme'), $sup(2, 'other')];
+        $seed['product_suppliers'] = [['product_id' => $ct['id'], 'supplier_id' => 1, 'sort' => 0]];
+        $dir = self::$out . '-sup';
+        file_put_contents($dir . '.json', json_encode($seed));
+        (new SiteBuilder(SiteData::fromSeedFile($dir . '.json'), self::$public, '../assets', false, 'https://new.example.com'))->build($dir);
+        $ld = static function (string $file): array {
+            preg_match('#<script type="application/ld\+json">(.*?)</script>#', (string) file_get_contents($file), $m);
+            return json_decode($m[1], true, 512, JSON_THROW_ON_ERROR);
+        };
+        $org = $ld($dir . '/en/supplier-acme.html');
+        $product = $ld($dir . '/en/product-ct-scan.html');
+        exec('rm -rf ' . escapeshellarg($dir) . ' ' . escapeshellarg($dir . '.json'));
+
+        self::assertSame(['@type' => 'Organization', 'name' => 'Acme', 'url' => 'https://acme.example', 'description' => 'Maker'],
+            array_intersect_key($org, array_flip(['@type', 'name', 'url', 'description'])));
+        self::assertArrayNotHasKey('logo', $org);   // no logo yet: left out, not empty
+        self::assertSame(['@type' => 'Brand', 'name' => 'Acme'], $product['brand']);
+    }
+
+    public function testSeoPagesOverrideTitleAndDescription(): void
+    {
+        $seed = json_decode((string) file_get_contents(App::path('database/seed/seed.json')), true);
+        $seed['seo_pages'] = [
+            ['page' => 'about', 'title_lo' => 'ກ່ຽວກັບ XTK', 'title_en' => 'About XTK </script>', 'title_th' => null, 'title_zh' => null,
+                'desc_lo' => null, 'desc_en' => null, 'desc_th' => null, 'desc_zh' => null],
+            ['page' => 'index', 'title_lo' => 'XTK ອຸປະກອນການແພດ', 'title_en' => 'XTK medical equipment Laos', 'title_th' => null, 'title_zh' => null,
+                'desc_lo' => 'ລາວ', 'desc_en' => 'Medical equipment in Laos', 'desc_th' => null, 'desc_zh' => null],
+        ];
+        $dir = self::$out . '-seo';
+        file_put_contents($dir . '.json', json_encode($seed));
+        (new SiteBuilder(SiteData::fromSeedFile($dir . '.json'), self::$public, '../assets', false, null))->build($dir);
+        $about = (string) file_get_contents($dir . '/th/about.html');
+        $home = (string) file_get_contents($dir . '/en/index.html');
+        exec('rm -rf ' . escapeshellarg($dir) . ' ' . escapeshellarg($dir . '.json'));
+
+        self::assertStringContainsString('<title>About XTK &lt;/script&gt; | XTK</title>', $about);   // th empty: English
+        self::assertStringContainsString('<title>XTK medical equipment Laos</title>', $home);        // home: no " | XTK"
+        self::assertStringContainsString('<meta name="description" content="Medical equipment in Laos">', $home);
+        // no base URL: relative alternates, no canonical
+        self::assertStringContainsString('<link rel="alternate" hreflang="x-default" href="../en/index.html">', $home);
+        self::assertStringNotContainsString('rel="canonical"', $home);
     }
 
     public function testPageNamesMatchTheBuiltPages(): void

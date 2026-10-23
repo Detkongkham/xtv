@@ -7,6 +7,18 @@
 $v->meta('news-' . $n['slug'], $v->raw($n, 'title'), $v->raw($n, 'summary'), active: 'news');
 $category = ['product' => 'n_cat_prod', 'company' => 'n_cat_co', 'event' => 'n_cat_event'];
 $cover = $v->data->media($n['cover_id'] === null ? null : (int) $n['cover_id']);
+$org = $v->organization();
+$v->schema([
+    '@type' => 'NewsArticle',
+    'headline' => mb_substr($v->raw($n, 'title'), 0, 110),
+    'description' => $v->raw($n, 'summary'),
+    'image' => [$v->fileUrl($cover['path'] ?? null)],
+    'datePublished' => $n['published_on'],
+    'dateModified' => isset($n['updated_at']) ? date('c', (int) strtotime($n['updated_at'])) : null,
+    'mainEntityOfPage' => $v->url('news-' . $n['slug']),
+    'author' => array_intersect_key($org, array_flip(['@type', 'name', 'url'])),
+    'publisher' => array_intersect_key($org, array_flip(['@type', 'name', 'url', 'logo'])),
+]);
 ?>
 <section class="phead"><div class="wrap">
   <?= $v->partial('breadcrumb', ['trail' => [[$v->t('news'), 'news.html']], 'last' => $v->tr($n, 'title')]) ?>

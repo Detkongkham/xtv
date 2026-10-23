@@ -7,6 +7,7 @@ use App\Publish\PageList;
 use App\Publish\SiteView;
 
 $v->meta('index', $v->t('home'), overlay: true);
+$v->schema($v->organization());
 $a = $v->a;
 $divisions = $v->data->divisions();
 // hero slides from /admin/hero; a button whose page is gone (hidden division, product) goes to all products

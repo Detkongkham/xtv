@@ -10,6 +10,8 @@ final class Lang
     public const NAMES = ['lo' => 'ລາວ', 'en' => 'English', 'th' => 'ไทย', 'zh' => '中文'];
     public const SHORT = ['lo' => 'LA', 'en' => 'EN', 'th' => 'TH', 'zh' => '中文'];
     public const HTML = ['lo' => 'lo', 'en' => 'en', 'th' => 'th', 'zh' => 'zh-Hans'];
+    /** hreflang x-default: the version for visitors whose language is none of the four */
+    public const X_DEFAULT = 'en';
 
     private static array $files = [];
 

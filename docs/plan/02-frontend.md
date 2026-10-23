@@ -117,7 +117,7 @@
 8. ທາງເລືອກໃນເຟດ go-live: ໃສ່ Cloudflare (ຟຣີ) ເປັນ CDN.
 
 ## 7. SEO
-- ທຸກໜ້າມີ `<title>`, `<meta name="description">`, Open Graph ແລະ `hreflang` ຄົບ 4 ພາສາ + `x-default` (ມີແລ້ວ, ຍົກເວັ້ນ `x-default` ທີ່ຕ້ອງເພີ່ມ).
+- ທຸກໜ້າມີ `<title>`, `<meta name="description">`, Open Graph ແລະ `hreflang` ຄົບ 4 ພາສາ + `x-default` (ຄົບແລ້ວ P3-D4: URL ເຕັມ, `x-default` = ພາສາອັງກິດ).
 - ເພີ່ມ `<link rel="canonical">` ແບບ URL ເຕັມ.
 - Publisher ສ້າງ `/sitemap.xml` ທີ່ມີທຸກໜ້າ ທຸກພາສາ.
 - **ລະຫວ່າງພັດທະນາ:** `robots.txt` = `Disallow: /` ແລະ ທຸກໜ້າມີ `<meta name="robots" content="noindex">`. ເອົາອອກຕອນ go-live ເທົ່ານັ້ນ.

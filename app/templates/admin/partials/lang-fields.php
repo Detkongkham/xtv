@@ -6,9 +6,12 @@
  *                     'html' is a textarea that admin.js turns into the simple editor (data-editor)
  * @var array $row     current values: <prefix>_<lang>
  * @var array $errors  <prefix>_<lang> => message
+ * @var array $placeholders  (optional) <prefix>_<lang> => greyed text shown while the field is empty
  */
 $langs = ['lo' => 'ລາວ', 'en' => 'ອັງກິດ', 'th' => 'ໄທ', 'zh' => 'ຈີນ'];
 $required = ['lo', 'en'];
+$placeholders ??= [];
+$ph = static fn (string $key): string => isset($placeholders[$key]) ? ' placeholder="' . e($placeholders[$key]) . '"' : '';
 ?>
 <div class="lang-tabs" data-lang-tabs>
   <?php foreach ($langs as $l => $langName): ?>
@@ -24,9 +27,9 @@ $required = ['lo', 'en'];
           <?php if ($type === 'html'): ?>
             <textarea id="<?= e($key) ?>" name="<?= e($key) ?>" rows="12" lang="<?= $l ?>" data-editor<?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>><?= e($row[$key] ?? '') ?></textarea>
           <?php elseif ($type === 'textarea'): ?>
-            <textarea id="<?= e($key) ?>" name="<?= e($key) ?>" rows="<?= $max > 1000 ? 6 : 3 ?>" maxlength="<?= e($max) ?>" lang="<?= $l ?>"<?= $req ? ' required' : '' ?><?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>><?= e($row[$key] ?? '') ?></textarea>
+            <textarea id="<?= e($key) ?>" name="<?= e($key) ?>" rows="<?= $max > 1000 ? 6 : 3 ?>" maxlength="<?= e($max) ?>" lang="<?= $l ?>"<?= $ph($key) ?><?= $req ? ' required' : '' ?><?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>><?= e($row[$key] ?? '') ?></textarea>
           <?php else: ?>
-            <input id="<?= e($key) ?>" name="<?= e($key) ?>" maxlength="<?= e($max) ?>" lang="<?= $l ?>" value="<?= e($row[$key] ?? '') ?>"<?= $req ? ' required' : '' ?><?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>>
+            <input id="<?= e($key) ?>" name="<?= e($key) ?>" maxlength="<?= e($max) ?>" lang="<?= $l ?>"<?= $ph($key) ?> value="<?= e($row[$key] ?? '') ?>"<?= $req ? ' required' : '' ?><?= isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . e($key) . '-err"' : '' ?>>
           <?php endif; ?>
           <?php if (isset($errors[$key])): ?><span class="field__err" id="<?= e($key) ?>-err"><?= e($errors[$key]) ?></span><?php endif; ?>
           <?php if (!empty($f[4]) && $l === 'lo'): ?><span class="hint"><?= e($f[4]) ?></span><?php endif; ?>

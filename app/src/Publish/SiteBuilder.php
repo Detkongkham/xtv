@@ -19,7 +19,7 @@ final class SiteBuilder
      * @param string $publicDir  public/, where assets/ is read from (image sizes, WebP files, ?v= hashes)
      * @param string $assets     link to assets/ from a page in <out>/<lang>/
      * @param bool $preview      sample data: always noindex, with the preview bar
-     * @param ?string $baseUrl   full origin for sitemap.xml (no sitemap without it)
+     * @param ?string $baseUrl   full origin for sitemap.xml, canonical, hreflang and JSON-LD (without it: no sitemap, relative links)
      */
     public function __construct(
         private SiteData $data,
@@ -44,7 +44,7 @@ final class SiteBuilder
         $count = 0;
         $this->slugs = [];
         foreach (Lang::CODES as $code) {
-            $v = new SiteView(new Lang($code), $this->data, $this->publicDir, $this->assets, $this->preview);
+            $v = new SiteView(new Lang($code), $this->data, $this->publicDir, $this->assets, $this->preview, $this->baseUrl);
             $dir = $outDir . '/' . $code;
             if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
                 throw new \RuntimeException('Cannot create ' . $dir);
@@ -108,7 +108,7 @@ final class SiteBuilder
             . "<meta name=\"robots\" content=\"noindex\">\n</head>\n<body>\n<p><a href=\"{$href}\">{$href}</a></p>\n</body>\n</html>\n";
     }
 
-    /** Every page except 404, each with its other languages as alternates. */
+    /** Every page except 404, each with its other languages (and x-default) as alternates, like the page heads. */
     private function sitemap(): string
     {
         $base = rtrim((string) $this->baseUrl, '/');
@@ -122,6 +122,7 @@ final class SiteBuilder
             foreach (Lang::CODES as $l) {
                 $alts .= '<xhtml:link rel="alternate" hreflang="' . Lang::HTML[$l] . '" href="' . e("{$base}/{$l}/{$slug}.html") . '"/>';
             }
+            $alts .= '<xhtml:link rel="alternate" hreflang="x-default" href="' . e($base . '/' . Lang::X_DEFAULT . "/{$slug}.html") . '"/>';
             foreach (Lang::CODES as $code) {
                 $out .= '<url><loc>' . e("{$base}/{$code}/{$slug}.html") . '</loc>' . $alts . "</url>\n";
             }

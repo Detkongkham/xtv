@@ -14,6 +14,7 @@ $nav = [
     ['downloads', '/admin/downloads', 'ໄຟລ໌ດາວໂຫຼດ', 'M12 4v11M7 11l5 5 5-5M5 20h14'],
     ['hero', '/admin/hero', 'Hero ໜ້າຫຼັກ', 'M3 5h18v14H3zM3 15l5-5 4 4 3-3 6 6'],
     ['faqs', '/admin/faqs', 'FAQ', 'M12 21a9 9 0 100-18 9 9 0 000 18zM9.5 9a2.5 2.5 0 114 2c-.9.6-1.5 1.2-1.5 2.5M12 17h.01'],
+    ['seo', '/admin/seo', 'SEO', 'M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-5-5'],
     ['media', '/admin/media', 'ຄັງສື່', 'M4 5h16v14H4zM4 15l4-4 4 4 3-3 5 5M15 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z'],
     ['publish', '/admin/publish', 'ເຜີຍແຜ່', 'M12 16V4M7 9l5-5 5 5M5 20h14'],
 ];

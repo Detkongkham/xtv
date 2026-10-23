@@ -10,6 +10,16 @@ final class PageList
     public const RESERVED = ['index', 'about', 'vision', 'products', 'solutions', 'services', 'news', 'contact', 'downloads', 'faq',
         'privacy', 'terms', 'suppliers', 'sitemap', '404'];
     public const RESERVED_PREFIXES = ['product-', 'supplier-', 'news-'];
+    /**
+     * Fixed pages whose title and description can be changed in /admin/seo (seo_pages), with the text keys the page
+     * templates use when nothing is entered. The home page title is "XTK — <co_name>"; the others get " | XTK".
+     */
+    public const SEO = [
+        'index' => ['co_name', 'co_tag'], 'about' => ['about_profile', 'about_lead'], 'vision' => ['vision', 'vision_p'],
+        'products' => ['products', 'prod_lead'], 'solutions' => ['solutions', 'sol_lead'], 'services' => ['services', 'srv_lead'],
+        'news' => ['news', 'news_lead'], 'suppliers' => ['sup_h', 'sup_lead'], 'contact' => ['contact', 'contact_lead'],
+        'downloads' => ['downloads', 'dl_lead'], 'faq' => ['faq', 'faq_lead'],
+    ];
 
     public static function isReserved(string $page): bool
     {
