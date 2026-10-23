@@ -236,3 +236,75 @@
     if (ta.getAttribute('aria-invalid')) area.setAttribute('aria-invalid', 'true');
   });
 })();
+
+(function () {
+  // top bar search: ⌘K / Ctrl+K opens a palette of every sidebar page. Without JS the search buttons stay hidden.
+  var dlg = document.getElementById('cmd'), side = document.getElementById('side');
+  if (!dlg || !side || typeof dlg.showModal !== 'function') return;
+  var input = dlg.querySelector('[data-cmd-input]'), list = dlg.querySelector('[data-cmd-list]'), empty = dlg.querySelector('[data-cmd-empty]');
+  var items = [], sel = 0;
+  side.querySelectorAll('.side__group').forEach(function (g) {
+    var head = document.createElement('li');
+    head.innerHTML = '<small></small>';
+    head.firstChild.textContent = g.querySelector('.side__label').textContent;
+    list.appendChild(head);
+    g.querySelectorAll('a').forEach(function (a) {
+      var li = document.createElement('li'), link = document.createElement('a');
+      link.href = a.getAttribute('href');
+      link.setAttribute('role', 'option');
+      link.appendChild(a.querySelector('svg').cloneNode(true));
+      link.appendChild(document.createTextNode(a.querySelector('span').textContent));
+      li.appendChild(link);
+      list.appendChild(li);
+      items.push({ li: li, head: head, link: link, text: (link.textContent + ' ' + link.href).toLowerCase() });
+    });
+  });
+  var shown = function () { return items.filter(function (it) { return !it.li.hidden; }); };
+  var mark = function () {
+    shown().forEach(function (it, i) {
+      it.link.setAttribute('aria-selected', i === sel ? 'true' : 'false');
+      if (i === sel) it.link.scrollIntoView({ block: 'nearest' });
+    });
+  };
+  var filter = function () {
+    var q = input.value.trim().toLowerCase();
+    items.forEach(function (it) { it.li.hidden = q !== '' && it.text.indexOf(q) === -1; });
+    list.querySelectorAll('li > small').forEach(function (s) {
+      var h = s.parentNode;
+      h.hidden = !items.some(function (it) { return it.head === h && !it.li.hidden; });
+    });
+    empty.hidden = shown().length > 0;
+    sel = 0;
+    mark();
+  };
+  var open = function () { input.value = ''; filter(); dlg.showModal(); input.focus(); };
+  document.querySelectorAll('[data-search]').forEach(function (b) { b.hidden = false; b.addEventListener('click', open); });
+  if (!/Mac|iP(hone|ad)/.test(navigator.platform)) document.querySelectorAll('.top__search kbd').forEach(function (k) { k.textContent = 'Ctrl K'; });
+  input.addEventListener('input', filter);
+  input.addEventListener('keydown', function (e) {
+    var s = shown();
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (s.length) { sel = (sel + (e.key === 'ArrowDown' ? 1 : s.length - 1)) % s.length; mark(); }
+    } else if (e.key === 'Enter' && s[sel]) {
+      e.preventDefault();
+      window.location.href = s[sel].link.href;
+    }
+  });
+  list.addEventListener('mousemove', function (e) {
+    var a = e.target.closest('a'), i = a ? shown().map(function (it) { return it.link; }).indexOf(a) : -1;
+    if (i > -1 && i !== sel) { sel = i; mark(); }
+  });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  document.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); dlg.open ? dlg.close() : open(); }
+  });
+})();
+
+(function () {
+  // account menu (<details>): close on outside click or Escape
+  var box = document.querySelector('.top__user');
+  if (!box) return;
+  document.addEventListener('click', function (e) { if (box.open && !box.contains(e.target)) box.open = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.open) { box.open = false; box.querySelector('summary').focus(); } });
+})();
