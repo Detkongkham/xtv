@@ -1,10 +1,11 @@
 <?php
 // Daily housekeeping (cron 03:00 on the server, phase S). Safe to run by hand at any time.
 //   rate_limits older than 1 day, login_attempts older than 30 days,
-//   spam messages older than 30 days, log files older than 30 days.
+//   spam messages older than 30 days, log files older than 30 days, activity log older than 365 days.
 declare(strict_types=1);
 
 use App\Core\App;
+use App\Repository\ActivityRepository;
 use App\Repository\MessageRepository;
 
 require __DIR__ . '/../bootstrap.php';
@@ -14,6 +15,7 @@ $done = [
     'rate_limits' => $db->run('DELETE FROM rate_limits WHERE created_at < NOW() - INTERVAL 1 DAY')->rowCount(),
     'login_attempts' => $db->run('DELETE FROM login_attempts WHERE created_at < NOW() - INTERVAL 30 DAY')->rowCount(),
     'spam_messages' => (new MessageRepository($db))->purgeSpam(30),
+    'activity_log' => (new ActivityRepository($db))->purge(365),
     'log_files' => 0,
 ];
 

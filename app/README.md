@@ -48,7 +48,7 @@ php -d upload_max_filesize=20M -d post_max_size=64M -S 127.0.0.1:8000 -t public 
 | `php bin/publish.php --rollback[=ID]` / `--list` | put a previous build back / list them |
 | `php bin/import-media.php` | give pictures from the old site (assets/img) the upload sizes in `uploads/` (once, after seed) |
 | `php bin/create-admin.php` | add a user (asks for the password, hidden) |
-| `php bin/cleanup.php` | delete old rate limits, login attempts, spam (30 d) and logs (30 d) |
+| `php bin/cleanup.php` | delete old rate limits, login attempts, spam (30 d), logs (30 d) and activity log (365 d) |
 | `php bin/backup.php` | gzip dump to `storage/backups/`, keeps 14 |
 | `php bin/backup.php --restore=FILE --db=NAME` | load a backup into another (existing) database |
 | `composer test` | PHPUnit |

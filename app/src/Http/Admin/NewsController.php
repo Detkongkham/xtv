@@ -53,7 +53,7 @@ final class NewsController extends Controller
             $this->form(['id' => 0] + $data, $errors, 422);
         }
         $id = $this->repo()->create($data + ['created_by' => Auth::id()]);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['title_lo'], 'status' => $data['status']], $id);
         $this->back('/admin/news/' . $id, 'ok', $data['status'] === 'published' ? 'ບັນທຶກແລ້ວ. ກົດ "ເຜີຍແຜ່" ເພື່ອໃຫ້ຂຶ້ນໜ້າເວັບ.' : 'ບັນທຶກສະບັບຮ່າງແລ້ວ.');
     }
 
@@ -83,7 +83,7 @@ final class NewsController extends Controller
             }
         }
         $this->repo()->update($id, $data);
-        $this->contentChanged();
+        $this->contentChanged(['status' => $data['status']]);
         $this->back('/admin/news/' . $id, 'ok', 'ບັນທຶກແລ້ວ. ກົດ "ເຜີຍແຜ່" ເພື່ອໃຫ້ຂຶ້ນໜ້າເວັບ.');
     }
 
@@ -96,7 +96,7 @@ final class NewsController extends Controller
         if (self::isPublished('news-' . $n['slug'])) {
             (new RedirectRepository(App::db()))->add('news-' . $n['slug'], 'news');
         }
-        $this->contentChanged();
+        $this->contentChanged(['name' => $n['title_lo']]);
         App::logger()->info('news: deleted', ['id' => $id, 'slug' => $n['slug'], 'by' => Auth::id()]);
         $this->back('/admin/news', 'ok', 'ລຶບ "' . $n['title_lo'] . '" ແລ້ວ.');
     }

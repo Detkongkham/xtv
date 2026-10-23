@@ -79,6 +79,7 @@ final class MessageController extends Controller
         $assigned = (int) Request::post('assigned_to');
         $validIds = array_map('intval', array_column((new UserRepository(App::db()))->active(), 'id'));
         $repo->update($id, $status, in_array($assigned, $validIds, true) ? $assigned : null);
+        $this->activity('update', 'messages', $id, ['status' => $status]);
         $this->back('/admin/messages/' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 
@@ -96,6 +97,7 @@ final class MessageController extends Controller
             $this->back('/admin/messages/' . $id, 'error', 'ບັນທຶກຕ້ອງມີ 1–5000 ຕົວອັກສອນ.');
         }
         $repo->addNote($id, Auth::id(), $note);
+        $this->activity('note', 'messages', $id);
         // first note on a new message: it is now being handled
         if ($m['status'] === 'new') {
             $repo->update($id, 'in_progress', $m['assigned_to'] === null ? Auth::id() : (int) $m['assigned_to']);
@@ -109,6 +111,7 @@ final class MessageController extends Controller
         $filters = $this->filters();
         $rows = $this->repo()->search($filters, 1, null)['rows'];
         App::logger()->info('messages: CSV export', ['user' => (int) $user['id'], 'filters' => array_filter($filters), 'rows' => count($rows)]);
+        $this->activity('export', 'messages', null, ['filters' => array_filter($filters), 'rows' => count($rows)]);
         CsvExporter::download(
             'xtk-messages-' . date('Ymd-His') . '.csv',
             ['ID', 'ວັນທີ', 'ຊື່', 'ອົງກອນ', 'ເບີໂທ', 'ອີເມວ', 'ຫົວຂໍ້', 'ພາສາ', 'ສະຖານະ', 'ຜູ້ຮັບຜິດຊອບ', 'ຂໍ້ຄວາມ'],

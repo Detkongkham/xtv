@@ -10,6 +10,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
+use App\Repository\ActivityRepository;
 use App\Repository\MediaRepository;
 use App\Repository\MessageRepository;
 use App\Repository\PublishLogRepository;
@@ -70,10 +71,51 @@ abstract class Controller
         }
     }
 
-    /** Remember that site content changed, so the dashboard can say it is not published yet. */
-    protected function contentChanged(): void
+    /**
+     * After a change to site content: remember it (the dashboard says it is not published yet) and write it to the
+     * activity log. What was done to which item comes from the URL (activityOf); $details usually carries the name,
+     * which a deleted item no longer has. $id: the new item's id after a create.
+     */
+    protected function contentChanged(array $details = [], ?int $id = null): void
+    {
+        $this->markUnpublished();
+        [$action, $entity, $pathId, $fromPath] = self::activityOf(Request::path());
+        $this->activity($action, $entity, $id ?? $pathId, $details + $fromPath);
+    }
+
+    protected function markUnpublished(): void
     {
         (new SettingRepository(App::db()))->set('content_changed_at', date('Y-m-d\TH:i:s'));
+    }
+
+    /** One row in activity_log (ActivityRepository::ACTIONS / ENTITIES) for the logged-in user. */
+    protected function activity(string $action, ?string $entity = null, ?int $id = null, array $details = []): void
+    {
+        (new ActivityRepository(App::db()))->add(Auth::id(), $action, $entity, $id, $details, Request::ipBinary());
+    }
+
+    /**
+     * Action, entity, id and details of an admin POST URL: /admin/products/new = create, /admin/products/12 = update,
+     * /admin/products/12/toggle = toggle, /admin/suppliers/3/products(/remove) = link (unlink), /admin/seo/about = update.
+     * @return array{0: string, 1: string, 2: ?int, 3: array}
+     */
+    public static function activityOf(string $path): array
+    {
+        $parts = explode('/', trim($path, '/'));
+        $entity = $parts[1] ?? '';
+        $rest = array_slice($parts, 2);
+        if ($rest === []) {
+            return ['update', $entity, null, []];
+        }
+        if ($rest[0] === 'new') {
+            return ['create', $entity, null, []];
+        }
+        if (!ctype_digit($rest[0])) {
+            return ['update', $entity, null, ['page' => $rest[0]]];
+        }
+        $verb = implode('/', array_slice($rest, 1));
+        $action = ['' => 'update', 'products' => 'link', 'products/remove' => 'unlink', 'notes' => 'note'][$verb] ?? $verb;
+        return [$action, $entity, (int) $rest[0], []];
     }
 
     /**

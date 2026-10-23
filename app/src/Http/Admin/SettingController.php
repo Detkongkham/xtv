@@ -49,10 +49,11 @@ final class SettingController extends Controller
             $this->back('/admin/settings', 'ok', 'ບໍ່ມີຫຍັງປ່ຽນ.');
         }
         App::logger()->info('settings: updated', ['keys' => $changed, 'by' => Auth::id()]);
+        $this->activity('update', 'settings', null, ['keys' => $changed]);
         if (array_intersect($changed, self::ON_SITE) === []) {
             $this->back('/admin/settings', 'ok', 'ບັນທຶກແລ້ວ.');
         }
-        $this->contentChanged();
+        $this->markUnpublished();
         $this->back('/admin/settings', 'ok', 'ບັນທຶກແລ້ວ. ກົດ "ເຜີຍແຜ່" ເພື່ອໃຫ້ຂຶ້ນໜ້າເວັບ.');
     }
 

@@ -67,7 +67,7 @@ final class ProductController extends Controller
             $this->form(['id' => 0] + $data, $specs, $suppliers, $errors, 422);
         }
         $id = $this->repo()->save(null, $data, $specs, $suppliers);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['name']], $id);
         $this->back('/admin/products/' . $id, 'ok', 'ເພີ່ມສິນຄ້າແລ້ວ. ກົດ "ເຜີຍແຜ່" ເພື່ອໃຫ້ຂຶ້ນໜ້າເວັບ.');
     }
 
@@ -102,7 +102,7 @@ final class ProductController extends Controller
         $this->checkCsrf();
         $this->found($id);
         $new = $this->repo()->copy($id);
-        $this->contentChanged();
+        $this->contentChanged(['copy_id' => $new]);
         $this->back('/admin/products/' . $new, 'ok', 'ສຳເນົາແລ້ວ. ສະບັບສຳເນົາຖືກເຊື່ອງໄວ້: ແກ້ຊື່ ແລະ ຂໍ້ມູນ ແລ້ວເປີດ "ສະແດງ".');
     }
 
@@ -115,7 +115,7 @@ final class ProductController extends Controller
         if (self::isPublished('product-' . $p['slug'])) {
             (new RedirectRepository(App::db()))->add('product-' . $p['slug'], $p['division_slug']);
         }
-        $this->contentChanged();
+        $this->contentChanged(['name' => $p['name']]);
         App::logger()->info('products: deleted', ['id' => $id, 'slug' => $p['slug'], 'by' => Auth::id()]);
         $this->back('/admin/products?group=' . $p['group_id'], 'ok', 'ລຶບ "' . $p['name'] . '" ແລ້ວ.');
     }
@@ -139,7 +139,7 @@ final class ProductController extends Controller
         } else {
             $this->repo()->update($id, ['is_visible' => (int) !(int) $p['is_visible']]);
         }
-        $this->contentChanged();
+        $this->contentChanged(Request::post('field') === 'is_featured' ? ['featured' => !(int) $p['is_featured']] : ['visible' => !(int) $p['is_visible']]);
         $this->back($back . '#p' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 

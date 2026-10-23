@@ -35,6 +35,7 @@ final class PublishController extends Controller
         } catch (PublishBusyException $e) {
             $this->back('/admin/publish', 'error', $e->getMessage());
         }
+        $this->activity('publish', 'publish', null, ['status' => $r['status'], 'pages' => $r['pages'] ?? null]);
         if ($r['status'] === 'failed') {
             $this->back('/admin/publish', 'error', 'ເຜີຍແຜ່ບໍ່ສຳເລັດ. ເວັບທີ່ອອນລາຍຢູ່ບໍ່ມີການປ່ຽນແປງ. ເບິ່ງສາເຫດໃນປະຫວັດຂ້າງລຸ່ມ.');
         }
@@ -51,6 +52,7 @@ final class PublishController extends Controller
         } catch (\RuntimeException $e) {
             $this->back('/admin/publish', 'error', $e->getMessage());
         }
+        $this->activity('rollback', 'publish', null, ['build' => self::buildLabel(Request::post('build'))]);
         $this->back('/admin/publish', 'ok', 'ກັບຄືນໄປຊຸດ ' . self::buildLabel(Request::post('build')) . ' ແລ້ວ.');
     }
 

@@ -57,8 +57,7 @@ final class HeroController extends Controller
         if ($errors !== []) {
             $this->form(['id' => 0] + $data, $errors, $kind, 422);
         }
-        $this->repo()->create($data);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['title_lo']], $this->repo()->create($data));
         $this->back('/admin/hero', 'ok', 'ເພີ່ມແລ້ວ. ກົດ "ເຜີຍແຜ່" ເພື່ອໃຫ້ຂຶ້ນໜ້າເວັບ.');
     }
 
@@ -98,7 +97,7 @@ final class HeroController extends Controller
             $this->back('/admin/hero/' . $id, 'error', 'ລຶບບໍ່ໄດ້: ນີ້ແມ່ນ slide ດຽວທີ່ສະແດງຢູ່. ເພີ່ມ ຫຼື ເປີດ slide ອື່ນກ່ອນ.');
         }
         $this->repo()->delete($id);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $slide['title_lo']]);
         App::logger()->info('hero: deleted', ['id' => $id, 'by' => Auth::id()]);
         $this->back('/admin/hero', 'ok', 'ລຶບ "' . $slide['title_lo'] . '" ແລ້ວ. ຮູບ ຫຼື ວິດີໂອຍັງຢູ່ໃນຄັງສື່.');
     }
@@ -113,7 +112,7 @@ final class HeroController extends Controller
             $this->back('/admin/hero#hero' . $id, 'error', 'ໜ້າຫຼັກຕ້ອງມີຢ່າງໜ້ອຍ 1 slide ທີ່ສະແດງ.');
         }
         $this->repo()->update($id, ['is_visible' => (int) !$on]);
-        $this->contentChanged();
+        $this->contentChanged(['visible' => !$on]);
         $this->back('/admin/hero#hero' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 

@@ -59,6 +59,9 @@ final class MediaController extends Controller
                 $errors[] = $e->getMessage();
             }
         }
+        if ($ok > 0) {
+            $this->activity('upload', 'media', null, ['files' => $ok]);
+        }
         if ($errors) {
             $this->back('/admin/media', 'error', ($ok ? "ອັບແລ້ວ {$ok} ໄຟລ໌. " : '') . 'ບໍ່ສຳເລັດ: ' . implode(' · ', $errors));
         }
@@ -97,6 +100,7 @@ final class MediaController extends Controller
         $this->repo()->delete($id);
         self::service()->deleteFiles($m);
         App::logger()->info('media: deleted', ['id' => $id, 'path' => $m['path'], 'by' => Auth::id()]);
+        $this->activity('delete', 'media', $id, ['name' => $m['original_name']]);
         $this->back('/admin/media', 'ok', 'ລຶບ "' . $m['original_name'] . '" ແລ້ວ.');
     }
 

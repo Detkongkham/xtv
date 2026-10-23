@@ -37,6 +37,7 @@ final class AuthController extends Controller
         if ($result !== 'ok') {
             $this->showLogin('ອີເມວ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ.', $email, 401);
         }
+        $this->activity('login');
         Response::redirect('/admin', 303);
     }
 

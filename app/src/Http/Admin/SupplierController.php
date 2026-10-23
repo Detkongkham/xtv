@@ -54,7 +54,7 @@ final class SupplierController extends Controller
             $this->form(['id' => 0, 'logo_path' => null] + $data, $errors, 422);
         }
         $id = $this->repo()->create($data);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['name']], $id);
         $this->back('/admin/suppliers/' . $id, 'ok', 'ເພີ່ມຜູ້ສະໜອງແລ້ວ. ຕໍ່ໄປ: ເລືອກສິນຄ້າທີ່ XTK ຂາຍຈາກຜູ້ສະໜອງນີ້.');
     }
 
@@ -91,7 +91,7 @@ final class SupplierController extends Controller
         if (self::isPublished('supplier-' . $s['slug'])) {
             (new RedirectRepository(App::db()))->add('supplier-' . $s['slug'], 'suppliers');
         }
-        $this->contentChanged();
+        $this->contentChanged(['name' => $s['name']]);
         App::logger()->info('suppliers: deleted', ['id' => $id, 'slug' => $s['slug'], 'by' => Auth::id()]);
         $this->back('/admin/suppliers', 'ok', 'ລຶບ "' . $s['name'] . '" ແລ້ວ. ສິນຄ້າບໍ່ຖືກລຶບ.');
     }
@@ -111,7 +111,7 @@ final class SupplierController extends Controller
             $this->back('/admin/suppliers', 'error', 'ຜູ້ສະໜອງຫຼັກມີໄດ້ສູງສຸດ ' . SupplierRepository::MAX_FEATURED . ' ລາຍ. ກະລຸນາປິດອັນອື່ນກ່ອນ.');
         }
         $this->repo()->update($id, [$field => (int) $on]);
-        $this->contentChanged();
+        $this->contentChanged([$field === 'is_featured' ? 'featured' : 'visible' => $on]);
         $this->back('/admin/suppliers#s' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 
@@ -135,7 +135,7 @@ final class SupplierController extends Controller
             $this->back('/admin/suppliers/' . $id . '#products', 'error', 'ກະລຸນາເລືອກສິນຄ້າຢ່າງໜ້ອຍ 1 ລາຍການ.');
         }
         $n = $this->repo()->link($id, $ids);
-        $this->contentChanged();
+        $this->contentChanged(['products' => $ids]);
         $this->back('/admin/suppliers/' . $id . '#products', 'ok', "ເພີ່ມ {$n} ສິນຄ້າແລ້ວ.");
     }
 
@@ -145,7 +145,7 @@ final class SupplierController extends Controller
         $this->checkCsrf();
         $this->found($id);
         $this->repo()->unlink($id, (int) Request::post('product_id'));
-        $this->contentChanged();
+        $this->contentChanged(['product' => (int) Request::post('product_id')]);
         $this->back('/admin/suppliers/' . $id . '#products', 'ok', 'ເອົາສິນຄ້າອອກແລ້ວ.');
     }
 
@@ -155,7 +155,7 @@ final class SupplierController extends Controller
         $this->checkCsrf();
         $this->found($id);
         $this->repo()->makePrimary($id, (int) Request::post('product_id'));
-        $this->contentChanged();
+        $this->contentChanged(['product' => (int) Request::post('product_id')]);
         $this->back('/admin/suppliers/' . $id . '#products', 'ok', 'ຕັ້ງເປັນຜູ້ສະໜອງຫຼັກຂອງສິນຄ້ານີ້ແລ້ວ.');
     }
 

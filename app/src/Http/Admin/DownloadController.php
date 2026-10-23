@@ -45,8 +45,7 @@ final class DownloadController extends Controller
         if ($errors !== []) {
             $this->form(['id' => 0] + $data, $errors, 422);
         }
-        $this->repo()->create($data);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['title_lo']], $this->repo()->create($data));
         $this->back('/admin/downloads', 'ok', 'ເພີ່ມແລ້ວ. ກົດ "ເຜີຍແຜ່" ເພື່ອໃຫ້ຂຶ້ນໜ້າເວັບ.');
     }
 
@@ -79,7 +78,7 @@ final class DownloadController extends Controller
         $this->checkCsrf();
         $dl = $this->found($id);
         $this->repo()->delete($id);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $dl['title_lo']]);
         App::logger()->info('downloads: deleted', ['id' => $id, 'by' => Auth::id()]);
         $this->back('/admin/downloads', 'ok', 'ລຶບ "' . $dl['title_lo'] . '" ແລ້ວ. ໄຟລ໌ PDF ຍັງຢູ່ໃນຄັງສື່.');
     }
@@ -90,7 +89,7 @@ final class DownloadController extends Controller
         $this->checkCsrf();
         $dl = $this->found($id);
         $this->repo()->update($id, ['is_visible' => (int) !(int) $dl['is_visible']]);
-        $this->contentChanged();
+        $this->contentChanged(['visible' => !(int) $dl['is_visible']]);
         $this->back('/admin/downloads#dl' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 

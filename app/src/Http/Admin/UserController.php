@@ -40,6 +40,7 @@ final class UserController extends Controller
         }
         $id = $this->repo()->create($data['name'], $data['email'], Request::post('password'), $data['role']);
         App::logger()->info('users: created', ['id' => $id, 'role' => $data['role']]);
+        $this->activity('create', 'users', $id, ['name' => $data['name'], 'role' => $data['role']]);
         $this->back('/admin/users', 'ok', 'ເພີ່ມຜູ້ໃຊ້ແລ້ວ.');
     }
 
@@ -76,6 +77,7 @@ final class UserController extends Controller
             $repo->setPassword($id, Request::post('password'));
         }
         App::logger()->info('users: updated', ['id' => $id, 'by' => (int) $me['id']]);
+        $this->activity('update', 'users', $id, ['role' => $data['role'], 'active' => (bool) $data['is_active'], 'password' => Request::post('password') !== '']);
         $this->back('/admin/users', 'ok', 'ບັນທຶກແລ້ວ.');
     }
 
@@ -147,6 +149,7 @@ final class UserController extends Controller
             $this->page('users/account', 'ບັນຊີຂອງຂ້ອຍ', ['errors' => $errors], 422);
         }
         $this->repo()->setPassword((int) $me['id'], Request::post('password'));
+        $this->activity('password', 'users', (int) $me['id']);
         $this->back('/admin/account', 'ok', 'ປ່ຽນລະຫັດຜ່ານແລ້ວ.');
     }
 }

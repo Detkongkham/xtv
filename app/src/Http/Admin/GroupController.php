@@ -52,7 +52,7 @@ final class GroupController extends Controller
         }
         $data['code'] = $this->newCode((string) $data['name_en']);
         $id = $this->repo()->create($data);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['name_lo']], $id);
         $this->back('/admin/groups#g' . $id, 'ok', 'ເພີ່ມກຸ່ມແລ້ວ.');
     }
 
@@ -85,7 +85,7 @@ final class GroupController extends Controller
             $this->back('/admin/groups/' . $id, 'error', 'ລຶບບໍ່ໄດ້: ກຸ່ມນີ້ຍັງມີສິນຄ້າ. ຍ້າຍ ຫຼື ລຶບສິນຄ້າກ່ອນ.');
         }
         $this->repo()->delete($id);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $g['name_lo']]);
         App::logger()->info('groups: deleted', ['id' => $id, 'code' => $g['code'], 'by' => Auth::id()]);
         $this->back('/admin/groups', 'ok', 'ລຶບ "' . $g['name_lo'] . '" ແລ້ວ.');
     }
@@ -96,7 +96,7 @@ final class GroupController extends Controller
         $this->checkCsrf();
         $g = $this->found($id);
         $this->repo()->update($id, ['is_visible' => (int) !(int) $g['is_visible']], false);
-        $this->contentChanged();
+        $this->contentChanged(['visible' => !(int) $g['is_visible']]);
         $this->back('/admin/groups#g' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 

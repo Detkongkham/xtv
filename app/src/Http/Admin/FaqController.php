@@ -41,8 +41,7 @@ final class FaqController extends Controller
         if ($errors !== []) {
             $this->form(['id' => 0] + $data, $errors, 422);
         }
-        $this->repo()->create($data);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['question_lo']], $this->repo()->create($data));
         $this->back('/admin/faqs', 'ok', 'ເພີ່ມແລ້ວ. ກົດ "ເຜີຍແຜ່" ເພື່ອໃຫ້ຂຶ້ນໜ້າເວັບ.');
     }
 
@@ -72,7 +71,7 @@ final class FaqController extends Controller
         $this->checkCsrf();
         $faq = $this->found($id);
         $this->repo()->delete($id);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $faq['question_lo']]);
         App::logger()->info('faqs: deleted', ['id' => $id, 'by' => Auth::id()]);
         $this->back('/admin/faqs', 'ok', 'ລຶບ "' . $faq['question_lo'] . '" ແລ້ວ.');
     }
@@ -83,7 +82,7 @@ final class FaqController extends Controller
         $this->checkCsrf();
         $faq = $this->found($id);
         $this->repo()->update($id, ['is_visible' => (int) !(int) $faq['is_visible']]);
-        $this->contentChanged();
+        $this->contentChanged(['visible' => !(int) $faq['is_visible']]);
         $this->back('/admin/faqs#faq' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 

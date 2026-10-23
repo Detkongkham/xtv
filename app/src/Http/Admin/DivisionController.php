@@ -47,7 +47,7 @@ final class DivisionController extends Controller
             $this->form(['id' => 0] + $data, $errors, 422);
         }
         $id = $this->repo()->create($data);
-        $this->contentChanged();
+        $this->contentChanged(['name' => $data['name_lo']], $id);
         $this->back('/admin/divisions/' . $id, 'ok', 'ເພີ່ມຂະແໜງແລ້ວ. ຕໍ່ໄປ: ເພີ່ມກຸ່ມສິນຄ້າໃຫ້ຂະແໜງນີ້.');
     }
 
@@ -86,7 +86,7 @@ final class DivisionController extends Controller
         if (self::isPublished($d['slug'])) {
             (new RedirectRepository(App::db()))->add($d['slug'], 'products');
         }
-        $this->contentChanged();
+        $this->contentChanged(['name' => $d['name_lo']]);
         App::logger()->info('divisions: deleted', ['id' => $id, 'slug' => $d['slug'], 'by' => Auth::id()]);
         $this->back('/admin/divisions', 'ok', 'ລຶບ "' . $d['name_lo'] . '" ແລ້ວ.');
     }
@@ -97,7 +97,7 @@ final class DivisionController extends Controller
         $this->checkCsrf();
         $d = $this->found($id);
         $this->repo()->update($id, ['is_visible' => (int) !(int) $d['is_visible']]);
-        $this->contentChanged();
+        $this->contentChanged(['visible' => !(int) $d['is_visible']]);
         $this->back('/admin/divisions#d' . $id, 'ok', 'ບັນທຶກແລ້ວ.');
     }
 
