@@ -1,6 +1,7 @@
 <?php
 /** @var string $title @var string $content @var ?array $user @var array $flash @var string $active @var bool $ownHeader @var int $newCount @var bool $unpublished */
 use App\Core\Csrf;
+use App\Core\View;
 use App\Http\Admin\UserController;
 
 $nav = [
@@ -29,6 +30,7 @@ $nav = [
 if (($user['role'] ?? '') === 'admin') {
     $nav['ລະບົບ'][] = ['users', '/admin/users', 'ຜູ້ໃຊ້', 'M16 19v-1a4 4 0 00-4-4H7a4 4 0 00-4 4v1M9.5 10a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM21 19v-1a4 4 0 00-3-3.9M16 3.1a3.5 3.5 0 010 6.8'];
     $nav['ລະບົບ'][] = ['activity', '/admin/activity', 'ປະຫວັດການແກ້ໄຂ', 'M12 8v4l3 2M3 12a9 9 0 109-9 9 9 0 00-7 3.3M3 4v4h4'];
+    $nav['ລະບົບ'][] = ['theme', '/admin/theme', 'ຕີມສີ', 'M12 3a9 9 0 100 18c.8 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16a5 5 0 005-5c0-4.4-4-8-9-8zM7.5 12h.01M9.5 8h.01M14.5 8h.01'];
     $nav['ລະບົບ'][] = ['settings', '/admin/settings', 'ການຕັ້ງຄ່າ', 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4'];
 }
 $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__DIR__ . '/../../../public' . $f), -6);
@@ -42,7 +44,7 @@ $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__
 <link rel="icon" href="/assets/img/favicon.png">
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <link rel="stylesheet" href="<?= e($v('/admin/assets/admin.css')) ?>">
-<script src="<?= e($v('/admin/assets/admin.js')) ?>" defer></script>
+<?= View::render('admin/partials/theme-css') ?><script src="<?= e($v('/admin/assets/admin.js')) ?>" defer></script>
 </head>
 <body>
 <a class="skip" href="#main">ຂ້າມໄປເນື້ອຫາ</a>

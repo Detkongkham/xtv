@@ -1,6 +1,7 @@
 <?php
 /** @var string $error @var string $email @var string $notice */
 use App\Core\Csrf;
+use App\Core\View;
 ?><!doctype html>
 <html lang="lo">
 <head>
@@ -11,7 +12,7 @@ use App\Core\Csrf;
 <link rel="icon" href="/assets/img/favicon.png">
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <link rel="stylesheet" href="/admin/assets/admin.css?v=<?= e(substr((string) @filemtime(__DIR__ . '/../../../../public/admin/assets/admin.css'), -6)) ?>">
-</head>
+<?= View::render('admin/partials/theme-css') ?></head>
 <body class="auth">
 <main class="auth__box">
   <img src="/assets/img/logo.svg" alt="XTK" width="150" height="50">

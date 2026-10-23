@@ -322,6 +322,14 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 }
 ```
 
+### ສີຂອງແຕ່ລະສ່ວນ ແລະ ຕີມສີ (/admin/theme)
+
+ນອກຈາກ tokens ຂ້າງເທິງ, ແຕ່ລະສ່ວນມີສີຂອງມັນເອງ ເຊັ່ນ `--btn-bg`, `--hdr-bg`, `--hero-overlay`, `--ftr-bg` ແລະ `--accent-red-50`, `--accent-green-50`. ຄ່າເລີ່ມຕົ້ນ **ຕາມສີຫຼັກ** ເຊັ່ນ `--btn-bg: var(--brand-600)`. ລາຍການເຕັມ, ຊື່ລາວ ແລະ ຄ່າເລີ່ມຕົ້ນຢູ່ໃນ `app/src/Service/ThemeService.php` (`SITE_ONLY`, `ADMIN_ONLY`), ແລະ `ThemeServiceTest` ກວດວ່າ CSS ກົງກັບລາຍການນີ້.
+
+- ກົດ: CSS ຂອງອົງປະກອບໃຊ້ token ສະເໝີ, ບໍ່ຂຽນ hex ຫຼື `rgba()` ຂອງສີແບຣນໂດຍກົງ. ສີໂປ່ງໃສໃຊ້ `color-mix(in srgb, var(--token) N%, transparent)`.
+- ເພີ່ມສີໃໝ່ໃຫ້ປັບໄດ້: ປະກາດໃນ `:root` ຂອງ CSS ແລ້ວເພີ່ມເຂົ້າ `ThemeService` ດ້ວຍຄ່າເລີ່ມຕົ້ນດຽວກັນ.
+- ຕີມເກັບສະເພາະສີທີ່ປ່ຽນ (`settings.theme`). ໜ້າເວັບໄດ້ `<style>:root{…}</style>` ຕໍ່ຈາກ `style.css` ຕອນເຜີຍແຜ່. Admin ໂຫຼດ `/admin/theme.css` ທັນທີ.
+
 ---
 
 ## 10. ໂຄງສ້າງເວັບ

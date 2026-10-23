@@ -23,6 +23,7 @@ final class ActivityRepository
         'users' => ['ຜູ້ໃຊ້', 'users', 'name'],
         'seo' => ['SEO', null, null],
         'settings' => ['ການຕັ້ງຄ່າ', null, null],
+        'theme' => ['ຕີມສີ', null, null],
         'publish' => ['ເວັບໄຊ', null, null],
     ];
     public const ACTIONS = [

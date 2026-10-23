@@ -9,6 +9,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Publish\PagePreview;
 use App\Publish\SiteData;
+use App\Service\ThemeService;
 
 /**
  * /admin/preview?page=product-ct-scan&lang=lo (docs/plan/03-backend.md, Preview): one page from the current data,
@@ -34,7 +35,25 @@ final class PreviewController extends Controller
         }
         header('X-Robots-Tag: noindex, nofollow');
         header('Cache-Control: no-store');
+        self::allowTheme($data);
         Response::html($html);
+    }
+
+    /**
+     * The admin CSP (style-src 'self') would block the theme's <style> in the page: allow exactly that rule by its hash.
+     * The theme page (/admin/theme) shows the preview in a frame and recolors it while the sliders move, so same-origin
+     * framing is allowed here.
+     */
+    private static function allowTheme(SiteData $data): void
+    {
+        $css = ThemeService::css('site', ThemeService::cleanTheme($data->setting('theme', []))['site']);
+        $hash = $css === '' ? '' : " 'sha256-" . base64_encode(hash('sha256', $css, true)) . "'";
+        foreach (headers_list() as $h) {
+            if (stripos($h, 'Content-Security-Policy:') === 0) {
+                header(str_replace(["style-src 'self'", "frame-ancestors 'none'"], ["style-src 'self'" . $hash, "frame-ancestors 'self'"], $h));
+            }
+        }
+        header('X-Frame-Options: SAMEORIGIN');
     }
 
     /** The note fixed at the bottom of the page: what this is, other languages, back to the admin. */

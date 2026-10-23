@@ -10,6 +10,7 @@
  * @var ?string $bar  HTML of the note fixed at the bottom; null = the sample-data note on preview builds
  */
 use App\Core\Lang;
+use App\Service\ThemeService;
 
 $a = $v->a;
 $full = $v->e($meta['slug'] !== 'index' ? $meta['title'] . ' | XTK' : ($meta['own'] ? $meta['title'] : 'XTK — ' . $v->t('co_name')));
@@ -37,6 +38,10 @@ if ($v->lang === 'zh') {
         . "<noscript><style>@font-face{font-family:'Noto Sans SC';font-style:normal;font-weight:400 600;font-display:swap;"
         . "src:url(" . $a . "/fonts/noto-sans-sc-sub.woff2) format('woff2')}</style></noscript>";
 }
+// colors changed in /admin/theme: one :root rule after style.css (PreviewController allows it by its hash)
+$theme = ThemeService::cleanTheme($v->data->setting('theme', []))['site'];
+$themeCss = ThemeService::css('site', $theme);
+$themeColor = substr($theme['brand-600'] ?? '#2f368e', 0, 7);
 $bar ??= $v->preview ? '<p class="preview-bar" role="note">' . $v->t('preview_note') . '</p>' : '';
 // Google Analytics 4 only when the admin set a Measurement ID (/admin/settings); the ID is checked there (G-XXXX)
 $ga = $v->preview ? '' : (string) $v->data->setting('analytics_id', '');
@@ -50,7 +55,7 @@ $analytics = $ga === '' ? '' : '<script async src="https://www.googletagmanager.
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $full ?></title>
 <meta name="description" content="<?= $desc ?>">
-<meta name="theme-color" content="#2f368e">
+<meta name="theme-color" content="<?= $themeColor ?>">
 <?= $noindex ? '<meta name="robots" content="noindex, nofollow">' . "\n" : '' ?>
 <meta property="og:title" content="<?= $full ?>">
 <meta property="og:description" content="<?= $desc ?>">
@@ -60,7 +65,7 @@ $analytics = $ga === '' ? '' : '<script async src="https://www.googletagmanager.
 <link rel="alternate icon" href="<?= $a ?>/img/favicon.png">
 <?= $fonts . "\n" ?>
 <link rel="stylesheet" href="<?= $a ?>/css/style.css">
-<?= $ld ?><?= $analytics ?></head>
+<?= $themeCss !== '' ? '<style>' . $themeCss . "</style>\n" : '' ?><?= $ld ?><?= $analytics ?></head>
 <body>
 <?= $v->partial('header', ['slug' => $meta['slug'], 'overlay' => $meta['overlay'], 'active' => $meta['active']]) . "\n" ?>
 <main id="main">

@@ -1,4 +1,4 @@
-<?php /** @var int $code @var string $text */ ?><!doctype html>
+<?php /** @var int $code @var string $text */ use App\Core\View; ?><!doctype html>
 <html lang="lo">
 <head>
 <meta charset="utf-8">
@@ -7,7 +7,7 @@
 <title><?= e($code) ?> — XTK Admin</title>
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <link rel="stylesheet" href="/admin/assets/admin.css">
-</head>
+<?= View::render('admin/partials/theme-css') ?></head>
 <body class="auth">
 <main class="auth__box">
   <h1><?= e($code) ?></h1>
