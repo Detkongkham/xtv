@@ -811,3 +811,24 @@ a.ibx-stat:hover .ibx-stat__go, a.ibx-stat[aria-current] .ibx-stat__go { opacity
   .dv-thumb { width: 64px; height: 48px; }
 }
 @media (min-width: 1280px) { .dv .ibx-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+/* groups: the divisions list, split into one section per division, with an icon tile in place of the photo */
+.gp .dv-thumb { width: 44px; height: 44px; }
+.gp-div { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.ibx-list + .gp-div, .gp-none + .gp-div { border-top: 1px solid var(--line); }
+.gp-div__ico { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; flex: none; border-radius: 6px; background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.gp .gp-div__ico .ico { width: 14px; height: 14px; }
+.gp-div h3 { min-width: 0; margin: 0; overflow: hidden; font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.gp-div h3 a { color: var(--ink); text-decoration: none; }
+.gp-div h3 a:hover { color: var(--brand-600); }
+.gp-div__count { color: var(--muted); font-size: 11px; white-space: nowrap; }
+.gp-div .tag { margin: 0; font-size: 11px; line-height: 18px; }
+.gp-div__add { display: inline-flex; align-items: center; gap: 4px; height: 30px; margin-left: auto; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--ink); font-size: 12px; font-weight: 500; white-space: nowrap; text-decoration: none; transition: background .15s, border-color .15s; }
+.gp-div__add:hover { background: var(--brand-50); border-color: rgba(47,54,142,.4); color: var(--ink); }
+.gp .gp-div__add .ico { width: 14px; height: 14px; }
+.gp-none { margin: 0; padding: 14px 16px; color: var(--muted); font-size: 12px; }
+@media (max-width: 767px) {
+  .gp .dv-thumb { width: 40px; height: 40px; }
+  .gp-div__add span { display: none; }
+  .gp-div__add { width: 30px; padding: 0; justify-content: center; }
+}

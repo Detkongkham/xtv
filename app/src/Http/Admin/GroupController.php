@@ -33,7 +33,16 @@ final class GroupController extends Controller
         foreach ($this->repo()->all() as $g) {
             $byDivision[(int) $g['division_id']][] = $g;
         }
-        $this->page('groups/index', 'ກຸ່ມສິນຄ້າ', ['byDivision' => $byDivision, 'divisions' => (new DivisionRepository(App::db()))->names()]);
+        $show = Request::query('show');
+        $this->page('groups/index', 'ກຸ່ມສິນຄ້າ', [
+            'byDivision' => $byDivision,
+            'divisions' => (new DivisionRepository(App::db()))->all(),
+            'filters' => [
+                'show' => in_array($show, ['visible', 'hidden', 'empty'], true) ? $show : '',
+                'division' => (int) Request::query('division'),
+                'q' => trim(Request::query('q')),
+            ],
+        ]);
     }
 
     public function create(): never
