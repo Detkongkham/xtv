@@ -212,6 +212,7 @@ return [
     'f_err_consent' => 'Please tick the consent box before sending',
     'f_err_rate' => 'Too many messages have been sent. Please try again later or contact us directly:',
     'f_err_server' => 'The message could not be sent. Please try again or contact us directly:',
+    'f_err_captcha' => 'The security check did not pass. Please try again or contact us directly:',
     'sup' => 'Suppliers',
     'sup_h' => 'Our suppliers',
     'sup_lead' => 'XTK distributes products from the following suppliers.',

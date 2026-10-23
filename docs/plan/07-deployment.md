@@ -146,6 +146,8 @@ Docroot ຂອງໂດເມນຫຼັກໃນ cPanel ຕາຍຕົວເ�
 
 DNS ແລະ MX ບໍ່ປ່ຽນ, ສະນັ້ນອີເມວ `@xtklaos.com` ບໍ່ໄດ້ຮັບຜົນກະທົບ.
 
+**ເປີດ Turnstile (ເມື່ອ spam ຜ່ານເກີນ 5 ອັນ/ອາທິດ):** ສ້າງ widget ໃນ Cloudflare dashboard (Turnstile, ໂໝດ Managed, hostname `xtklaos.com`), ໃສ່ site key ແລະ secret ໃນ `config.php` → `turnstile`, ແລ້ວກົດເຜີຍແຜ່. ປິດ: ລຶບ key ອອກ ແລ້ວເຜີຍແຜ່. ບໍ່ຕ້ອງໃຊ້ Cloudflare ເປັນ DNS ຫຼື CDN.
+
 ## 7. Cron Jobs (cPanel → Cron Jobs)
 ```
 0  3 * * *  /opt/cpanel/ea-php83/root/usr/bin/php /home/xtklaos/xtk/app/bin/cleanup.php  >/dev/null 2>&1

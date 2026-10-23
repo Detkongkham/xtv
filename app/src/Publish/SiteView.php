@@ -7,6 +7,7 @@ use App\Core\App;
 use App\Core\Countries;
 use App\Core\Lang;
 use App\Core\View;
+use App\Service\Turnstile;
 
 /**
  * What a site template sees as $v: one language, the site data and small HTML helpers.
@@ -271,6 +272,12 @@ final class SiteView
     {
         $digits = preg_replace('/\D+/', '', $number);
         return '+' . (str_starts_with($digits, '856') ? $digits : '856' . ltrim($digits, '0'));
+    }
+
+    /** Turnstile site key for the contact form ('' = off: no keys in config.php, or a preview). */
+    public function turnstileKey(): string
+    {
+        return $this->preview ? '' : Turnstile::siteKey();
     }
 
     public function whatsapp(): string

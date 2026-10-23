@@ -14,6 +14,7 @@ use App\Repository\MessageRepository;
 use App\Repository\SettingRepository;
 use App\Service\ContactService;
 use App\Service\TimeToken;
+use App\Service\Turnstile;
 
 /** /api/contact.php — GET ?token=1 issues a time token, POST receives the form. */
 final class ContactController
@@ -39,7 +40,7 @@ final class ContactController
 
         $db = App::db();
         $settings = new SettingRepository($db);
-        $service = new ContactService(new MessageRepository($db), $settings, new RateLimiter(new DbRateStore($db)), $token, Mailer::fromConfig());
+        $service = new ContactService(new MessageRepository($db), $settings, new RateLimiter(new DbRateStore($db)), $token, Mailer::fromConfig(), Turnstile::fromConfig());
         $result = $service->submit($_POST, [
             'ip' => Request::ipBinary(),
             'user_agent' => Request::header('User-Agent'),

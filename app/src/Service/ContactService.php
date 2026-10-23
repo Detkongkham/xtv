@@ -35,6 +35,8 @@ final class ContactService
         private RateLimiter $limiter,
         private TimeToken $token,
         private Mailer $mailer,
+        /** null = Turnstile off (no keys in config.php) */
+        private ?Turnstile $turnstile = null,
     ) {
     }
 
@@ -84,6 +86,10 @@ final class ContactService
         $errors = Validator::check($data, self::RULES);
         if ($errors !== []) {
             return ['status' => 422, 'body' => ['ok' => false, 'errors' => $errors]];
+        }
+        // after the field checks: a Turnstile token can be checked only once
+        if ($this->turnstile !== null && $this->turnstile->verify($str('cf-turnstile-response'), (string) inet_ntop($meta['ip'])) === 'failed') {
+            return ['status' => 422, 'body' => ['ok' => false, 'error' => 'captcha']];
         }
 
         $this->limiter->hit('contact', $meta['ip']);

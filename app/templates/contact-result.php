@@ -6,6 +6,7 @@ $fieldErrors = $body['errors'] ?? [];
 $message = match ($error) {
     'rate_limited' => $t['rate_limited'],
     'expired', 'invalid_token' => $t['expired'],
+    'captcha' => $t['captcha'],
     null => $t['fix'],
     default => $t['server'],
 };

@@ -130,6 +130,31 @@
     };
     form.addEventListener('focusin', getToken);
 
+    // Cloudflare Turnstile (only when the page has a site key): loaded when the form is first used, so it costs
+    // nothing to visitors who only read. A submit before its token is ready waits for it (up to 20 s).
+    var tsKey = form.getAttribute('data-turnstile'), tsBox = $('[data-turnstile-box]', form);
+    var tsId = null, tsWait = null, tsLoading = false;
+    var loadTurnstile = function () {
+      if (!tsKey || tsLoading) return;
+      tsLoading = true;
+      window.xtkTurnstile = function () {
+        tsBox.hidden = false;
+        tsId = window.turnstile.render(tsBox, {
+          sitekey: tsKey, action: 'contact', size: 'flexible',
+          language: { th: 'th', zh: 'zh-cn', en: 'en' }[form.elements.lang.value] || 'auto',
+          callback: function () { if (tsWait) { clearTimeout(tsWait); tsWait = null; send(false); } }
+        });
+      };
+      var s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=xtkTurnstile';
+      s.async = true;
+      // blocked or offline: send without it; the server answers with the captcha message and the phone numbers
+      s.onerror = function () { tsKey = null; if (tsWait) { clearTimeout(tsWait); tsWait = null; send(false); } };
+      document.head.appendChild(s);
+    };
+    var tsReady = function () { return !tsKey || (tsId !== null && window.turnstile.getResponse(tsId)); };
+    form.addEventListener('focusin', loadTurnstile);
+
     var clearErrors = function () {
       $$('.field__err', form).forEach(function (s) { s.hidden = true; s.textContent = ''; });
       $$('[aria-invalid]', form).forEach(function (el) { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); });
@@ -180,6 +205,8 @@
         })
         .then(function (res) {
           busy(false);
+          // a token is good for one check, which the server makes only after every other check passed
+          if (tsId !== null && (res.status === 200 || res.status >= 500 || res.d.error === 'captcha')) window.turnstile.reset(tsId);
           if (res.status === 200 && res.d.ok) {
             form.reset();
             ts.value = '';
@@ -188,6 +215,8 @@
             ok.focus();
           } else if (res.status === 422 && res.d.errors) {
             showErrors(res.d.errors);
+          } else if (res.status === 422 && res.d.error === 'captcha') {
+            showFail(msgs.err_captcha);
           } else if (res.status === 422 && !retried) {
             // token too old or rejected: send once more without it (server applies the stricter no-JS limit)
             ts.value = '';
@@ -205,6 +234,12 @@
       clearErrors();
       var errs = localErrors();
       if (Object.keys(errs).length) { showErrors(errs); return; }
+      if (!tsReady()) {
+        busy(true);
+        loadTurnstile();
+        tsWait = setTimeout(function () { tsWait = null; busy(false); showFail(msgs.err_captcha); }, 20000);
+        return;
+      }
       send(false);
     });
   });

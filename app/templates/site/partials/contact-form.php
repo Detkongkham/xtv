@@ -2,10 +2,11 @@
 /**
  * The contact form (the only form on the site). Posts to /api/contact.php and works without JS: the server
  * redirects back with ?sent=1#sent. main.js takes over when present: time token, fetch, errors under each field.
+ * With a Turnstile key (config.php) main.js loads Cloudflare's check when the form is first used (P3-D8).
  * @var App\Publish\SiteView $v
  */
 $msgs = [];
-foreach (['sending', 'err_required', 'err_invalid', 'err_too_short', 'err_too_long', 'err_consent', 'err_rate', 'err_server'] as $k) {
+foreach (['sending', 'err_required', 'err_invalid', 'err_too_short', 'err_too_long', 'err_consent', 'err_rate', 'err_server', 'err_captcha'] as $k) {
     // spaced like Python's json.dumps, which build.py used
     $msgs[] = json_encode($k) . ': ' . json_encode($v->t('f_' . $k), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
@@ -22,8 +23,9 @@ $fields = [
 $subjects = ['general' => $v->t('q_general'), 'sales' => $v->t('q_sales'), 'service' => $v->t('q_service'), 'other' => $v->t('f_other')];
 $autocomplete = ['name' => 'name', 'tel' => 'tel', 'email' => 'email', 'org' => 'organization'];
 [$tel, $wa] = [$v->contact('tel'), $v->whatsapp()];
+$turnstile = $v->turnstileKey();
 ?>
-<form class="form" data-contact action="/api/contact.php" method="post" data-msgs="<?= $v->e('{' . implode(', ', $msgs) . '}') ?>">
+<form class="form" data-contact action="/api/contact.php" method="post" data-msgs="<?= $v->e('{' . implode(', ', $msgs) . '}') ?>"<?= $turnstile !== '' ? ' data-turnstile="' . $v->e($turnstile) . '"' : '' ?>>
   <input type="hidden" name="lang" value="<?= $v->lang ?>"><input type="hidden" name="ts" value="">
   <div class="hp" aria-hidden="true"><label for="f-website">Website</label><input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
   <?php foreach ($fields as [$label, $name, $kind, $req, $full]): ?>
@@ -45,6 +47,9 @@ $autocomplete = ['name' => 'name', 'tel' => 'tel', 'email' => 'email', 'org' => 
   </div>
   <?php endforeach ?>
   <div class="field field--full"><label class="check"><input type="checkbox" id="f-consent" name="consent" required><span><?= $v->t('f_consent') ?> (<a href="privacy.html"><?= $v->t('privacy') ?></a>)</span></label><?= $err('consent') ?></div>
+  <?php if ($turnstile !== ''): ?>
+  <div class="field field--full" data-turnstile-box hidden></div>
+  <?php endif ?>
   <p class="form__ok" id="sent" role="status" tabindex="-1" hidden><?= $v->t('f_ok') ?></p>
   <p class="form__err" role="alert" tabindex="-1" hidden><span></span> <a href="tel:<?= $v->telHref($tel) ?>"><?= $v->e($tel) ?></a> · <a href="<?= $wa ?>" target="_blank" rel="noopener">WhatsApp</a></p>
   <div class="field field--full"><div class="btns"><button class="btn" type="submit"><?= $v->t('f_send') ?></button></div><span class="hint"><?= $v->t('f_req') ?></span></div>

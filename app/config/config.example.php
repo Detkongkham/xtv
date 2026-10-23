@@ -37,6 +37,14 @@ return [
     // set true behind HTTPS so the admin session cookie is Secure
     'cookie_secure' => false,
 
+    // Cloudflare Turnstile on the contact form (P3-D8). Off while either key is blank: turn it on only when spam
+    // gets past the honeypot and rate limits (more than 5 a week), then publish so the pages get the site key.
+    // Test keys: site 1x00000000000000000000AA, secret 1x0000000000000000000000000000000AA (passes) / 2x...AA (fails)
+    'turnstile' => [
+        'site_key' => '',
+        'secret' => '',
+    ],
+
     // full path of mysqldump / mysql for bin/backup.php (blank = look in PATH)
     'mysqldump' => '',
     'mysql' => '',
