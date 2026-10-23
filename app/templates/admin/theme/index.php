@@ -12,7 +12,7 @@ $pages = ['index' => 'ໜ້າຫຼັກ', 'about' => 'ກ່ຽວກັບ'
 $channels = ['r' => ['R', 'ສີແດງ', 255], 'g' => ['G', 'ສີຂຽວ', 255], 'b' => ['B', 'ສີນ້ຳເງິນ', 255], 'a' => ['A', 'ຄວາມທຶບ (%)', 100]];
 ?>
 <script type="application/json" id="theme-data"><?= json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_THROW_ON_ERROR) ?></script>
-<p class="hint th-intro">ເລືອກສີຂອງແຕ່ລະສ່ວນດ້ວຍແຖບ R G B. ສີທີ່ບໍ່ໄດ້ປ່ຽນຈະ <b>ຕາມສີຫຼັກ</b> ຂອງມັນ (ເຊັ່ນ ປຸ່ມ ຕາມ ແບຣນ ຫຼັກ). ສີ admin ມີຜົນທັນທີທີ່ບັນທຶກ; ສີໜ້າເວັບຂຶ້ນເວັບຫຼັງກົດ "ເຜີຍແຜ່".</p>
+<p class="hint th-intro">ເລືອກສີຂອງແຕ່ລະສ່ວນດ້ວຍແຖບ R G B. ສີທີ່ບໍ່ໄດ້ປ່ຽນຈະ <b>ຕາມສີຫຼັກ</b> ຂອງມັນ (ເຊັ່ນ ປຸ່ມ ຕາມ ແບຣນ ຫຼັກ). ສີ admin (ສະຫວ່າງ ແລະ ມືດ) ມີຜົນທັນທີທີ່ບັນທຶກ; ເລືອກໂໝດມືດໄດ້ທີ່ເມນູບັນຊີ ມຸມຂວາເທິງ; ສີໜ້າເວັບຂຶ້ນເວັບຫຼັງກົດ "ເຜີຍແຜ່".</p>
 
 <form method="post" action="/admin/theme" class="th" id="theme-form" data-theme-form>
   <?= Csrf::field() ?>

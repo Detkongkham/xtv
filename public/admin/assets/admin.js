@@ -411,3 +411,24 @@
     show(a.hasAttribute('data-preview') ? a.getAttribute('data-preview') : a.getAttribute('href'), a.hasAttribute('data-preview') ? a.closest('.ibx-row') : null);
   });
 })();
+
+(function () {
+  // account menu: light / dark / follow the system, at once. The cookie is what the server reads for <html data-mode>
+  // on the next page; without JS the form posts to /admin/mode, which sets the same cookie.
+  var form = document.querySelector('[data-mode-form]');
+  if (!form) return;
+  form.addEventListener('click', function (e) {
+    var b = e.target.closest('button[name="mode"]');
+    if (!b) return;
+    e.preventDefault();
+    var m = b.value, root = document.documentElement;
+    if (m === 'light' || m === 'dark') {
+      root.setAttribute('data-mode', m);
+      document.cookie = 'xtk_mode=' + m + '; path=/admin; max-age=31536000; samesite=lax' + (location.protocol === 'https:' ? '; secure' : '');
+    } else {
+      root.removeAttribute('data-mode');
+      document.cookie = 'xtk_mode=; path=/admin; max-age=0; samesite=lax';
+    }
+    form.querySelectorAll('button[name="mode"]').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+  });
+})();

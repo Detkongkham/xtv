@@ -67,6 +67,15 @@
     var tk = tokens(s);
     Object.keys(tk).forEach(function (t) { root.style.setProperty('--' + t, value(s, t) || tk[t].css); });
   };
+  // the admin: light and dark side by side, as /admin/theme.css writes them
+  var paintAdmin = function () {
+    var root = document.documentElement, l = tokens('admin'), d = tokens('dark');
+    Object.keys(l).forEach(function (t) {
+      root.style.setProperty('--' + t, 'light-dark(' + (value('admin', t) || l[t].css) + ', ' + (value('dark', t) || d[t].css) + ')');
+    });
+  };
+  // the dark tab shows the admin in dark whatever mode was chosen; leaving it brings the chosen mode back
+  var chosenMode = document.documentElement.getAttribute('data-mode');
 
   // ---------------------------------------------------------------- list rows, counts, warnings
   var render = function (s) {
@@ -79,8 +88,8 @@
       if (v) n++;
     });
     $('[data-count="' + s + '"]').textContent = n;
-    if (s === 'admin') paint('admin', document.documentElement);
-    else paint('site', frameRoot());
+    if (s === 'site') paint('site', frameRoot());
+    else paintAdmin();
     if (s === scope) warnings();
   };
   var warnings = function () {
@@ -203,8 +212,9 @@
   $('[data-ed-scale]').addEventListener('click', function () {
     if (!current) return;
     var s = current[0], c = resolve(s)['brand-600'];
-    var scale = { 'brand-900': mix(c, [0, 0, 0], 0.42), 'brand-500': mix(c, [255, 255, 255], 0.15),
-      'brand-100': mix(c, [255, 255, 255], 0.88), 'brand-50': mix(c, [255, 255, 255], 0.94) };
+    var scale = s === 'dark'
+      ? { 'brand-900': mix(c, [0, 0, 0], 0.88), 'brand-500': mix(c, [255, 255, 255], 0.25), 'brand-100': mix(c, [19, 21, 29], 0.78), 'brand-50': mix(c, [19, 21, 29], 0.84) }
+      : { 'brand-900': mix(c, [0, 0, 0], 0.42), 'brand-500': mix(c, [255, 255, 255], 0.15), 'brand-100': mix(c, [255, 255, 255], 0.88), 'brand-50': mix(c, [255, 255, 255], 0.94) };
     Object.keys(scale).forEach(function (t) { input(s, t).value = toHex(scale[t]); });
     dirty = true; render(s); editorShow();
   });
@@ -246,7 +256,10 @@
     $$('[data-scope-tab]').forEach(function (b) { b.setAttribute('aria-selected', b.getAttribute('data-scope-tab') === s ? 'true' : 'false'); });
     $$('[data-panel]').forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== s; });
     $('[data-prev]').hidden = s !== 'site';
-    $('[data-admin-note]').hidden = s !== 'admin';
+    $('[data-admin-note]').hidden = s === 'site';
+    if (s === 'dark') document.documentElement.setAttribute('data-mode', 'dark');
+    else if (chosenMode) document.documentElement.setAttribute('data-mode', chosenMode);
+    else document.documentElement.removeAttribute('data-mode');
     if (s === 'site' && !frame.getAttribute('src')) loadFrame();
     pick(s, 'brand-600');
     warnings();
@@ -288,7 +301,7 @@
 
   // ---------------------------------------------------------------- whole themes: ready-made, saved, history, files
   var fill = function (theme) {
-    ['site', 'admin'].forEach(function (s) {
+    Object.keys(D.scopes).forEach(function (s) {
       var t = theme[s] || {};
       Object.keys(tokens(s)).forEach(function (k) {
         var v = typeof t[k] === 'string' ? t[k].toLowerCase() : '';
@@ -313,12 +326,12 @@
   load.addEventListener('change', function () {
     var v = load.value, k = v.charAt(0), i = +v.slice(1);
     load.value = '';
-    if (!v || !window.confirm('ແທນສີທີ່ກຳລັງປັບຢູ່ທັງໝົດ (ທັງໜ້າເວັບ ແລະ admin)?')) return;
-    if (k === 'p') fill({ site: D.presets[i].brand, admin: D.presets[i].brand });
+    if (!v || !window.confirm('ແທນສີທີ່ກຳລັງປັບຢູ່ທັງໝົດ (ໜ້າເວັບ, admin ສະຫວ່າງ ແລະ ມືດ)?')) return;
+    if (k === 'p') fill({ site: D.presets[i].brand, admin: D.presets[i].brand, dark: D.presets[i].dark });
     else fill((k === 's' ? D.saved : D.history)[i]);
   });
   $('[data-export]').addEventListener('click', function () {
-    var blob = new Blob([JSON.stringify({ site: values('site'), admin: values('admin') }, null, 2)], { type: 'application/json' });
+    var blob = new Blob([JSON.stringify({ site: values('site'), admin: values('admin'), dark: values('dark') }, null, 2)], { type: 'application/json' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'xtk-theme-' + new Date().toISOString().slice(0, 10) + '.json';
@@ -331,7 +344,7 @@
     if (!file) return;
     file.text().then(function (text) {
       var t = JSON.parse(text);
-      if (!t || typeof t !== 'object' || (!t.site && !t.admin)) throw new Error('shape');
+      if (!t || typeof t !== 'object' || (!t.site && !t.admin && !t.dark)) throw new Error('shape');
       fill(t);
     }).catch(function () { window.alert('ໄຟລ໌ນີ້ບໍ່ແມ່ນໄຟລ໌ຕີມ (JSON ທີ່ມີ site / admin).'); });
   });
@@ -351,6 +364,7 @@
   $$('[data-js]').forEach(function (el) { el.hidden = false; });
   drawRecent();
   render('admin');
+  render('dark');
   render('site');
   showScope('site');
 })();

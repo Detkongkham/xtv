@@ -103,6 +103,7 @@ final class ThemeService
 
     public const ADMIN_ONLY = [
         'ໂຄງໜ້າ admin' => [
+            'on-color' => ['ຕົວໜັງສືເທິງພື້ນສີ (ປຸ່ມ, ປ້າຍ)', '#ffffff'],
             'page-bg' => ['ພື້ນໜ້າ', 'surface'],
             'side-bg' => ['ພື້ນເມນູຂ້າງ', 'white'],
             'side-text' => ['ຕົວໜັງສືເມນູຂ້າງ', 'body'],
@@ -110,7 +111,7 @@ final class ThemeService
             'side-active-text' => ['ເມນູທີ່ເລືອກ ຕົວໜັງສື', 'brand-600'],
             'top-bg' => ['ພື້ນແຖບເທິງ', 'white'],
             'btn-bg' => ['ປຸ່ມຫຼັກ ພື້ນ', 'brand-600'],
-            'btn-text' => ['ປຸ່ມຫຼັກ ຕົວໜັງສື', 'white'],
+            'btn-text' => ['ປຸ່ມຫຼັກ ຕົວໜັງສື', 'on-color'],
             'btn-hover' => ['ປຸ່ມຫຼັກ ຕອນ hover', 'brand-500'],
         ],
         'ສີສະຖານະ' => [
@@ -131,6 +132,21 @@ final class ThemeService
             'chart-4' => ['ກຣາຟ ສີ 4', 'accent-green'],
             'chart-5' => ['ກຣາຟ ສີ 5', 'accent-red'],
         ],
+    ];
+
+    /**
+     * Admin dark mode: the colors that differ from the light defaults (the others follow these, e.g. side-bg = white =
+     * the dark card color). admin.css declares each as light-dark(light, dark).
+     */
+    public const DARK = [
+        'brand-900' => '#0c0e26', 'brand-600' => '#a9aff7', 'brand-500' => '#c0c4fa', 'brand-100' => '#2d3268', 'brand-50' => '#23274b',
+        'accent-red' => '#ff6166', 'accent-red-text' => '#ff9a9e', 'accent-red-50' => '#3a1d22',
+        'accent-green' => '#34c47c', 'accent-green-text' => '#7fe0ab', 'accent-green-50' => '#142e25',
+        'ink' => '#eceef5', 'body' => '#c3c8d4', 'muted' => '#979dad', 'line' => '#343a4a', 'surface' => '#13151d', 'white' => '#1c1f2a',
+        'on-color' => '#13151d',
+        'info' => '#7cc4f5', 'success' => '#6fdba0', 'warning' => '#f5b860', 'warning-50' => '#36290f', 'warning-line' => '#7a5c22',
+        'warning-dot' => '#f0a43a', 'danger-line' => '#6e2c33', 'danger-hover' => '#ffb3b6',
+        'chart-2' => '#4fd0ea', 'chart-3' => '#f5b14a',
     ];
 
     /** Text on background pairs checked for readability: [text, background, what]. */
@@ -157,6 +173,7 @@ final class ThemeService
         ],
         'admin' => [
             ['body', 'page-bg', 'ເນື້ອຫາ ເທິງພື້ນໜ້າ'],
+            ['btn-text', 'btn-hover', 'ປຸ່ມຫຼັກ ຕອນ hover'],
             ['ink', 'white', 'ຫົວຂໍ້ ເທິງກາດ'],
             ['side-text', 'side-bg', 'ເມນູຂ້າງ'],
             ['side-active-text', 'side-active-bg', 'ເມນູທີ່ເລືອກ'],
@@ -176,14 +193,22 @@ final class ThemeService
         'ເທົາເຂັ້ມ' => '#37474f',
     ];
 
-    public const SCOPES = ['site' => 'ໜ້າເວັບ', 'admin' => 'ລະບົບ Admin'];
+    public const SCOPES = ['site' => 'ໜ້າເວັບ', 'admin' => 'Admin ສະຫວ່າງ', 'dark' => 'Admin ມືດ'];
 
     private const HEX = '/^#[0-9a-f]{6}([0-9a-f]{2})?$/';
 
     /** @return array<string, array<string, array{0: string, 1: string|array}>> group => token => [label, default] */
     public static function groups(string $scope): array
     {
-        return self::BASE + ($scope === 'admin' ? self::ADMIN_ONLY : self::SITE_ONLY);
+        $groups = self::BASE + ($scope === 'site' ? self::SITE_ONLY : self::ADMIN_ONLY);
+        if ($scope === 'dark') {
+            foreach ($groups as $group => $tokens) {
+                foreach ($tokens as $t => $row) {
+                    $groups[$group][$t][1] = self::DARK[$t] ?? $row[1];
+                }
+            }
+        }
+        return $groups;
     }
 
     /** @return array<string, array{0: string, 1: string|array}> token => [label, default] */
@@ -195,7 +220,7 @@ final class ThemeService
     /** @return list<array{0: string, 1: string, 2: string}> */
     public static function pairs(string $scope): array
     {
-        return self::PAIRS[$scope] ?? [];
+        return self::PAIRS[$scope === 'dark' ? 'admin' : $scope] ?? [];
     }
 
     /**
@@ -219,14 +244,15 @@ final class ThemeService
         return $out;
     }
 
-    /** @return array{site: array<string, string>, admin: array<string, string>} */
+    /** @return array{site: array<string, string>, admin: array<string, string>, dark: array<string, string>} */
     public static function cleanTheme(mixed $theme): array
     {
         $theme = is_array($theme) ? $theme : [];
-        return [
-            'site' => self::clean('site', is_array($theme['site'] ?? null) ? $theme['site'] : []),
-            'admin' => self::clean('admin', is_array($theme['admin'] ?? null) ? $theme['admin'] : []),
-        ];
+        $out = [];
+        foreach (array_keys(self::SCOPES) as $scope) {
+            $out[$scope] = self::clean($scope, is_array($theme[$scope] ?? null) ? $theme[$scope] : []);
+        }
+        return $out;
     }
 
     /** One :root rule with the changed colors, '' when nothing was changed. Values are checked again here. */
@@ -237,6 +263,32 @@ final class ThemeService
             $rules .= '--' . $token . ':' . $value . ';';
         }
         return $rules === '' ? '' : ':root{' . $rules . '}';
+    }
+
+    /**
+     * The admin colors, light and dark, as one :root rule: every changed color becomes light-dark(light, dark) with the
+     * stylesheet default on the side that was not changed. '' when nothing was changed.
+     */
+    public static function adminCss(array $light, array $dark): string
+    {
+        $light = self::clean('admin', $light);
+        $dark = self::clean('dark', $dark);
+        $l = self::tokens('admin');
+        $d = self::tokens('dark');
+        $rules = '';
+        foreach (array_keys($l) as $t) {
+            if (isset($light[$t]) || isset($dark[$t])) {
+                $rules .= '--' . $t . ':light-dark(' . ($light[$t] ?? self::defaultCss($l[$t][1])) . ',' . ($dark[$t] ?? self::defaultCss($d[$t][1])) . ');';
+            }
+        }
+        return $rules === '' ? '' : ':root{' . $rules . '}';
+    }
+
+    /** The declaration of a color in its stylesheet: admin colors with a dark value are light-dark(light, dark). */
+    public static function stylesheetDefault(string $scope, string $token): string
+    {
+        $light = self::defaultCss(self::tokens($scope)[$token][1]);
+        return $scope === 'admin' && isset(self::DARK[$token]) ? 'light-dark(' . $light . ', ' . self::DARK[$token] . ')' : $light;
     }
 
     /** The default as it is written in the stylesheet. */
@@ -341,6 +393,22 @@ final class ThemeService
         ];
     }
 
+    /** The brand scale for the dark admin: a light main color for text on dark cards, dark tints for backgrounds. */
+    public static function brandScaleDark(string $hex): array
+    {
+        $c = self::rgba($hex);
+        $mix = static fn (array $with, float $t): string => self::hex([
+            $c[0] + ($with[0] - $c[0]) * $t, $c[1] + ($with[1] - $c[1]) * $t, $c[2] + ($with[2] - $c[2]) * $t,
+        ]);
+        return [
+            'brand-900' => $mix([0, 0, 0], 0.88),
+            'brand-600' => $mix([255, 255, 255], 0.62),
+            'brand-500' => $mix([255, 255, 255], 0.72),
+            'brand-100' => $mix([19, 21, 29], 0.62),
+            'brand-50' => $mix([19, 21, 29], 0.72),
+        ];
+    }
+
     /** Everything the theme page script needs to resolve, preview and check colors in the browser. */
     public static function clientData(): array
     {
@@ -354,7 +422,7 @@ final class ThemeService
         }
         $presets = [];
         foreach (self::PRESETS as $name => $hex) {
-            $presets[] = ['name' => $name, 'brand' => $hex === '#2f368e' ? [] : self::brandScale($hex)];
+            $presets[] = ['name' => $name, 'brand' => $hex === '#2f368e' ? [] : self::brandScale($hex), 'dark' => $hex === '#2f368e' ? [] : self::brandScaleDark($hex)];
         }
         return ['scopes' => $scopes, 'presets' => $presets];
     }

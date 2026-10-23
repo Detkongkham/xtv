@@ -3,7 +3,7 @@
 use App\Core\Csrf;
 use App\Core\View;
 ?><!doctype html>
-<html lang="lo">
+<html lang="lo"<?= App\Http\Admin\ThemeController::modeAttr() ?>>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

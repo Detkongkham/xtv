@@ -35,7 +35,7 @@ if (($user['role'] ?? '') === 'admin') {
 }
 $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__DIR__ . '/../../../public' . $f), -6);
 ?><!doctype html>
-<html lang="lo">
+<html lang="lo"<?= App\Http\Admin\ThemeController::modeAttr() ?>>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -113,6 +113,16 @@ $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__
             <div class="top__menu-pop">
               <p class="top__menu-head"><b><?= e($user['name']) ?></b><small><?= e(UserController::ROLE_NAMES[$user['role']] ?? $user['role']) ?></small></p>
               <a href="/admin/account"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 21v-1a6 6 0 0112 0v1"/></svg>ບັນຊີຂອງຂ້ອຍ</a>
+              <?php $mode = $_COOKIE['xtk_mode'] ?? ''; ?>
+              <form class="top__mode" method="post" action="/admin/mode" data-mode-form>
+                <?= Csrf::field() ?><input type="hidden" name="back" value="<?= e($_SERVER['REQUEST_URI'] ?? '/admin') ?>">
+                <span class="top__mode-label" id="mode-label">ຮູບແບບສີ</span>
+                <span class="top__mode-seg" role="group" aria-labelledby="mode-label">
+                  <?php foreach (['light' => ['ສະຫວ່າງ', 'M12 17a5 5 0 100-10 5 5 0 000 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4'], 'dark' => ['ມືດ', 'M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z'], 'auto' => ['ຕາມລະບົບ', 'M3 5h18v11H3zM8 21h8M12 16v5']] as $m => [$label, $icon]): ?>
+                    <button type="submit" name="mode" value="<?= $m ?>" title="<?= e($label) ?>" aria-pressed="<?= ($mode === $m || ($m === 'auto' && !in_array($mode, ['light', 'dark'], true))) ? 'true' : 'false' ?>"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="<?= $icon ?>"/></svg><span><?= e($label) ?></span></button>
+                  <?php endforeach; ?>
+                </span>
+              </form>
               <form method="post" action="/admin/logout"><?= Csrf::field() ?><button type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>ອອກຈາກລະບົບ</button></form>
             </div>
           </details>

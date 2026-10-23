@@ -328,6 +328,7 @@ Inter ແລະ Montserrat ບໍ່ມີຕົວອັກສອນລາວ, 
 
 - ກົດ: CSS ຂອງອົງປະກອບໃຊ້ token ສະເໝີ, ບໍ່ຂຽນ hex ຫຼື `rgba()` ຂອງສີແບຣນໂດຍກົງ. ສີໂປ່ງໃສໃຊ້ `color-mix(in srgb, var(--token) N%, transparent)`.
 - ເພີ່ມສີໃໝ່ໃຫ້ປັບໄດ້: ປະກາດໃນ `:root` ຂອງ CSS ແລ້ວເພີ່ມເຂົ້າ `ThemeService` ດ້ວຍຄ່າເລີ່ມຕົ້ນດຽວກັນ.
+- Admin ມີໂໝດມືດ: token ໃນ `admin.css` ຂຽນເປັນ `light-dark(ສະຫວ່າງ, ມືດ)` (ຄ່າມືດຢູ່ `ThemeService::DARK`). ໂໝດຕາມການຕັ້ງຄ່າຂອງລະບົບ, ຫຼື ຕາມທີ່ເລືອກໃນເມນູບັນຊີ (cookie `xtk_mode` → `<html data-mode>`). ສີທີ່ວາງເທິງພື້ນສີ (ປຸ່ມ, ປ້າຍ) ໃຊ້ `--on-color`, ບໍ່ໃຊ້ `--white`.
 - ຕີມເກັບສະເພາະສີທີ່ປ່ຽນ (`settings.theme`). ໜ້າເວັບໄດ້ `<style>:root{…}</style>` ຕໍ່ຈາກ `style.css` ຕອນເຜີຍແຜ່. Admin ໂຫຼດ `/admin/theme.css` ທັນທີ.
 
 ---

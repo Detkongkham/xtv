@@ -27,9 +27,9 @@ final class ThemeServiceTest extends TestCase
                 $declared[$name] = trim($value);
             }
         }
-        foreach (T::tokens($scope) as $token => [, $default]) {
+        foreach (array_keys(T::tokens($scope)) as $token) {
             $this->assertArrayHasKey($token, $declared, "--{$token} missing in {$file}");
-            $this->assertSame(T::defaultCss($default), $declared[$token], "--{$token} default");
+            $this->assertSame(T::stylesheetDefault($scope, $token), $declared[$token], "--{$token} default");
         }
     }
 
@@ -70,6 +70,22 @@ final class ThemeServiceTest extends TestCase
     {
         $this->assertSame([], T::warnings('site', []));
         $this->assertSame([], T::warnings('admin', []));
+        $this->assertSame([], T::warnings('dark', []));
+    }
+
+    public function testDarkFollowsTheDarkBaseColors(): void
+    {
+        $c = T::resolve('dark', []);
+        $this->assertSame(T::rgba('#1c1f2a'), $c['side-bg']); // white = the dark card color
+        $this->assertSame(T::rgba('#13151d'), $c['btn-text']); // on-color: dark text on the light buttons
+        $this->assertSame([], array_diff_key(T::DARK, T::tokens('admin')));
+    }
+
+    public function testAdminCssPairsLightAndDark(): void
+    {
+        $this->assertSame('', T::adminCss([], []));
+        $this->assertSame(':root{--brand-600:light-dark(#00796b,#a9aff7);}', T::adminCss(['brand-600' => '#00796b'], []));
+        $this->assertSame(':root{--side-bg:light-dark(var(--white),#000000);}', T::adminCss([], ['side-bg' => '#000000', 'ftr-bg' => '#000000']));
     }
 
     public function testHardToReadPairsAreReported(): void
@@ -92,7 +108,7 @@ final class ThemeServiceTest extends TestCase
 
     public function testCleanThemeAcceptsAnything(): void
     {
-        $this->assertSame(['site' => [], 'admin' => []], T::cleanTheme(null));
-        $this->assertSame(['site' => [], 'admin' => ['info' => '#000000']], T::cleanTheme(['site' => 'x', 'admin' => ['info' => '#000000']]));
+        $this->assertSame(['site' => [], 'admin' => [], 'dark' => []], T::cleanTheme(null));
+        $this->assertSame(['site' => [], 'admin' => ['info' => '#000000'], 'dark' => []], T::cleanTheme(['site' => 'x', 'admin' => ['info' => '#000000']]));
     }
 }

@@ -154,6 +154,7 @@ $r->get('/admin/theme', [$theme, 'index']);
 $r->post('/admin/theme', [$theme, 'update']);
 $r->post('/admin/theme/delete', [$theme, 'deleteSaved']);
 $r->get('/admin/theme.css', [$theme, 'css']);
+$r->post('/admin/mode', [$theme, 'mode']);
 $r->get('/admin/users', [$users, 'index']);
 $r->get('/admin/users/new', [$users, 'create']);
 $r->post('/admin/users/new', [$users, 'store']);
