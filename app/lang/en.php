@@ -99,6 +99,8 @@ return [
     'about_p1' => 'Xupthavykhoun Sole Co., Ltd was registered as a legal company under the laws of Lao PDR on 1 July 2016. We supply and distribute medicines, medical products, laboratory equipment and all kinds of quality diagnostic reagents, and operate a security division that is modern and meets international standards.',
     'about_p2' => 'The staff of each department bring more than 20 years of expertise in advising customers, and a professional after-sales department stands ready to serve you promptly.',
     'facts' => 'Key facts',
+    'leaders' => 'Our leadership',
+    'leaders_lead' => 'The founders and directors who bring decades of experience to serving our customers every day.',
     'f_name' => 'Company name',
     'f_reg' => 'Date of registration',
     'f_reg_v' => '1 July 2016',

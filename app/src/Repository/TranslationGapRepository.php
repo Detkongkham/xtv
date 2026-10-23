@@ -22,6 +22,7 @@ final class TranslationGapRepository
         'news' => ['ຂ່າວ', 'news', 'title_lo', "status = 'published'", ['title' => 'ຫົວຂໍ້', 'summary' => 'ສະຫຼຸບ', 'body' => 'ເນື້ອຫາ']],
         'hero_slides' => ['Hero', 'hero', 'title_lo', 'is_visible = 1', ['eyebrow' => 'ຫົວຂໍ້ນ້ອຍ', 'title' => 'ຫົວຂໍ້', 'text' => 'ຂໍ້ຄວາມ', 'button' => 'ປ້າຍປຸ່ມ']],
         'faqs' => ['FAQ', 'faqs', 'question_lo', 'is_visible = 1', ['question' => 'ຄຳຖາມ', 'answer' => 'ຄຳຕອບ']],
+        'leaders' => ['ຜູ້ບໍລິຫານ', 'leaders', 'name_lo', 'is_visible = 1', ['name' => 'ຊື່', 'position' => 'ຕຳແໜ່ງ', 'bio' => 'ປະຫວັດ']],
         'downloads' => ['ໄຟລ໌ດາວໂຫຼດ', 'downloads', 'title_lo', 'is_visible = 1', ['title' => 'ຊື່', 'summary' => 'ຄຳອະທິບາຍສັ້ນ']],
     ];
 

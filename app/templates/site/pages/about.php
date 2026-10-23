@@ -6,6 +6,7 @@
 use App\Publish\SiteView;
 
 $v->meta('about', $v->t('about_profile'), $v->t('about_lead'), active: 'about');
+$leaders = $v->data->leaders();
 $names = array_map(static fn ($d) => $v->tr($d, 'name'), $v->data->divisions());
 $facts = [
     [$v->t('f_name'), $v->t('co_name') . ' (XTK)'],
@@ -35,7 +36,24 @@ $facts = [
     </tbody></table>
   </div>
 </div></section>
-<section class="sec" id="why"><div class="wrap">
+<?php if ($leaders !== []): ?>
+<section class="sec" id="leaders"><div class="wrap">
+  <?= $v->partial('section-head', ['h' => $v->t('leaders'), 'p' => $v->t('leaders_lead')]) ?>
+  <div class="leaders">
+    <?php foreach ($leaders as $i => $l): $name = $v->raw($l, 'name'); $photo = $v->data->media($l['photo_id'] === null ? null : (int) $l['photo_id']) ?>
+    <article class="leader<?= $i % 2 ? ' leader--rev' : '' ?>">
+      <div class="leader__img rv"><?= $photo !== null ? $v->media($photo, $name, '', true, '(max-width: 1023px) 360px, 480px') : '<span class="leader__none" aria-hidden="true">' . $v->e(mb_substr(preg_replace('/^(ທ່ານ(ນາງ)?|ດຣ\.|Dr\.|Mr\.|Mrs\.|Ms\.)\s*/u', '', $name), 0, 1)) . '</span>' ?></div>
+      <div class="leader__text rv">
+        <p class="leader__pos"><?= $v->tr($l, 'position') ?></p>
+        <h3 class="h3"><?= $v->e($name) ?></h3>
+        <div class="prose"><?= $v->story($v->raw($l, 'bio')) ?></div>
+      </div>
+    </article>
+    <?php endforeach ?>
+  </div>
+</div></section>
+<?php endif ?>
+<section class="sec<?= $leaders !== [] ? ' sec--surface' : '' ?>" id="why"><div class="wrap">
   <?= $v->partial('section-head', ['h' => $v->t('why')]) ?>
   <div class="grid g-4"><?= $v->partial('cards/text', ['items' => SiteView::WHY]) ?></div>
 </div></section>

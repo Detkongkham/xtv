@@ -18,6 +18,7 @@ final class ActivityRepository
         'downloads' => ['ໄຟລ໌ດາວໂຫຼດ', 'downloads', 'title_lo'],
         'hero' => ['Hero', 'hero_slides', 'title_lo'],
         'faqs' => ['FAQ', 'faqs', 'question_lo'],
+        'leaders' => ['ຜູ້ບໍລິຫານ', 'leaders', 'name_lo'],
         'media' => ['ຄັງສື່', 'media', 'original_name'],
         'messages' => ['ຂໍ້ຄວາມ', 'messages', 'name'],
         'users' => ['ຜູ້ໃຊ້', 'users', 'name'],

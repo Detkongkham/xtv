@@ -336,6 +336,21 @@ final class SiteView
         return $out;
     }
 
+    /** Like paragraphs(), and a block whose lines all start with "- " becomes a list (a leader's education, career). */
+    public function story(string $text): string
+    {
+        $out = '';
+        foreach (preg_split('/\n\s*\n/', trim($text)) ?: [] as $block) {
+            $lines = array_map('trim', explode("\n", trim($block)));
+            if (array_filter($lines, static fn ($l) => !str_starts_with($l, '- ')) === []) {
+                $out .= '<ul>' . implode('', array_map(fn ($l) => '<li>' . $this->e(trim(substr($l, 2))) . '</li>', $lines)) . '</ul>';
+            } else {
+                $out .= '<p>' . nl2br($this->e(implode("\n", $lines)), false) . '</p>';
+            }
+        }
+        return $out;
+    }
+
     /** One sentence about the product; falls back to the group summary. */
     public function productText(array $p, array $group): string
     {

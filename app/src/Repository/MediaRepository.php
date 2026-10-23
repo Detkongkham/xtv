@@ -21,6 +21,7 @@ final class MediaRepository
         ['downloads', 'file_id', 'title_lo', '/admin/downloads/', 'ໄຟລ໌ດາວໂຫຼດ'],
         ['hero_slides', 'media_id', 'title_lo', '/admin/hero/', 'Hero'],
         ['hero_slides', 'poster_id', 'title_lo', '/admin/hero/', 'Poster ຂອງ Hero'],
+        ['leaders', 'photo_id', 'name_lo', '/admin/leaders/', 'ຮູບຜູ້ບໍລິຫານ'],
     ];
 
     public function __construct(private Db $db)
