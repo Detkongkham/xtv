@@ -88,7 +88,7 @@
       if (v) n++;
     });
     $('[data-count="' + s + '"]').textContent = n;
-    if (s === 'site') paint('site', frameRoot());
+    if (s === 'site') { paint('site', frameRoot()); markPresets(); }
     else paintAdmin();
     if (s === scope) warnings();
   };
@@ -156,12 +156,12 @@
   };
   var set = function (s, t, hex) {
     input(s, t).value = hex;
-    dirty = true;
+    touch();
     render(s);
     if (current && current[0] === s) editorShow();
   };
   var setFromEditor = function (c) { if (current) set(current[0], current[1], toHex(c)); };
-  var narrow = window.matchMedia('(max-width: 1100px)');
+  var narrow = window.matchMedia('(max-width: 1279px)');
   var pick = function (s, t, byHand) {
     current = [s, t];
     ed.hidden = false;
@@ -216,7 +216,7 @@
       ? { 'brand-900': mix(c, [0, 0, 0], 0.88), 'brand-500': mix(c, [255, 255, 255], 0.25), 'brand-100': mix(c, [19, 21, 29], 0.78), 'brand-50': mix(c, [19, 21, 29], 0.84) }
       : { 'brand-900': mix(c, [0, 0, 0], 0.42), 'brand-500': mix(c, [255, 255, 255], 0.15), 'brand-100': mix(c, [255, 255, 255], 0.88), 'brand-50': mix(c, [255, 255, 255], 0.94) };
     Object.keys(scale).forEach(function (t) { input(s, t).value = toHex(scale[t]); });
-    dirty = true; render(s); editorShow();
+    touch(); render(s); editorShow();
   });
 
   // recent colors, per browser
@@ -249,7 +249,7 @@
   $$('.th-row').forEach(function (row) {
     var s = row.closest('[data-panel]').getAttribute('data-panel'), t = row.getAttribute('data-token');
     row.querySelector('[data-pick]').addEventListener('click', function () { pick(s, t, true); });
-    row.querySelector('.th-row__hex').addEventListener('input', function () { dirty = true; render(s); if (current && current[1] === t) editorShow(); });
+    row.querySelector('.th-row__hex').addEventListener('input', function () { touch(); render(s); if (current && current[1] === t) editorShow(); });
   });
   var showScope = function (s) {
     scope = s;
@@ -263,6 +263,7 @@
     if (s === 'site' && !frame.getAttribute('src')) loadFrame();
     pick(s, 'brand-600');
     warnings();
+    filter();
   };
   $$('[data-scope-tab]').forEach(function (b, i, all) {
     b.addEventListener('click', function () { showScope(b.getAttribute('data-scope-tab')); });
@@ -272,11 +273,20 @@
       next.focus(); next.click();
     });
   });
-  var q = $('[data-search-colors]');
-  q.addEventListener('input', function () {
-    var v = q.value.trim().toLowerCase();
-    $$('.th-row').forEach(function (r) { r.hidden = v !== '' && r.getAttribute('data-text').indexOf(v) === -1; });
+  // search and "changed colors only"; the empty note shows when nothing in the open tab is left
+  var q = $('[data-search-colors]'), onlySet = $('[data-only-set]');
+  var filter = function () {
+    var v = q.value.trim().toLowerCase(), only = onlySet.getAttribute('aria-pressed') === 'true';
+    $$('.th-row').forEach(function (r) {
+      r.hidden = (v !== '' && r.getAttribute('data-text').indexOf(v) === -1) || (only && !r.hasAttribute('data-set'));
+    });
     $$('.th-group').forEach(function (g) { g.hidden = !g.querySelector('.th-row:not([hidden])'); });
+    $('[data-search-empty]').hidden = !!$('[data-panel="' + scope + '"] .th-row:not([hidden])');
+  };
+  q.addEventListener('input', filter);
+  onlySet.addEventListener('click', function () {
+    onlySet.setAttribute('aria-pressed', onlySet.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    filter();
   });
 
   // ---------------------------------------------------------------- preview frame
@@ -299,6 +309,18 @@
     });
   });
 
+  // enlarge the preview to the whole screen; Esc or the same button brings it back
+  var big = $('[data-prev-big]'), prev = $('[data-prev]');
+  var setBig = function (on) {
+    prev.classList.toggle('is-big', on);
+    form.closest('.thm').classList.toggle('is-prev-big', on);
+    big.setAttribute('aria-pressed', on ? 'true' : 'false');
+    big.setAttribute('aria-label', on ? 'ຫຍໍ້ຕົວຢ່າງ' : 'ຂະຫຍາຍຕົວຢ່າງເຕັມຈໍ');
+    fit();
+  };
+  big.addEventListener('click', function () { setBig(!prev.classList.contains('is-big')); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && prev.classList.contains('is-big')) setBig(false); });
+
   // ---------------------------------------------------------------- whole themes: ready-made, saved, history, files
   var fill = function (theme) {
     Object.keys(D.scopes).forEach(function (s) {
@@ -309,8 +331,9 @@
       });
       render(s);
     });
-    dirty = true;
+    touch();
     editorShow();
+    filter();
   };
   var load = $('[data-load]');
   var group = function (label, items) {
@@ -323,6 +346,20 @@
   group('ສຳເລັດຮູບ', D.presets.map(function (p, i) { return ['p' + i, p.name]; }));
   group('ທີ່ບັນທຶກໄວ້', D.saved.map(function (p, i) { return ['s' + i, p.name + ' (' + p.at + ')']; }));
   group('ສະບັບກ່ອນໜ້າ', D.history.map(function (p, i) { return ['h' + i, p.at + (p.by ? ' · ' + p.by : '')]; }));
+  $$('[data-preset]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      load.value = 'p' + b.getAttribute('data-preset');
+      load.dispatchEvent(new Event('change'));
+    });
+  });
+  $$('[data-load-saved]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      load.value = 's' + b.getAttribute('data-load-saved');
+      load.dispatchEvent(new Event('change'));
+    });
+  });
+  // saved themes: the brand color of each part, set here because the admin CSP blocks style attributes
+  $$('[data-color]').forEach(function (i) { var v = i.getAttribute('data-color'); if (HEX.test(v)) i.style.background = css(parse(v)); else i.style.background = v; });
   load.addEventListener('change', function () {
     var v = load.value, k = v.charAt(0), i = +v.slice(1);
     load.value = '';
@@ -351,8 +388,25 @@
   $('[data-reset-scope]').addEventListener('click', function () {
     if (!window.confirm('ໃຫ້ທຸກສີໃນແທັບນີ້ກັບໄປຕາມຄ່າເດີມ?')) return;
     Object.keys(tokens(scope)).forEach(function (t) { input(scope, t).value = ''; });
-    dirty = true; render(scope); editorShow();
+    touch(); render(scope); editorShow();
   });
+
+  // a ready-made card is "in use" when the site brand colors are exactly its scale (nothing set = the XTK one)
+  function markPresets() {
+    var v = values('site'), keys = ['brand-900', 'brand-600', 'brand-500', 'brand-100', 'brand-50'];
+    $$('[data-preset]').forEach(function (b) {
+      var p = D.presets[+b.getAttribute('data-preset')].brand;
+      b.setAttribute('aria-pressed', keys.every(function (k) { return (v[k] || '') === (p[k] || ''); }) ? 'true' : 'false');
+    });
+  }
+
+  // the save bar says when something changed and is not saved yet
+  var dirtyNote = $('[data-dirty-note]');
+  function touch() {
+    dirty = true;
+    dirtyNote.classList.add('is-dirty');
+    $('[data-dirty-text]').textContent = 'ມີການປ່ຽນແປງທີ່ຍັງບໍ່ບັນທຶກ';
+  }
 
   form.addEventListener('submit', function (e) {
     var bad = $$('.th-row__hex', form).filter(function (i) { return i.value.trim() !== '' && !HEX.test(i.value.trim().toLowerCase()); });
