@@ -18,3 +18,4 @@
 - **Why:** user asked for the dashboard to match the design they pasted. That design was for a salon system, so the layout and styling are copied and the numbers are XTK's own (messages, publishing, content, translations, backups).
 - **Status:** done. Admin CSP blocks `style=""`, so bars are SVG and colours are classes. Verified: PHPUnit 89/89 (old deprecation); headless Chrome at 390/768/1024/1280/1440 with 90 temporary test messages (removed afterwards), no horizontal scroll; `?days=abc` falls back to 14.
 - **Next:** the pasted HTML was cut off after the trend chart header, so the parts below it follow the same style but are not copied from the reference.
+| 14:01:24 | Write | app/templates/admin/messages/index.php |

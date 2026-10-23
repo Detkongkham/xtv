@@ -29,7 +29,11 @@ final class DivisionController extends Controller
     public function index(): never
     {
         $this->requireLogin();
-        $this->page('divisions/index', 'ຂະແໜງທຸລະກິດ', ['rows' => $this->repo()->all()]);
+        $show = Request::query('show');
+        $this->page('divisions/index', 'ຂະແໜງທຸລະກິດ', [
+            'rows' => $this->repo()->all(),
+            'filters' => ['show' => in_array($show, ['visible', 'hidden'], true) ? $show : '', 'q' => trim(Request::query('q'))],
+        ]);
     }
 
     public function create(): never

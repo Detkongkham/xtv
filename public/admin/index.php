@@ -63,6 +63,7 @@ $r->post('/admin/login', [$auth, 'login']);
 $r->post('/admin/logout', [$auth, 'logout']);
 $r->get('/admin/messages', [$msg, 'index']);
 $r->get('/admin/messages/export', [$msg, 'export']);
+$r->post('/admin/messages/bulk', [$msg, 'bulk']);
 $r->get('/admin/messages/{id}', [$msg, 'show']);
 $r->post('/admin/messages/{id}', [$msg, 'update']);
 $r->post('/admin/messages/{id}/notes', [$msg, 'addNote']);

@@ -1,5 +1,5 @@
 <?php
-/** @var string $title @var string $content @var ?array $user @var array $flash @var string $active @var int $newCount @var bool $unpublished */
+/** @var string $title @var string $content @var ?array $user @var array $flash @var string $active @var bool $ownHeader @var int $newCount @var bool $unpublished */
 use App\Core\Csrf;
 use App\Http\Admin\UserController;
 
@@ -137,7 +137,7 @@ $v = static fn (string $f): string => $f . '?v=' . substr((string) @filemtime(__
       </nav>
     </div>
     <main id="main" tabindex="-1">
-      <?php if ($active !== 'dashboard'): // the dashboard has its own header ?><h1 class="page-title"><?= e($title) ?></h1><?php endif; ?>
+      <?php if (empty($ownHeader)): // the dashboard, the inbox and the divisions draw their own header ?><h1 class="page-title"><?= e($title) ?></h1><?php endif; ?>
       <?php foreach ($flash as $f): ?>
         <p class="flash flash--<?= e($f['type']) ?>" role="<?= $f['type'] === 'error' ? 'alert' : 'status' ?>"><?= e($f['text']) ?></p>
       <?php endforeach; ?>

@@ -5,8 +5,10 @@ namespace App\Http\Admin;
 
 use App\Core\App;
 use App\Core\Auth;
+use App\Core\Csrf;
 use App\Core\Request;
 use App\Core\Validator;
+use App\Repository\DashboardRepository;
 use App\Repository\MessageRepository;
 use App\Repository\UserRepository;
 use App\Service\CsvExporter;
@@ -31,15 +33,19 @@ final class MessageController extends Controller
             'from' => Request::query('from'),
             'to' => Request::query('to'),
             'q' => mb_substr(trim(Request::query('q')), 0, 100),
+            'sort' => in_array(Request::query('sort'), MessageRepository::SORTS, true) ? Request::query('sort') : '',
         ];
     }
 
     public function index(): never
     {
-        $this->requireLogin();
+        $user = $this->requireLogin();
+        $repo = $this->repo();
         $filters = $this->filters();
         $page = max(1, (int) Request::query('page', '1'));
-        $result = $this->repo()->search($filters, $page);
+        $result = $repo->search($filters, $page);
+        // ?open=12: that message in the preview panel beside the list
+        $open = (int) Request::query('open');
         $this->page('messages/index', 'ກ່ອງຂໍ້ຄວາມ', [
             'filters' => $filters,
             'rows' => $result['rows'],
@@ -47,7 +53,36 @@ final class MessageController extends Controller
             'page' => $page,
             'pages' => max(1, (int) ceil($result['total'] / MessageRepository::PER_PAGE)),
             'query' => array_filter($filters, static fn ($v) => $v !== ''),
+            'counts' => $repo->countByStatus(),
+            'subjects' => $repo->countBySubject(),
+            'stats' => $repo->inboxStats((int) $user['id']),
+            'mailErrors' => $repo->countMailErrors(),
+            'oldestNew' => (new DashboardRepository(App::db()))->oldestNew(),
+            'open' => $open > 0 ? $repo->find($open) : null,
+            'openNotes' => $open > 0 ? count($repo->notes($open)) : 0,
         ]);
+    }
+
+    /** Status for the ticked messages (ids[]) from the inbox list or preview; back to the list it came from. */
+    public function bulk(): never
+    {
+        $this->requireLogin();
+        $back = Request::post('back');
+        $back = preg_match('#^/admin/messages(\?[^\s]*)?$#', $back) ? $back : '/admin/messages';
+        if (!Csrf::valid(Request::post('_csrf'))) {
+            $this->back($back, 'error', 'ໝົດເວລາຂອງຟອມ. ກະລຸນາລອງໃໝ່.');
+        }
+        $status = Request::post('status');
+        $ids = Request::postIds('ids');
+        if (!in_array($status, MessageRepository::STATUSES, true) || $ids === []) {
+            $this->back($back, 'error', 'ກະລຸນາເລືອກຂໍ້ຄວາມກ່ອນ.');
+        }
+        // taking a message on makes you its handler, unless someone already is
+        $done = $this->repo()->setStatus($ids, $status, $status === 'in_progress' ? Auth::id() : null);
+        foreach ($done as $id) {
+            $this->activity('update', 'messages', $id, ['status' => $status]);
+        }
+        $this->back($back, 'ok', 'ປ່ຽນສະຖານະ ' . count($done) . ' ຂໍ້ຄວາມເປັນ “' . self::STATUS_NAMES[$status] . '” ແລ້ວ.');
     }
 
     public function show(int $id): never

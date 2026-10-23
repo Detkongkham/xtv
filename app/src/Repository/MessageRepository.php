@@ -10,6 +10,8 @@ final class MessageRepository
     public const STATUSES = ['new', 'in_progress', 'done', 'spam'];
     public const SUBJECTS = ['general', 'sales', 'service', 'other'];
     public const PER_PAGE = 25;
+    /** list order: new messages first, newest first, oldest first */
+    public const SORTS = ['priority', 'newest', 'oldest'];
 
     public function __construct(private Db $db)
     {
@@ -35,7 +37,7 @@ final class MessageRepository
     }
 
     /**
-     * @param array{status?:string,subject?:string,from?:string,to?:string,q?:string} $f
+     * @param array{status?:string,subject?:string,from?:string,to?:string,q?:string,sort?:string} $f
      * @return array{rows: array, total: int}
      */
     public function search(array $f, int $page = 1, ?int $perPage = self::PER_PAGE): array
@@ -45,7 +47,11 @@ final class MessageRepository
         $sql = "SELECT m.id, m.name, m.org, m.phone, m.email, m.subject, m.body, m.lang, m.status, m.mail_error, m.created_at,
                        u.name AS assigned_name
                 FROM messages m LEFT JOIN users u ON u.id = m.assigned_to {$where}
-                ORDER BY m.created_at DESC, m.id DESC";
+                ORDER BY " . match ($f['sort'] ?? '') {
+                    'newest' => 'm.created_at DESC, m.id DESC',
+                    'oldest' => 'm.created_at, m.id',
+                    default => "FIELD(m.status, 'new', 'in_progress', 'done', 'spam'), m.created_at DESC, m.id DESC",
+                };
         if ($perPage !== null) {
             $sql .= ' LIMIT :lim OFFSET :off';
             $params['lim'] = $perPage;
@@ -79,9 +85,9 @@ final class MessageRepository
         }
         $q = trim($f['q'] ?? '');
         if ($q !== '') {
-            $w[] = '(m.name LIKE :q1 OR m.email LIKE :q2 OR m.phone LIKE :q3 OR m.org LIKE :q4)';
+            $w[] = '(m.name LIKE :q1 OR m.email LIKE :q2 OR m.phone LIKE :q3 OR m.org LIKE :q4 OR m.body LIKE :q5)';
             $like = '%' . addcslashes($q, '%_\\') . '%';
-            $p += ['q1' => $like, 'q2' => $like, 'q3' => $like, 'q4' => $like];
+            $p += ['q1' => $like, 'q2' => $like, 'q3' => $like, 'q4' => $like, 'q5' => $like];
         }
         return [$w === [] ? '' : 'WHERE ' . implode(' AND ', $w), $p];
     }
@@ -98,6 +104,48 @@ final class MessageRepository
             $out[$r['status']] = (int) $r['n'];
         }
         return $out;
+    }
+
+    /** @return array<string, int> messages per subject, spam left out */
+    public function countBySubject(): array
+    {
+        $out = array_fill_keys(self::SUBJECTS, 0);
+        foreach ($this->db->all("SELECT subject, COUNT(*) AS n FROM messages WHERE status <> 'spam' GROUP BY subject") as $r) {
+            $out[$r['subject']] = (int) $r['n'];
+        }
+        return $out;
+    }
+
+    /** @return array{today:int, done7:int, mine:int} received since midnight, closed in 7 days, open and assigned to $userId */
+    public function inboxStats(?int $userId): array
+    {
+        $r = $this->db->one(
+            "SELECT SUM(status <> 'spam' AND created_at >= CURDATE()) AS today,
+                    SUM(status = 'done' AND updated_at >= NOW() - INTERVAL 7 DAY) AS done7,
+                    SUM(status = 'in_progress' AND assigned_to = :u) AS mine
+             FROM messages",
+            ['u' => $userId ?? 0]
+        ) ?? [];
+        return ['today' => (int) ($r['today'] ?? 0), 'done7' => (int) ($r['done7'] ?? 0), 'mine' => (int) ($r['mine'] ?? 0)];
+    }
+
+    /**
+     * Same status for several messages; $assignTo fills in the handler only where nobody is assigned yet.
+     * @param int[] $ids
+     * @return int[] ids that exist
+     */
+    public function setStatus(array $ids, string $status, ?int $assignTo = null): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        $found = array_map('intval', array_column($this->db->all("SELECT id FROM messages WHERE id IN ({$in})", $ids), 'id'));
+        if ($found !== []) {
+            $in = implode(',', array_fill(0, count($found), '?'));
+            $this->db->run("UPDATE messages SET status = ?, assigned_to = COALESCE(assigned_to, ?) WHERE id IN ({$in})", [$status, $assignTo, ...$found]);
+        }
+        return $found;
     }
 
     public function countSince(string $interval): int

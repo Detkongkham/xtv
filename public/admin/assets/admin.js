@@ -352,3 +352,62 @@
     location.reload();
   }, 60000);
 })();
+
+(function () {
+  // inbox: "/" to search, sort on change, tick-all and bulk buttons, preview beside the list on wide screens.
+  // Without JS: Enter searches, the bulk buttons are always shown and a row opens the full message page.
+  var box = document.querySelector('.ibx');
+  if (!box) return;
+  var search = box.querySelector('[data-slash-focus]');
+  document.addEventListener('keydown', function (e) {
+    var a = document.activeElement;
+    if (e.key === '/' && search && !(a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) && !e.metaKey && !e.ctrlKey) { e.preventDefault(); search.focus(); }
+  });
+  box.querySelectorAll('[data-autosubmit]').forEach(function (s) { s.addEventListener('change', function () { s.form.submit(); }); });
+  box.querySelectorAll('[data-reload]').forEach(function (a) { a.addEventListener('click', function () { a.classList.add('is-spinning'); }); });
+
+  var all = box.querySelector('[data-check-all]'), acts = box.querySelector('[data-bulk-acts]'), info = box.querySelector('[data-bulk-info]');
+  var ticks = box.querySelectorAll('input[name="ids[]"][form="ibx-bulk"]');
+  if (all && acts && info && ticks.length) {
+    var infoHtml = info.innerHTML;
+    var sync = function () {
+      var n = Array.prototype.filter.call(ticks, function (t) { return t.checked; }).length;
+      all.checked = n === ticks.length;
+      all.indeterminate = n > 0 && n < ticks.length;
+      acts.hidden = n === 0;
+      if (n) info.textContent = 'ເລືອກ ' + n + ' ຂໍ້ຄວາມ'; else info.innerHTML = infoHtml;
+    };
+    all.hidden = false;
+    all.addEventListener('change', function () { ticks.forEach(function (t) { t.checked = all.checked; }); sync(); });
+    ticks.forEach(function (t) { t.addEventListener('change', sync); });
+    sync();
+  }
+
+  var panel = box.querySelector('[data-preview-panel]');
+  if (!panel || !window.fetch || !window.DOMParser) return;
+  var wide = window.matchMedia('(min-width: 1280px)');
+  var show = function (url, row) {
+    panel.setAttribute('aria-busy', 'true');
+    fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); }).then(function (html) {
+      var next = new DOMParser().parseFromString(html, 'text/html').querySelector('[data-preview-panel]');
+      if (!next) { window.location.href = url; return; }
+      panel.innerHTML = next.innerHTML;
+      panel.removeAttribute('aria-busy');
+      box.querySelectorAll('.ibx-row').forEach(function (li) {
+        var on = li === row;
+        li.classList.toggle('is-open', on);
+        var a = li.querySelector('[data-preview]');
+        if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+      history.replaceState(null, '', url);
+      box.querySelectorAll('input[name="back"]').forEach(function (i) { i.value = url; });
+    }).catch(function () { window.location.href = url; });
+  };
+  box.addEventListener('click', function (e) {
+    if (!wide.matches || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    var a = e.target.closest('[data-preview], [data-preview-close]');
+    if (!a) return;
+    e.preventDefault();
+    show(a.hasAttribute('data-preview') ? a.getAttribute('data-preview') : a.getAttribute('href'), a.hasAttribute('data-preview') ? a.closest('.ibx-row') : null);
+  });
+})();
