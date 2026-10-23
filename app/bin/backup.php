@@ -1,90 +1,52 @@
 <?php
-// Database backup (cron 03:30 on the server, phase S). Keeps the newest 14 files.
-//   php bin/backup.php                                  dump to storage/backups/db-YYYYMMDD-HHMMSS.sql.gz
-//   php bin/backup.php --restore=FILE --db=NAME         load a backup into database NAME (must already exist)
-// The password goes to mysqldump/mysql through a temporary option file, never on the command line.
+// Backups (docs/plan/07-deployment.md §8; cron in phase S: db every day 03:30, full every Sunday 04:00).
+//   php bin/backup.php [db]                                       database → storage/backups/db-YYYYMMDD-HHMMSS.sql.gz (keeps 14)
+//   php bin/backup.php full                                       database + public/uploads/ → full-YYYYMMDD-HHMMSS.tar.gz (keeps 4)
+//   php bin/backup.php --list                                     backups on disk
+//   php bin/backup.php --restore=FILE --db=NAME                   load a .sql.gz into database NAME (must already exist)
+//   php bin/backup.php --restore=FULL.tar.gz --db=NAME --uploads=DIR   also unpack the files into DIR (empty or new)
+// The live database or uploads folder is only overwritten with --force.
 declare(strict_types=1);
 
 use App\Core\App;
+use App\Service\Backup;
 
 require __DIR__ . '/../bootstrap.php';
 
-const KEEP = 14;
-
-$c = App::config('db');
-$opts = getopt('', ['restore:', 'db:']);
+$opts = getopt('', ['restore:', 'db:', 'uploads:', 'force', 'list'], $rest);
+$mode = $argv[$rest] ?? 'db';
 $dir = App::path('storage/backups');
+$backup = new Backup(App::config('db'), $dir, dirname(App::path()) . '/public/uploads',
+    ['mysqldump' => (string) App::config('mysqldump', ''), 'mysql' => (string) App::config('mysql', ''), 'tar' => (string) App::config('tar', '')]);
 
-$cnf = tempnam(sys_get_temp_dir(), 'xtkdb');
-chmod($cnf, 0600);
-file_put_contents($cnf, sprintf("[client]\nhost=%s\nport=%d\nuser=%s\npassword=\"%s\"\n", $c['host'], (int) ($c['port'] ?? 3306), $c['user'], addcslashes((string) $c['pass'], '"\\')));
-register_shutdown_function(static fn () => @unlink($cnf));
-
-if (isset($opts['restore'])) {
-    $file = (string) $opts['restore'];
-    $target = (string) ($opts['db'] ?? '');
-    if (!is_file($file)) {
-        fail("Backup not found: {$file}");
+try {
+    if (isset($opts['list'])) {
+        foreach (['db-*.sql.gz', 'full-*.tar.gz', 'pre-migrate/db-*.sql.gz'] as $pattern) {
+            foreach (glob($dir . '/' . $pattern) ?: [] as $f) {
+                printf("%-44s %8.1f KB  %s\n", substr($f, strlen($dir) + 1), filesize($f) / 1024, date('Y-m-d H:i', (int) filemtime($f)));
+            }
+        }
+        exit(0);
     }
-    if (!preg_match('/^[A-Za-z0-9_]+$/', $target)) {
-        fail('Give the target database with --db=NAME (letters, digits, _).');
+    if (isset($opts['restore'])) {
+        $r = $backup->restore((string) $opts['restore'], (string) ($opts['db'] ?? ''), $opts['uploads'] ?? null, isset($opts['force']));
+        echo "Restored {$opts['restore']} into database {$r['db']}" . ($r['uploads'] !== null ? " and {$r['uploads']}/" : '') . "\n";
+        if ($r['manifest'] !== null) {
+            echo "Backup of {$r['manifest']['created']}: {$r['manifest']['upload_files']} upload files\n";
+        }
+        App::logger()->info('backup: restored', ['file' => basename((string) $opts['restore']), 'db' => $r['db'], 'uploads' => $r['uploads']]);
+        exit(0);
     }
-    if ($target === $c['name'] && !in_array('--force', $argv, true)) {
-        fail("Refusing to overwrite the live database {$target}. Add --force if you really mean it.");
-    }
-    $mysql = tool('mysql');
-    $cmd = sprintf('set -o pipefail; gzip -dc %s | %s --defaults-extra-file=%s %s', escapeshellarg($file), escapeshellarg($mysql), escapeshellarg($cnf), escapeshellarg($target));
-    run('bash -c ' . escapeshellarg($cmd));
-    echo "Restored {$file} into {$target}\n";
-    exit(0);
+    $file = match ($mode) {
+        'db' => $backup->db(),
+        'full' => $backup->full(),
+        default => throw new InvalidArgumentException("Unknown mode {$mode}: use db or full."),
+    };
+} catch (Throwable $e) {
+    App::logger()->error('backup: ' . strtok($e->getMessage(), "\n"));
+    fwrite(STDERR, $e->getMessage() . "\n");
+    exit(1);
 }
-
-$file = $dir . '/db-' . date('Ymd-His') . '.sql.gz';
-$dump = tool('mysqldump');
-$cmd = sprintf(
-    'set -o pipefail; %s --defaults-extra-file=%s --single-transaction --quick --no-tablespaces --default-character-set=utf8mb4 --set-gtid-purged=OFF %s | gzip -9 > %s',
-    escapeshellarg($dump), escapeshellarg($cnf), escapeshellarg($c['name']), escapeshellarg($file)
-);
-run('bash -c ' . escapeshellarg($cmd), $file);
-chmod($file, 0600);
-
-$all = glob($dir . '/db-*.sql.gz') ?: [];
-rsort($all, SORT_STRING);
-foreach (array_slice($all, KEEP) as $old) {
-    unlink($old);
-}
-
 $size = round(filesize($file) / 1024, 1);
 App::logger()->info('backup', ['file' => basename($file), 'kb' => $size]);
 echo "Backup written: {$file} ({$size} KB)\n";
-
-function tool(string $name): string
-{
-    $configured = (string) App::config($name, '');
-    if ($configured !== '') {
-        return $configured;
-    }
-    $found = trim((string) shell_exec('command -v ' . escapeshellarg($name)));
-    if ($found === '') {
-        fail("{$name} not found. Set '{$name}' in config.php.");
-    }
-    return $found;
-}
-
-function run(string $cmd, ?string $cleanupOnFail = null): void
-{
-    exec($cmd . ' 2>&1', $out, $code);
-    if ($code !== 0) {
-        if ($cleanupOnFail !== null) {
-            @unlink($cleanupOnFail);
-        }
-        fail("Command failed ({$code}):\n" . implode("\n", $out));
-    }
-}
-
-function fail(string $msg): never
-{
-    App::logger()->error('backup: ' . strtok($msg, "\n"));
-    fwrite(STDERR, $msg . "\n");
-    exit(1);
-}

@@ -2,6 +2,7 @@
 /**
  * @var array $counts @var int $week @var int $month @var array $latest @var int $mailErrors @var int $withoutSupplier
  * @var array $publish see Controller::publishState() @var array $history @var array $gaps see TranslationGapRepository::all()
+ * @var ?array $backups see Backup::latest(), admins only
  */
 use App\Core\Csrf;
 use App\Http\Admin\MessageController as MC;
@@ -90,6 +91,23 @@ $gapRow = static function (array $g): string {
 <section class="card">
   <div class="card__head"><h2>ຜູ້ສະໜອງ</h2><a href="/admin/products?show=nosupplier">ເບິ່ງລາຍການ →</a></div>
   <p>ສິນຄ້າທີ່ຍັງບໍ່ລະບຸຜູ້ສະໜອງ: <b><?= e($withoutSupplier) ?></b>. ເປີດຜູ້ສະໜອງ ແລ້ວກົດ "ເພີ່ມສິນຄ້າ" ຈົນຄົບ.</p>
+</section>
+<?php endif; ?>
+
+<?php if ($backups !== null):
+    // daily database backup older than 2 days, or none: cron is not running (set up in phase S)
+    $late = $backups['db'] === null || $backups['db']['time'] < time() - 2 * 86400;
+    $when = static fn (?array $b): string => $b === null ? 'ຍັງບໍ່ມີ' : date('d/m/Y H:i', $b['time'])
+        . ($b['bytes'] < 1048576 ? ' (' . round($b['bytes'] / 1024) . ' KB)' : ' (' . round($b['bytes'] / 1048576, 1) . ' MB)');
+?>
+<section class="card" aria-labelledby="backup-h">
+  <div class="card__head"><h2 id="backup-h">Backup</h2></div>
+  <?php if ($late): ?><p class="warn" role="status">ບໍ່ມີ backup ຖານຂໍ້ມູນໃນ 2 ມື້ຫຼ້າສຸດ. ກວດ cron ຂອງ <code>bin/backup.php</code>.</p><?php endif; ?>
+  <ul class="list">
+    <li><span>ຖານຂໍ້ມູນ (ທຸກມື້)</span><span><?= e($when($backups['db'])) ?></span></li>
+    <li><span>ເຕັມ: ຖານຂໍ້ມູນ + ໄຟລ໌ອັບໂຫຼດ (ທຸກອາທິດ)</span><span><?= e($when($backups['full'])) ?></span></li>
+  </ul>
+  <p class="hint">ເກັບໃນ server ທີ່ <code>app/storage/backups/</code>. ສຳເນົາ backup ເຕັມອອກນອກ server ທຸກອາທິດ.</p>
 </section>
 <?php endif; ?>
 

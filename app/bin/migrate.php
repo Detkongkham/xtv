@@ -2,9 +2,12 @@
 // Apply database/migrations/*.sql that are not yet in schema_migrations, in file-name order.
 //   php bin/migrate.php            apply pending migrations
 //   php bin/migrate.php --status   list applied / pending
+// Before changing a database that already has migrations, the database is backed up to
+// storage/backups/pre-migrate/ (keeps 5). --no-backup skips that (not on the server).
 declare(strict_types=1);
 
 use App\Core\App;
+use App\Service\Backup;
 
 require __DIR__ . '/../bootstrap.php';
 
@@ -24,6 +27,13 @@ if (in_array('--status', $argv, true)) {
         echo (isset($applied[$v]) ? '[x] ' : '[ ] ') . $v . "\n";
     }
     exit(0);
+}
+
+$pending = array_filter($files, static fn (string $f): bool => !isset($applied[basename($f, '.sql')]));
+if ($pending !== [] && $applied !== [] && !in_array('--no-backup', $argv, true)) {
+    $backup = new Backup(App::config('db'), App::path('storage/backups'), dirname(App::path()) . '/public/uploads',
+        ['mysqldump' => (string) App::config('mysqldump', '')]);
+    echo 'Backup before migrating: ' . $backup->preMigrate() . "\n";
 }
 
 $count = 0;

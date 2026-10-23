@@ -8,12 +8,13 @@ use App\Repository\MessageRepository;
 use App\Repository\PublishLogRepository;
 use App\Repository\SupplierRepository;
 use App\Repository\TranslationGapRepository;
+use App\Service\Backup;
 
 final class DashboardController extends Controller
 {
     public function index(): never
     {
-        $this->requireLogin();
+        $user = $this->requireLogin();
         $messages = new MessageRepository(App::db());
         $this->page('dashboard/index', 'ໜ້າຫຼັກ', [
             'counts' => $messages->countByStatus(),
@@ -25,6 +26,8 @@ final class DashboardController extends Controller
             'publish' => self::publishState(),
             'history' => (new PublishLogRepository(App::db()))->latest(3),
             'gaps' => (new TranslationGapRepository(App::db()))->all(),
+            // admins only: when the last backups were made (files in storage/backups/)
+            'backups' => $user['role'] === 'admin' ? Backup::latest(App::path('storage/backups')) : null,
         ]);
     }
 }

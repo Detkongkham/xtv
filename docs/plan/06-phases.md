@@ -121,13 +121,13 @@
 | P3-D4 | SEO | `seo_pages`, canonical ແບບ URL ເຕັມ, `hreflang x-default`, JSON-LD (`Organization`, `Product`, `NewsArticle`). ສຳເລັດ (23/10/2026): `/admin/seo` ສຳລັບ editor ແລະ admin ແກ້ຫົວຂໍ້/ຄຳອະທິບາຍຂອງ 11 ໜ້າຄົງທີ່ (ໜ້າຫຼັກ, about, vision, products, solutions, services, news, suppliers, contact, downloads, faq); ຫວ່າງ = ຂໍ້ຄວາມເດີມ (ສະແດງເປັນສີເທົາໃນຟອມ). ທຸກໜ້າມີ canonical + og:url ແບບ URL ເຕັມ (ຍົກເວັ້ນ 404) ແລະ hreflang ແບບ URL ເຕັມ + `x-default` = ພາສາອັງກິດ (ທັງໃນໜ້າ ແລະ sitemap.xml). JSON-LD: `Organization` ໜ້າຫຼັກ, `Product` ໜ້າສິນຄ້າ (`brand` ເມື່ອມີຜູ້ສະໜອງດຽວ), `NewsArticle` ໜ້າຂ່າວ, `Organization` ໜ້າຜູ້ສະໜອງ. ສິນຄ້າບໍ່ມີລາຄາ ຈຶ່ງບໍ່ມີ `offers` |
 | P3-D5 | Preview | `/admin/preview` render ໜ້າດຽວກ່ອນເຜີຍແຜ່. ສຳເລັດ (23/10/2026): `/admin/preview?page=<ໜ້າ>&lang=<ພາສາ>` ສຳລັບຄົນທີ່ເຂົ້າລະບົບ, ຈາກຂໍ້ມູນປັດຈຸບັນ (ລວມທີ່ຍັງບໍ່ເຜີຍແຜ່ ແລະ ຂ່າວສະບັບຮ່າງທີ່ມີເນື້ອຫາ). `noindex` + `X-Robots-Tag` + `no-store`, ບໍ່ມີ Analytics. ລິ້ງລະຫວ່າງໜ້າ ແລະ ປ່ຽນພາສາຢູ່ໃນ preview; ແຖບລຸ່ມບອກວ່າເປັນຕົວຢ່າງ + ລິ້ງເຜີຍແຜ່. ປຸ່ມ "ເບິ່ງຕົວຢ່າງ" (ແທັບໃໝ່) ໃນຟອມສິນຄ້າ, ຂ່າວ, ຂະແໜງ, ຜູ້ສະໜອງ, hero, FAQ, SEO ແລະ ໜ້າເຜີຍແຜ່. ບໍ່ຂຽນໄຟລ໌ໃດ |
 | P3-D6 | ປະຫວັດການແກ້ໄຂ | `activity_log` + ໜ້າເບິ່ງສຳລັບ admin. ສຳເລັດ (23/10/2026): ທຸກການເພີ່ມ/ແກ້ໄຂ/ລຶບ/ສະແດງ-ເຊື່ອງ/ລຽງລຳດັບ/ເຊື່ອມສິນຄ້າ ບັນທຶກອັດຕະໂນມັດຜ່ານ `contentChanged()` (ການກະທຳ ແລະ ລາຍການອ່ານຈາກ URL ຂອງ admin) ພ້ອມຊື່ລາຍການ; ນອກນັ້ນ: ເຂົ້າລະບົບ, ເຜີຍແຜ່, ກັບຄືນຊຸດເກົ່າ, Export CSV, ສະຖານະ/ບັນທຶກຂອງຂໍ້ຄວາມ, ອັບໂຫຼດ/ລຶບສື່, ຜູ້ໃຊ້, ປ່ຽນລະຫັດຜ່ານ, ການຕັ້ງຄ່າ. `/admin/activity` ສະເພາະ admin: ກອງຕາມຜູ້ໃຊ້ ແລະ ປະເພດ, 50 ແຖວຕໍ່ໜ້າ, ລາຍການທີ່ຖືກລຶບສະແດງຊື່ທີ່ log ເກັບໄວ້. `cleanup.php` ລຶບອາຍຸ > 365 ວັນ |
-| P3-D7 | Backup ເຕັມ | DB ທຸກມື້ + `uploads/` ທຸກອາທິດ, ເກັບ 14 ຊຸດ. ສະຄຣິບພ້ອມໃນເຄື່ອງ; cron ແລະ ສຳເນົາອອກນອກ server ຕັ້ງໃນເຟດ S |
+| P3-D7 | Backup ເຕັມ | DB ທຸກມື້ + `uploads/` ທຸກອາທິດ, ເກັບ 14 ຊຸດ. ສະຄຣິບພ້ອມໃນເຄື່ອງ; cron ແລະ ສຳເນົາອອກນອກ server ຕັ້ງໃນເຟດ S. ສຳເລັດ (23/10/2026): `App\Service\Backup`. `backup.php db` (ເກັບ 14), `backup.php full` = DB + `uploads/` + manifest ເປັນ tar.gz (ເກັບ 4 ອາທິດ ຕາມ [07 §8](07-deployment.md)), `--list`, `--restore=… --db=… [--uploads=DIR]` (ບໍ່ທັບ DB ຫຼື uploads ທີ່ໃຊ້ຢູ່ ຖ້າບໍ່ມີ `--force`). `migrate.php` backup DB ໃສ່ `pre-migrate/` (ເກັບ 5) ກ່ອນ migration ໃໝ່. Dashboard ສະແດງ backup ຫຼ້າສຸດໃຫ້ admin ແລະ ເຕືອນເມື່ອບໍ່ມີ backup DB ໃນ 2 ມື້ |
 | P3-D8 | Turnstile (ຖ້າຈຳເປັນ) | ເພີ່ມສະເພາະເມື່ອ spam ຍັງຜ່ານ honeypot + rate limit ຫຼາຍກວ່າ 5 ອັນຕໍ່ອາທິດ |
 
 **ເງື່ອນໄຂຮັບວຽກ**
 - [x] ປ່ຽນເບີໂທໃນ admin → ເຜີຍແຜ່ → ເບີໃໝ່ຂຶ້ນທຸກໜ້າ (header, footer, ປຸ່ມລອຍ, ໜ້າຕິດຕໍ່) (22/10/2026: ເບີໂທ ແລະ ມືຖື ປ່ຽນແລ້ວຂຶ້ນທັງ 276 ໜ້າ. header ບໍ່ມີເບີໂທ; ປຸ່ມລອຍ ແລະ ໄອຄອນໃນ footer ໃຊ້ເບີມືຖື)
 - [ ] Google Rich Results Test ຜ່ານສຳລັບໜ້າສິນຄ້າ ແລະ ໜ້າຂ່າວ
-- [ ] Restore ຈາກ backup ເຕັມ (DB + uploads) ໃສ່ໂຟນເດີທົດສອບໃນເຄື່ອງໄດ້
+- [x] Restore ຈາກ backup ເຕັມ (DB + uploads) ໃສ່ໂຟນເດີທົດສອບໃນເຄື່ອງໄດ້ (23/10/2026: `full-20261023-131135.tar.gz` 3.7 MB → DB `xtk_restore_test` + ໂຟນເດີຊົ່ວຄາວ: ທຸກຕາຕະລາງຈຳນວນແຖວເທົ່າກັນ, `CHECKSUM TABLE` ຂອງ products/news/media ຄືກັນ, 225 ໄຟລ໌ `diff -r` ຄືກັນ)
 
 ---
 

@@ -50,7 +50,9 @@ php -d upload_max_filesize=20M -d post_max_size=64M -S 127.0.0.1:8000 -t public 
 | `php bin/create-admin.php` | add a user (asks for the password, hidden) |
 | `php bin/cleanup.php` | delete old rate limits, login attempts, spam (30 d), logs (30 d) and activity log (365 d) |
 | `php bin/backup.php` | gzip dump to `storage/backups/`, keeps 14 |
-| `php bin/backup.php --restore=FILE --db=NAME` | load a backup into another (existing) database |
+| `php bin/backup.php full` | database + `public/uploads/` in one tar.gz, keeps 4 |
+| `php bin/backup.php --list` | backups on disk (also `pre-migrate/`, made by `migrate.php` before a new migration, keeps 5) |
+| `php bin/backup.php --restore=FILE --db=NAME [--uploads=DIR]` | load a backup into another (existing) database; a full backup also puts its files in DIR (empty or new) |
 | `composer test` | PHPUnit |
 
 `public/<lang>/` comes only from the database through the Publisher. The old Python build (`build/`) was removed in P2-C11;
