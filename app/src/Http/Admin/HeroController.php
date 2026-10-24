@@ -24,7 +24,7 @@ final class HeroController extends Controller
     ];
 
     /** fixed pages => lang key of their name */
-    private const FIXED = ['index' => 'home', 'about' => 'about_profile', 'vision' => 'vision', 'products' => 'products', 'solutions' => 'solutions',
+    private const FIXED = ['index' => 'home', 'about' => 'about_profile', 'vision' => 'vision', 'products' => 'products',
         'services' => 'services', 'news' => 'news', 'contact' => 'contact', 'downloads' => 'downloads', 'faq' => 'faq', 'suppliers' => 'sup_h'];
 
     private function repo(): HeroRepository

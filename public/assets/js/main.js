@@ -63,24 +63,6 @@
     show(0);
   }
 
-  // tabs
-  $$('.tabs').forEach(function (tabs) {
-    var btns = $$('.tabs__btn', tabs), panels = $$('.tabs__panel', tabs);
-    function pick(i) {
-      btns.forEach(function (b, j) { b.setAttribute('aria-selected', j === i); b.tabIndex = j === i ? 0 : -1; });
-      panels.forEach(function (p, j) { p.hidden = j !== i; });
-    }
-    btns.forEach(function (b, i) {
-      b.addEventListener('click', function () { pick(i); });
-      b.addEventListener('keydown', function (e) {
-        var d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
-        if (!d) return;
-        e.preventDefault();
-        var n = (i + d + btns.length) % btns.length; pick(n); btns[n].focus();
-      });
-    });
-  });
-
   // product group filter
   $$('.filters[data-filter=""]').forEach(function (f) {
     var pills = $$('.pill', f), groups = $$('.pgroup');

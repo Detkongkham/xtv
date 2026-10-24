@@ -30,6 +30,6 @@ $mob = $v->contact('mobile');
   <div class="wrap rv">
     <h2 class="h2"><?= $v->t('srv_hot_h') ?></h2>
     <p><?= $v->t('hotline') ?>: <a href="tel:<?= $v->telHref($mob) ?>" style="color:#fff;font-weight:600;font-size:28px"><?= $v->e($mob) ?></a></p>
-    <div class="btns"><a class="btn btn--white" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->ic('chat') ?><?= $v->t('whatsapp') ?></a><a class="btn btn--light" href="contact.html"><?= $v->t('contact') ?></a></div>
+    <div class="btns"><a class="btn btn--white" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->brand('whatsapp') ?><?= $v->t('whatsapp') ?></a><a class="btn btn--light" href="contact.html"><?= $v->t('contact') ?></a></div>
   </div>
 </section>

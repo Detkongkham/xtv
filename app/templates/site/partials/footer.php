@@ -1,6 +1,6 @@
 <?php
 /**
- * Footer and the floating WhatsApp / call / back-to-top buttons.
+ * Footer and the floating WhatsApp / Facebook / call / email / back-to-top buttons (email is the main channel).
  * @var App\Publish\SiteView $v
  */
 $products = [];
@@ -13,9 +13,9 @@ if ($v->data->suppliers()) {
 $cols = [
     [$v->t('company'), [['about', $v->t('about_profile')], ['vision', $v->t('vision')], ['news', $v->t('news')]]],
     [$v->t('products'), $products],
-    [$v->t('support'), [['services', $v->t('services')], ['solutions', $v->t('solutions')], ['downloads', $v->t('downloads')], ['faq', $v->t('faq')]]],
+    [$v->t('support'), [['services', $v->t('services')], ['downloads', $v->t('downloads')], ['faq', $v->t('faq')]]],
 ];
-[$tel, $mob, $mail, $wa] = [$v->contact('tel'), $v->contact('mobile'), $v->contact('email'), $v->whatsapp()];
+[$tel, $mob, $mail, $wa, $fb] = [$v->contact('tel'), $v->contact('mobile'), $v->contact('email'), $v->whatsapp(), $v->contact('facebook')];
 ?>
 <footer class="ftr">
   <div class="wrap">
@@ -39,9 +39,10 @@ $cols = [
           <li><?= $v->ic('mail') ?><a href="mailto:<?= $v->e($mail) ?>"><?= $v->e($mail) ?></a></li>
         </ul>
         <div class="social">
-          <a href="<?= $wa ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><?= $v->ic('chat') ?></a>
-          <a href="tel:<?= $v->telHref($mob) ?>" aria-label="<?= $v->t('call_us') ?>"><?= $v->ic('phone') ?></a>
-          <a href="mailto:<?= $v->e($mail) ?>" aria-label="<?= $v->t('email') ?>"><?= $v->ic('mail') ?></a>
+          <a href="mailto:<?= $v->e($mail) ?>" aria-label="<?= $v->t('email') ?>"><?= $v->brand('gmail') ?></a>
+          <a href="<?= $wa ?>" target="_blank" rel="noopener" aria-label="WhatsApp"><?= $v->brand('whatsapp') ?></a>
+          <?php if ($fb !== ''): ?><a href="<?= $v->e($fb) ?>" target="_blank" rel="noopener" aria-label="Facebook"><?= $v->brand('facebook') ?></a><?php endif ?>
+          <a href="tel:<?= $v->telHref($mob) ?>" aria-label="<?= $v->t('call_us') ?>"><?= $v->brand('phone') ?></a>
         </div>
       </div>
     </div>
@@ -56,7 +57,9 @@ $cols = [
   </div>
 </footer>
 <div class="float">
-  <a class="wa" href="<?= $wa ?>" target="_blank" rel="noopener" aria-label="<?= $v->t('whatsapp') ?>"><?= $v->ic('chat') ?></a>
-  <a href="tel:<?= $v->telHref($mob) ?>" aria-label="<?= $v->t('call_us') ?>"><?= $v->ic('phone') ?></a>
+  <a class="gm" href="mailto:<?= $v->e($mail) ?>" aria-label="<?= $v->t('email_us') ?>"><?= $v->brand('gmail') ?></a>
+  <a class="wa" href="<?= $wa ?>" target="_blank" rel="noopener" aria-label="<?= $v->t('whatsapp') ?>"><?= $v->brand('whatsapp') ?></a>
+  <?php if ($fb !== ''): ?><a class="fb" href="<?= $v->e($fb) ?>" target="_blank" rel="noopener" aria-label="<?= $v->t('facebook') ?>"><?= $v->brand('facebook') ?></a><?php endif ?>
+  <a href="tel:<?= $v->telHref($mob) ?>" aria-label="<?= $v->t('call_us') ?>"><?= $v->brand('phone') ?></a>
   <button class="top" type="button" aria-label="<?= $v->t('back_top') ?>"><?= $v->ic('up') ?></button>
 </div>

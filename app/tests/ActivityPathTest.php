@@ -27,8 +27,8 @@ final class ActivityPathTest extends TestCase
         preg_match_all("#->post\\('(/admin/[^']+)'#", (string) file_get_contents(dirname(__DIR__, 2) . '/public/admin/index.php'), $m);
         foreach ($m[1] as $route) {
             [$action, $entity] = Controller::activityOf(str_replace(['{id}', '{page}'], ['1', 'about'], $route));
-            if (in_array($entity, ['login', 'logout', 'account', 'mode'], true)) {
-                continue; // logged by hand (login, password) or not at all (logout, light/dark choice)
+            if (in_array($entity, ['login', 'logout', 'account', 'mode', 'translate'], true)) {
+                continue; // logged by hand (login, password) or not at all (logout, light/dark choice, translate saves nothing)
             }
             self::assertArrayHasKey($action, ActivityRepository::ACTIONS, $route);
             self::assertArrayHasKey($entity, ActivityRepository::ENTITIES, $route);

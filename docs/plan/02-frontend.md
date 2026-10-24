@@ -23,7 +23,6 @@
 | | ໜ້າສິນຄ້າ 49 ໜ້າ | `product-<slug>.html` | `products`, `product_specs`, `media`, ⭐ `product_suppliers` (ບລັອກ "ສະໜອງໂດຍ") |
 | ⭐ ຜູ້ສະໜອງ | ລວມຜູ້ສະໜອງ | `suppliers.html` | `suppliers`, `product_suppliers` ([08](08-suppliers.md)) |
 | | ໜ້າຜູ້ສະໜອງແຕ່ລະອັນ | `supplier-<slug>.html` | `suppliers`, `products` |
-| ລູກຄ້າ | ໂຊລູຊັນ | `solutions.html` | ຂໍ້ຄວາມ UI + `product_groups` |
 | | ບໍລິການຫຼັງການຂາຍ | `services.html` | ຂໍ້ຄວາມ UI + `settings` |
 | | ຕິດຕໍ່ພົວພັນ | `contact.html` | `settings` + ຟອມຕິດຕໍ່ |
 | ຊ່ວຍເຫຼືອ | ດາວໂຫຼດ | `downloads.html` | `downloads`, `media` |

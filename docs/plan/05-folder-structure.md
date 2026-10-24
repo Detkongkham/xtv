@@ -97,7 +97,7 @@ xtv/
 │   │   │       ├── home.php, about.php, vision.php
 │   │   │       ├── products.php, division.php, product.php
 │   │   │       ├── suppliers.php, supplier.php      ← ⭐ (08-suppliers.md)
-│   │   │       ├── solutions.php, services.php
+│   │   │       ├── services.php
 │   │   │       ├── news.php, news-article.php
 │   │   │       ├── contact.php, downloads.php, faq.php
 │   │   │       ├── legal.php, sitemap.php, 404.php, redirect.php

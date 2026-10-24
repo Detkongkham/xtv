@@ -68,28 +68,6 @@ $stats = [
   </div>
 </div></section>
 
-<section class="sec"><div class="wrap">
-  <?= $v->partial('section-head', ['h' => $v->t('solutions'), 'p' => $v->t('home_sol_p')]) ?>
-  <div class="tabs rv">
-    <div class="tabs__list" role="tablist" aria-label="<?= $v->t('solutions') ?>">
-      <?php foreach (SiteView::SOLUTIONS as $i => [$k]): ?>
-      <button class="tabs__btn" type="button" role="tab" id="tab-<?= $k ?>" aria-controls="panel-<?= $k ?>" aria-selected="<?= $i === 0 ? 'true' : 'false' ?>"<?= $i === 0 ? '' : ' tabindex="-1"' ?>><?= $v->t('sol_' . $k) ?></button>
-      <?php endforeach ?>
-    </div>
-    <div>
-      <?php foreach (SiteView::SOLUTIONS as $i => [$k, $pic, $chips]): ?>
-      <div class="tabs__panel" role="tabpanel" id="panel-<?= $k ?>" aria-labelledby="tab-<?= $k ?>"<?= $i === 0 ? '' : ' hidden' ?>>
-        <?= $v->img($pic) ?>
-        <h3 class="h3"><?= $v->t('sol_' . $k) ?></h3>
-        <p><?= $v->t('sol_' . $k . '_p') ?></p>
-        <?= $v->partial('chips', ['codes' => $chips]) ?>
-        <div class="btns"><?= $v->arrowLink($v->t('learn_more'), 'solutions.html#' . $k) ?></div>
-      </div>
-      <?php endforeach ?>
-    </div>
-  </div>
-</div></section>
-
 <section class="sec sec--tint"><div class="wrap">
   <div class="split">
     <div class="rv">

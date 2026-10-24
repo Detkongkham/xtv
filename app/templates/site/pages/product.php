@@ -55,7 +55,7 @@ $crumb = $v->partial('breadcrumb', ['trail' => [[$v->t('products'), 'products.ht
     <?php endif ?>
     <p><?= $v->t('pd_p') ?></p>
     <?= $v->partial('supplied-by', ['p' => $p]) ?>
-    <div class="btns"><a class="btn" href="contact.html"><?= $v->t('contact') ?></a><a class="btn btn--ghost" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->ic('chat') ?><?= $v->t('whatsapp') ?></a></div>
+    <div class="btns"><a class="btn" href="contact.html"><?= $v->t('contact') ?></a><a class="btn btn--ghost" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->brand('whatsapp') ?><?= $v->t('whatsapp') ?></a></div>
     <h2 class="h4" style="margin-bottom:12px"><?= $v->t('pd_spec') ?></h2>
     <table class="spec"><tbody>
       <?php foreach ($spec as [$th, $td]): ?>

@@ -96,6 +96,78 @@
 })();
 
 (function () {
+  // [data-translate] (partials/translate-button.php, only with a Gemini key): send the Lao fields of the closest
+  // [data-translate-box] to /admin/translate and put the answer into the English, Thai and Chinese fields that are
+  // still empty. A field pairs with its translations by name: summary_lo → summary_en, specs[3][label_lo] → specs[3][label_en].
+  // Nothing is saved; filled fields are marked until edited, and the person checks and saves.
+  if (!window.fetch || !window.FormData) return;
+  var targets = ['en', 'th', 'zh'], lo = /_lo(\]?)$/;
+  document.querySelectorAll('[data-translate]').forEach(function (bar) {
+    var box = bar.closest('[data-translate-box]'), form = bar.closest('form');
+    var btn = bar.querySelector('button'), status = bar.querySelector('[data-translate-status]');
+    var csrf = form && form.querySelector('input[name="_csrf"]');
+    if (!box || !csrf) return;
+    bar.hidden = false;
+    var pair = function (el, l) { return box.querySelector('[name="' + el.name.replace(lo, '_' + l + '$1') + '"]'); };
+    var say = function (text, bad) { status.textContent = text; status.classList.toggle('is-error', !!bad); };
+    var mark = function (el) {
+      el.classList.add('is-machine');
+      el.addEventListener('input', function () { el.classList.remove('is-machine'); }, { once: true });
+    };
+    btn.addEventListener('click', function () {
+      // Lao fields with text and at least one empty translation; sent as f0, f1… so any field name works
+      var sources = [], fields = {};
+      box.querySelectorAll('input[name], textarea[name]').forEach(function (el) {
+        if (!lo.test(el.name) || el.value.trim() === '') return;
+        if (!targets.some(function (l) { var t = pair(el, l); return t && t.value.trim() === ''; })) return;
+        fields['f' + sources.length] = { text: el.value, html: el.hasAttribute('data-editor') };
+        sources.push(el);
+      });
+      if (!sources.length) { say('ບໍ່ມີຫຍັງໃຫ້ແປ: ໃສ່ພາສາລາວກ່ອນ, ຫຼື ທຸກພາສາມີຂໍ້ຄວາມແລ້ວ (ລຶບຊ່ອງທີ່ຢາກແປໃໝ່ອອກກ່ອນ).', true); return; }
+      var body = new FormData();
+      body.append('_csrf', csrf.value);
+      body.append('fields', JSON.stringify(fields));
+      btn.disabled = true;
+      bar.setAttribute('aria-busy', 'true');
+      say('ກຳລັງແປ ' + sources.length + ' ຊ່ອງ…');
+      fetch('/admin/translate', { method: 'POST', body: body, credentials: 'same-origin' })
+        .then(function (r) { return r.json().catch(function () { return { error: 'ບໍລິການແປຂັດຂ້ອງ (' + r.status + ').' }; }); })
+        .then(function (data) {
+          if (!data.result) { say(data.error || 'ແປບໍ່ສຳເລັດ.', true); return; }
+          var filled = 0;
+          sources.forEach(function (el, i) {
+            targets.forEach(function (l) {
+              var t = pair(el, l), text = (data.result[l] || {})['f' + i];
+              if (!t || !text || t.value.trim() !== '') return;
+              t.value = text;
+              var rte = t.previousElementSibling && t.previousElementSibling.querySelector('.rte__area');
+              if (rte) { rte.innerHTML = text; mark(rte); } else mark(t);
+              if (t.maxLength > 0 && text.length > t.maxLength) t.setAttribute('aria-invalid', 'true');
+              var details = t.closest('details');
+              if (details) details.open = true;
+              var panel = t.closest('.lang-panel');
+              if (panel) {
+                if (!panel.querySelector('.lang-machine')) {
+                  var note = document.createElement('p');
+                  note.className = 'lang-machine';
+                  note.textContent = 'ຄຳແປຈາກເຄື່ອງ: ກະລຸນາອ່ານກວດ ແລະ ແກ້ໃຫ້ຖືກກ່ອນບັນທຶກ.';
+                  panel.insertBefore(note, panel.querySelector('.field'));
+                }
+                var tab = document.getElementById(panel.getAttribute('aria-labelledby'));
+                if (tab && tab.dataset.state !== 'error') tab.dataset.state = 'machine';
+              }
+              filled++;
+            });
+          });
+          say(filled ? 'ແປແລ້ວ ' + filled + ' ຊ່ອງ (ຂອບສີຟ້າ). ອ່ານກວດ ແລະ ແກ້ໃຫ້ຖືກ, ແລ້ວກົດບັນທຶກ.' : 'ບໍ່ມີຊ່ອງຫວ່າງໃຫ້ໃສ່ຄຳແປ.');
+        })
+        .catch(function () { say('ຕິດຕໍ່ server ບໍ່ໄດ້. ກວດອິນເຕີເນັດແລ້ວລອງໃໝ່.', true); })
+        .then(function () { btn.disabled = false; bar.removeAttribute('aria-busy'); });
+    });
+  });
+})();
+
+(function () {
   // product specs: add, move and remove rows. Without JS there is always one empty row to fill in.
   var box = document.querySelector('[data-spec-rows]');
   var tpl = document.querySelector('[data-spec-template]');

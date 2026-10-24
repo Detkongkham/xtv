@@ -9,6 +9,6 @@
   <div class="wrap rv">
     <h2 class="h2"><?= $h ?? $v->t('cta_h') ?></h2>
     <p><?= $v->t('cta_p') ?></p>
-    <div class="btns"><a class="btn btn--white" href="contact.html"><?= $v->t('contact') ?></a><a class="btn btn--light" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->ic('chat') ?><?= $v->t('whatsapp') ?></a></div>
+    <div class="btns"><a class="btn btn--white" href="contact.html"><?= $v->t('contact') ?></a><a class="btn btn--light" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->brand('whatsapp') ?><?= $v->t('whatsapp') ?></a></div>
   </div>
 </section>

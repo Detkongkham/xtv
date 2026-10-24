@@ -26,6 +26,7 @@ use App\Http\Admin\SeoController;
 use App\Http\Admin\SettingController;
 use App\Http\Admin\SupplierController;
 use App\Http\Admin\ThemeController;
+use App\Http\Admin\TranslateController;
 use App\Http\Admin\UserController;
 
 require __DIR__ . '/../../app/bootstrap.php';
@@ -59,6 +60,7 @@ $leaders = new LeaderController();
 $seo = new SeoController();
 $preview = new PreviewController();
 $activity = new ActivityController();
+$translate = new TranslateController();
 
 $r = new Router();
 $r->get('/admin', [$dash, 'index']);
@@ -165,6 +167,7 @@ $r->post('/admin/theme', [$theme, 'update']);
 $r->post('/admin/theme/delete', [$theme, 'deleteSaved']);
 $r->get('/admin/theme.css', [$theme, 'css']);
 $r->post('/admin/mode', [$theme, 'mode']);
+$r->post('/admin/translate', [$translate, 'translate']);
 $r->get('/admin/users', [$users, 'index']);
 $r->get('/admin/users/new', [$users, 'create']);
 $r->post('/admin/users/new', [$users, 'store']);

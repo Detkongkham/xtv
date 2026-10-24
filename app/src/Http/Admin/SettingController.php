@@ -62,7 +62,7 @@ final class SettingController extends Controller
     {
         $r = $this->repo();
         return [
-            'contact' => (array) $r->get('contact', []) + ['tel' => '', 'mobile' => '', 'fax' => '', 'email' => '', 'whatsapp' => ''],
+            'contact' => (array) $r->get('contact', []) + ['tel' => '', 'mobile' => '', 'fax' => '', 'email' => '', 'whatsapp' => '', 'facebook' => ''],
             'address' => (array) $r->get('address', []) + ['lo' => '', 'en' => '', 'th' => '', 'zh' => ''],
             'map' => (array) $r->get('map', []) + ['query' => ''],
             'stats' => (array) $r->get('stats', []) + ['founded' => '', 'experience' => ''],
@@ -98,6 +98,12 @@ final class SettingController extends Controller
         $contact['whatsapp'] = (string) preg_replace('/\D+/', '', $text('whatsapp'));
         if (!preg_match('/^[1-9]\d{7,14}$/', $contact['whatsapp'])) {
             $errors['whatsapp'] = 'ໃສ່ເບີພ້ອມລະຫັດປະເທດ ເຊັ່ນ 8562055892929.';
+        }
+        // optional: the Facebook page link for the floating button and the footer
+        $contact['facebook'] = $text('facebook');
+        if ($contact['facebook'] !== '' && (mb_strlen($contact['facebook']) > 300
+            || !preg_match('~^https://([a-z0-9-]+\.)?(facebook\.com|fb\.com|fb\.me|m\.me)/\S+$~i', $contact['facebook']))) {
+            $errors['facebook'] = 'ໃສ່ລິ້ງເພຈ Facebook ເຕັມ ເຊັ່ນ https://www.facebook.com/xtklaos, ຫຼື ປ່ອຍຫວ່າງ.';
         }
 
         [$addr, $addrErrors] = $this->translatedInput(self::ADDRESS);

@@ -85,7 +85,7 @@
 - **Hero** (`/admin/hero`): ສູງສຸດ 5 slide. ແຕ່ລະອັນມີຮູບ ຫຼື ວິດີໂອ, ຫົວຂໍ້ນ້ອຍ, ຫົວຂໍ້, ຂໍ້ຄວາມ, ປ້າຍ ແລະ ລິ້ງປຸ່ມ (4 ພາສາ), ລຳດັບ.
 
 ### 2.11 🟡 SEO ໜ້າຄົງທີ່
-- Title/description 4 ພາສາ ສຳລັບໜ້າ about, vision, services, solutions, contact, downloads, faq (`seo_pages`).
+- Title/description 4 ພາສາ ສຳລັບໜ້າ about, vision, services, contact, downloads, faq (`seo_pages`).
 
 ### 2.12 🔴 ⭐ ຜູ້ສະໜອງ (`/admin/suppliers`)
 ລູກຄ້າເນັ້ນເປັນພິເສດ. ລາຍລະອຽດເຕັມຢູ່ [08-suppliers.md §5](08-suppliers.md).

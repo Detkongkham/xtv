@@ -18,7 +18,7 @@ final class SeoController extends Controller
 {
     public const PAGES = [
         'index' => 'ໜ້າຫຼັກ', 'about' => 'ຂໍ້ມູນບໍລິສັດ', 'vision' => 'ວິໄສທັດ ແລະ ພາລະກິດ', 'products' => 'ຜະລິດຕະພັນ',
-        'solutions' => 'ໂຊລູຊັນ', 'services' => 'ບໍລິການຫຼັງການຂາຍ', 'news' => 'ຂ່າວສານ', 'suppliers' => 'ຜູ້ສະໜອງ',
+        'services' => 'ບໍລິການຫຼັງການຂາຍ', 'news' => 'ຂ່າວສານ', 'suppliers' => 'ຜູ້ສະໜອງ',
         'contact' => 'ຕິດຕໍ່ພົວພັນ', 'downloads' => 'ດາວໂຫຼດເອກະສານ', 'faq' => 'ຄຳຖາມທີ່ພົບເລື້ອຍ',
     ];
 

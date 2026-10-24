@@ -16,7 +16,7 @@
         <div><?= $v->ic('mail') ?><dd><a href="mailto:<?= $v->e($mail) ?>"><?= $v->e($mail) ?></a></dd></div>
       </dl>
     </div>
-    <div class="btns"><a class="btn btn--white btn--sm" href="<?= $v->mapLink() ?>" target="_blank" rel="noopener"><?= $v->t('open_map') ?></a><a class="btn btn--light btn--sm" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->ic('chat') ?>WhatsApp</a></div>
+    <div class="btns"><a class="btn btn--white btn--sm" href="<?= $v->mapLink() ?>" target="_blank" rel="noopener"><?= $v->t('open_map') ?></a><a class="btn btn--light btn--sm" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->brand('whatsapp') ?>WhatsApp</a></div>
   </div>
   <div class="loc__map"><iframe title="<?= $v->t('head_office') ?>" src="<?= $v->mapEmbed() ?>" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
 </div>

@@ -54,7 +54,6 @@ $suppliers = $v->data->suppliers();
           </div></div>
         </li>
         <?php endif ?>
-        <li><a class="nav__link" href="solutions.html"<?= $cur('solutions') ?>><?= $v->t('solutions') ?></a></li>
         <li><a class="nav__link" href="services.html"<?= $cur('services') ?>><?= $v->t('services') ?></a></li>
         <li><a class="nav__link" href="news.html"<?= $cur('news') ?>><?= $v->t('news') ?></a></li>
         <li><a class="nav__link" href="contact.html"<?= $cur('contact') ?>><?= $v->t('contact') ?></a></li>

@@ -29,7 +29,6 @@ use App\Core\Lang;
   <?php if ($v->data->suppliers()): ?>
   <a class="drawer__link" href="suppliers.html"><?= $v->t('sup') ?></a>
   <?php endif ?>
-  <a class="drawer__link" href="solutions.html"><?= $v->t('solutions') ?></a>
   <a class="drawer__link" href="services.html"><?= $v->t('services') ?></a>
   <a class="drawer__link" href="news.html"><?= $v->t('news') ?></a>
   <a class="drawer__link" href="contact.html"><?= $v->t('contact') ?></a>

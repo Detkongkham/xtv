@@ -1,6 +1,7 @@
 <?php
 /** @var array $m @var array $usage */
 use App\Core\Csrf;
+use App\Core\View;
 use App\Http\Admin\MediaController as MC;
 use App\Http\Admin\SupplierController as SC;
 use App\Repository\MediaRepository;
@@ -41,10 +42,11 @@ $size = static fn (int $b): string => $b >= 1048576 ? number_format($b / 1048576
       <?php endif; ?>
     </section>
     <?php if ($m['kind'] === 'image'): ?>
-      <form class="card stack" method="post" action="/admin/media/<?= e($m['id']) ?>">
+      <form class="card stack" data-translate-box method="post" action="/admin/media/<?= e($m['id']) ?>">
         <?= Csrf::field() ?>
         <h2>ຄຳອະທິບາຍຮູບ (alt)</h2>
         <p class="hint">ສຳລັບຄົນທີ່ໃຊ້ໂປຣແກຣມອ່ານໜ້າຈໍ ແລະ Google. ຮູບສິນຄ້າໃຊ້ຊື່ສິນຄ້າແທນເອງ.</p>
+        <?= View::render('admin/partials/translate-button', ['hint' => 'ພິມຄຳອະທິບາຍພາສາລາວ ແລ້ວກົດປຸ່ມ: ຄຳແປຈະໃສ່ສະເພາະຊ່ອງທີ່ຍັງຫວ່າງ.']) ?>
         <?php foreach (MediaRepository::LANGS as $l): ?>
           <div class="field">
             <label for="alt_<?= $l ?>"><?= e(SC::LANG_NAMES[$l]) ?></label>

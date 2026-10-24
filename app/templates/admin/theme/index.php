@@ -9,7 +9,7 @@ use App\Core\Csrf;
 use App\Service\ThemeService as T;
 
 $data = T::clientData() + ['theme' => $theme, 'saved' => $saved, 'history' => $history];
-$pages = ['index' => 'ໜ້າຫຼັກ', 'about' => 'ກ່ຽວກັບ', 'products' => 'ສິນຄ້າ', 'solutions' => 'Solutions', 'suppliers' => 'ຜູ້ສະໜອງ', 'contact' => 'ຕິດຕໍ່', 'faq' => 'FAQ'];
+$pages = ['index' => 'ໜ້າຫຼັກ', 'about' => 'ກ່ຽວກັບ', 'products' => 'ສິນຄ້າ', 'suppliers' => 'ຜູ້ສະໜອງ', 'contact' => 'ຕິດຕໍ່', 'faq' => 'FAQ'];
 $channels = ['r' => ['R', 'ສີແດງ', 255], 'g' => ['G', 'ສີຂຽວ', 255], 'b' => ['B', 'ສີນ້ຳເງິນ', 255], 'a' => ['A', 'ຄວາມທຶບ (%)', 100]];
 
 // lucide icon paths, drawn by $i()

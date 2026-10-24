@@ -48,4 +48,13 @@ return [
     // full path of mysqldump / mysql for bin/backup.php (blank = look in PATH)
     'mysqldump' => '',
     'mysql' => '',
+
+    // "ແປເປັນ 3 ພາສາ" button in the admin forms (Gemini API). Off while the key is blank. Free key, no card:
+    // aistudio.google.com → Get API key. Never click "Set up billing" there (that turns on paid use).
+    // model: gemini-flash-lite-latest has the most free requests a day. keep: words never translated.
+    'translator' => [
+        'key' => '',
+        'model' => 'gemini-flash-lite-latest',
+        'keep' => ['XTK'],
+    ],
 ];

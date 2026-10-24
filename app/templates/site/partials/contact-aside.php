@@ -17,5 +17,5 @@
 <div class="aside-box" style="background:#fff">
   <h3 class="h4"><?= $v->t('hotline') ?></h3>
   <p><?= $v->t('mobile') ?>: <a href="tel:<?= $v->telHref($mob) ?>"><b><?= $v->e($mob) ?></b></a></p>
-  <div class="btns" style="margin-top:16px"><a class="btn btn--sm" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->ic('chat') ?><?= $v->t('whatsapp') ?></a></div>
+  <div class="btns" style="margin-top:16px"><a class="btn btn--sm" href="<?= $v->whatsapp() ?>" target="_blank" rel="noopener"><?= $v->brand('whatsapp') ?><?= $v->t('whatsapp') ?></a></div>
 </div>

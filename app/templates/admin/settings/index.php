@@ -42,6 +42,11 @@ foreach ($s['address'] as $l => $text) {
         <input id="whatsapp" name="whatsapp" inputmode="numeric" required maxlength="20" value="<?= e($s['contact']['whatsapp']) ?>"<?= $inv('whatsapp') ?>><?= $err('whatsapp') ?>
         <span class="hint">ລະຫັດປະເທດ + ເບີ, ບໍ່ມີ 0 ຂ້າງໜ້າ ແລະ ບໍ່ມີຍະຫວ່າງ: 8562055892929.</span>
       </div>
+      <div class="field">
+        <label for="facebook">ລິ້ງເພຈ Facebook</label>
+        <input id="facebook" name="facebook" type="url" maxlength="300" placeholder="https://www.facebook.com/..." value="<?= e($s['contact']['facebook']) ?>"<?= $inv('facebook') ?>><?= $err('facebook') ?>
+        <span class="hint">ຫວ່າງ = ບໍ່ສະແດງປຸ່ມ Facebook.</span>
+      </div>
     </div>
     <div class="card stack">
       <h2>ທີ່ຢູ່ສຳນັກງານໃຫຍ່</h2>

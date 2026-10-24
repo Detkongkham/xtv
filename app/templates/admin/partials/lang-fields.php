@@ -7,13 +7,16 @@
  * @var array $row     current values: <prefix>_<lang>
  * @var array $errors  <prefix>_<lang> => message
  * @var array $placeholders  (optional) <prefix>_<lang> => greyed text shown while the field is empty
+ * The Lao panel has the "ແປເປັນ 3 ພາສາ" button (partials/translate-button.php, only with a Gemini key).
  */
+use App\Core\View;
+
 $langs = ['lo' => 'ລາວ', 'en' => 'ອັງກິດ', 'th' => 'ໄທ', 'zh' => 'ຈີນ'];
 $required = ['lo', 'en'];
 $placeholders ??= [];
 $ph = static fn (string $key): string => isset($placeholders[$key]) ? ' placeholder="' . e($placeholders[$key]) . '"' : '';
 ?>
-<div class="lang-tabs" data-lang-tabs>
+<div class="lang-tabs" data-lang-tabs data-translate-box>
   <?php foreach ($langs as $l => $langName): ?>
     <?php
     $missing = !in_array($l, $required, true) && array_filter($fields, static fn ($f) => trim((string) ($row[$f[0] . '_' . $l] ?? '')) === '' && trim((string) ($row[$f[0] . '_en'] ?? '')) !== '') !== [];
@@ -21,6 +24,7 @@ $ph = static fn (string $key): string => isset($placeholders[$key]) ? ' placehol
     ?>
     <section class="lang-panel" data-label="<?= e($langName) ?>" data-state="<?= $hasError ? 'error' : ($missing ? 'missing' : '') ?>">
       <h3 class="lang-panel__title"><?= e($langName) ?><?= in_array($l, $required, true) ? ' <em>*</em>' : ' <small>(ຫວ່າງ = ໃຊ້ພາສາອັງກິດ)</small>' ?></h3>
+      <?php if ($l === 'lo'): ?><?= View::render('admin/partials/translate-button') ?><?php endif; ?>
       <?php foreach ($fields as $f): [$prefix, $label, $type, $max] = $f; $key = $prefix . '_' . $l; $req = in_array($l, $required, true) && empty($f[5]) ?>
         <div class="field">
           <label for="<?= e($key) ?>"><?= e($label) ?><?= $req ? ' <em>*</em>' : '' ?></label>

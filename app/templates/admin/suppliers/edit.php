@@ -154,11 +154,12 @@ $toggle = static fn (string $name, string $title, string $note, bool $on, string
           <span class="gpe-box__note">ໃນກາດຜູ້ສະໜອງຫຼັກ ແລະ ໜ້າລາຍລະອຽດ · ໄທ ແລະ ຈີນ ຫວ່າງ = ໃຊ້ອັງກິດ</span>
         </div>
         <div class="gpe-box__body">
-          <div class="lang-tabs" data-lang-tabs>
+          <div class="lang-tabs" data-lang-tabs data-translate-box>
             <?php foreach (SupplierRepository::LANGS as $l): $key = 'about_' . $l; ?>
               <?php $state = isset($errors[$key]) ? 'error' : (in_array($l, ['th', 'zh'], true) && trim((string) ($s[$key] ?? '')) === '' && trim((string) ($s['about_en'] ?? '')) !== '' ? 'missing' : ''); ?>
               <section class="lang-panel" data-label="<?= e($langs[$l]) ?>" data-state="<?= $state ?>">
                 <h3 class="lang-panel__title"><?= e($langs[$l]) ?></h3>
+                <?php if ($l === 'lo'): ?><?= View::render('admin/partials/translate-button') ?><?php endif; ?>
                 <div class="field">
                   <label for="<?= $key ?>">ຄຳອະທິບາຍ (<?= e($langs[$l]) ?>)</label>
                   <textarea id="<?= $key ?>" name="<?= $key ?>" rows="5" maxlength="3000" lang="<?= $l ?>"<?= $inv($key) ?>><?= e($s[$key] ?? '') ?></textarea><?= $err($key) ?>

@@ -148,6 +148,8 @@ DNS ແລະ MX ບໍ່ປ່ຽນ, ສະນັ້ນອີເມວ `@xtkl
 
 **ເປີດ Turnstile (ເມື່ອ spam ຜ່ານເກີນ 5 ອັນ/ອາທິດ):** ສ້າງ widget ໃນ Cloudflare dashboard (Turnstile, ໂໝດ Managed, hostname `xtklaos.com`), ໃສ່ site key ແລະ secret ໃນ `config.php` → `turnstile`, ແລ້ວກົດເຜີຍແຜ່. ປິດ: ລຶບ key ອອກ ແລ້ວເຜີຍແຜ່. ບໍ່ຕ້ອງໃຊ້ Cloudflare ເປັນ DNS ຫຼື CDN.
 
+**ເປີດການແປອັດຕະໂນມັດ (P3-D9):** ສ້າງ API key ຟຣີທີ່ aistudio.google.com (Get API key, **ຫ້າມກົດ Set up billing**), ໃສ່ໃນ `config.php` → `translator.key`. ບໍ່ຕ້ອງເຜີຍແຜ່: ປຸ່ມຂຶ້ນໃນ admin ທັນທີ. ໂຄຕາຟຣີຕໍ່ມື້ເລີ່ມໃໝ່ປະມານ 14:00–15:00 ເວລາລາວ. ປິດ: ລຶບ key ອອກ.
+
 ## 7. Cron Jobs (cPanel → Cron Jobs)
 ```
 0  3 * * *  /opt/cpanel/ea-php83/root/usr/bin/php /home/xtklaos/xtk/app/bin/cleanup.php  >/dev/null 2>&1

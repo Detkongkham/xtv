@@ -173,8 +173,9 @@ $stat = static function (string $toneName, string $icon, string $label, string $
           <h2 id="pe-specs">ຂໍ້ມູນຈຳເພາະ <span class="gpe-box__count num"><?= e($n($specCount)) ?></span></h2>
           <button class="gp-div__add" type="button" data-spec-add hidden><?= $i('plus') ?><span>ເພີ່ມແຖວ</span></button>
         </div>
-        <div class="gpe-box__body pe-specs">
+        <div class="gpe-box__body pe-specs" data-translate-box>
           <p class="hint">ແຖວ ປ້າຍ / ຄ່າ ໃນຕາຕະລາງຂອງໜ້າສິນຄ້າ (ຂະແໜງ, ກຸ່ມ ແລະ ຜູ້ສະໜອງ ໃສ່ໃຫ້ເອງ). ບໍ່ມີແຖວ = ສະແດງແຖວທົ່ວໄປ (ລຸ້ນ, ມາດຕະຖານ, ການຮັບປະກັນ, ການຕິດຕັ້ງ). ລາວ ແລະ ອັງກິດ ບັງຄັບ.</p>
+          <?= View::render('admin/partials/translate-button', ['hint' => 'ພິມປ້າຍ ແລະ ຄ່າ ພາສາລາວ ແລ້ວກົດປຸ່ມ: ທຸກແຖວຈະໄດ້ຄຳແປໃນຊ່ອງ ອັງກິດ / ໄທ / ຈີນ ທີ່ຍັງຫວ່າງ.']) ?>
           <?php if (isset($errors['specs'])): ?><p class="field__err" role="alert"><?= e($errors['specs']) ?></p><?php endif; ?>
           <div class="spec-rows" data-spec-rows>
             <?php foreach ($specs as $k => $s): ?><?= $specRow((string) $k, $s) ?><?php endforeach; ?>

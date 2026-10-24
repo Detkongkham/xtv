@@ -6,7 +6,7 @@
 $v->meta('sitemap', $v->t('sitemap'));
 $boxes = [
     [$v->t('company'), [['index', $v->t('home')], ['about', $v->t('about_profile')], ['vision', $v->t('vision')], ['news', $v->t('news')]]],
-    [$v->t('support'), [['solutions', $v->t('solutions')], ['services', $v->t('services')], ['downloads', $v->t('downloads')], ['faq', $v->t('faq')],
+    [$v->t('support'), [['services', $v->t('services')], ['downloads', $v->t('downloads')], ['faq', $v->t('faq')],
         ['contact', $v->t('contact')], ['privacy', $v->t('privacy')], ['terms', $v->t('terms')]]],
 ];
 if ($suppliers = $v->data->suppliers()) {

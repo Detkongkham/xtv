@@ -13,7 +13,7 @@ use App\Service\Slugger;
 
 /**
  * /admin/groups: product groups inside a division. A group's code is its anchor on the division page
- * (#g_imaging) and is used by the Solutions page, so it is set once when the group is created.
+ * (#g_imaging) and is used in links, so it is set once when the group is created.
  */
 final class GroupController extends Controller
 {

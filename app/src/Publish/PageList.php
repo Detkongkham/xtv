@@ -7,7 +7,7 @@ namespace App\Publish;
 final class PageList
 {
     /** fixed page names; a division slug (its page name) may not be one of these or start with a prefix below */
-    public const RESERVED = ['index', 'about', 'vision', 'products', 'solutions', 'services', 'news', 'contact', 'downloads', 'faq',
+    public const RESERVED = ['index', 'about', 'vision', 'products', 'services', 'news', 'contact', 'downloads', 'faq',
         'privacy', 'terms', 'suppliers', 'sitemap', '404'];
     public const RESERVED_PREFIXES = ['product-', 'supplier-', 'news-'];
     /**
@@ -16,7 +16,7 @@ final class PageList
      */
     public const SEO = [
         'index' => ['co_name', 'co_tag'], 'about' => ['about_profile', 'about_lead'], 'vision' => ['vision', 'vision_p'],
-        'products' => ['products', 'prod_lead'], 'solutions' => ['solutions', 'sol_lead'], 'services' => ['services', 'srv_lead'],
+        'products' => ['products', 'prod_lead'], 'services' => ['services', 'srv_lead'],
         'news' => ['news', 'news_lead'], 'suppliers' => ['sup_h', 'sup_lead'], 'contact' => ['contact', 'contact_lead'],
         'downloads' => ['downloads', 'dl_lead'], 'faq' => ['faq', 'faq_lead'],
     ];
@@ -67,7 +67,7 @@ final class PageList
                 $pages[] = ['product', ['p' => $place['product']]];
             }
         }
-        array_push($pages, ['solutions', []], ['services', []], ['news', []]);
+        array_push($pages, ['services', []], ['news', []]);
         foreach ($data->news() as $n) {
             if ($data->hasPage($n)) {
                 $pages[] = ['news-article', ['n' => $n]];

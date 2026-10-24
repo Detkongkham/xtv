@@ -46,8 +46,8 @@ final class SiteBuildTest extends TestCase
 
     public function testEveryPageInEveryLanguage(): void
     {
-        self::assertSame(276, self::$pages);
-        self::assertCount(69, self::$builder->slugs());
+        self::assertSame(272, self::$pages);
+        self::assertCount(68, self::$builder->slugs());
         self::assertContainsOnly('string', self::$builder->slugs());
         foreach (['lo', 'en', 'th', 'zh'] as $lang) {
             self::assertFileExists(self::$out . "/{$lang}/product-ct-scan.html");
@@ -84,7 +84,7 @@ final class SiteBuildTest extends TestCase
     public function testSitemapListsPagesButNot404(): void
     {
         $xml = (string) file_get_contents(self::$out . '/sitemap.xml');
-        self::assertSame(68 * 4, substr_count($xml, '<url>'));
+        self::assertSame(67 * 4, substr_count($xml, '<url>'));
         self::assertStringContainsString('<loc>https://new.example.com/zh/product-ct-scan.html</loc>', $xml);
         self::assertStringNotContainsString('404.html', $xml);
         self::assertStringNotContainsString('product-old.html', $xml);
